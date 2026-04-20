@@ -94,7 +94,7 @@ export async function getProductById(id: string): Promise<ProductWithImages | nu
 
 export async function createProduct(input: {
   name: string; description: string; price: number;
-  tag?: string; status?: Product['status'];
+  tag?: string; brand?: string; status?: Product['status'];
   imageUrl?: string;
 }): Promise<Product> {
   assertSupabase(supabase);
@@ -104,8 +104,9 @@ export async function createProduct(input: {
     description: input.description,
     price: input.price,
     tag: input.tag ?? null,
+    brand: input.brand ?? null,
     status: input.status ?? 'draft',
-    category_id: null, brand: null, short_description: null,
+    category_id: null, short_description: null,
     usage: null, warnings: null, seo_title: null, seo_description: null,
     published_at: input.status === 'published' ? new Date().toISOString() : null,
   };

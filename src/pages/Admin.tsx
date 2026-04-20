@@ -15,11 +15,16 @@ import * as content from '../services/contentService';
 import * as settingsSvc from '../services/settingsService';
 import * as media from '../services/mediaService';
 import { logAction } from '../services/auditLogService';
-import { MediaGallery } from '../components/admin/media/MediaGallery';
 import { MediaUploader } from '../components/admin/media/MediaUploader';
 import { AdvancedImageUrlInput } from '../components/admin/media/AdvancedImageUrlInput';
+import { CompactMediaManager } from '../components/admin/listing-editor/CompactMediaManager';
+import { BookCatalogCard } from '../components/catalog/BookCatalogCard';
+import { ProductCatalogCard } from '../components/catalog/ProductCatalogCard';
+import { CatalogPreviewShell } from '../components/catalog/CatalogPreviewShell';
+import { getBookPublishChecks, getProductPublishChecks, hasBlockingErrors, hasWarnings, type QualityCheck } from '../lib/contentQuality';
 import type { Category, Product, ProductWithImages, Book as BookType, BookWithImages, Note } from '../types/database';
 import type { ProductImage, BookImage, MediaAsset } from '../types/database';
+import type { EditorImage } from '../types/editor';
 import { supabase } from '../lib/supabase';
 
 // ============================================================
@@ -80,7 +85,7 @@ export default function Admin() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="admin-ui min-h-screen flex items-center justify-center bg-white">
         <Loader2 className="w-8 h-8 animate-spin text-[#0A3151]" />
       </div>
     );
@@ -88,7 +93,7 @@ export default function Admin() {
 
   if (!supabase) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="admin-ui min-h-screen flex items-center justify-center bg-white">
         <Card className="p-8 max-w-lg w-full text-center border-neutral-200 shadow-sm">
           <h1 className="text-xl font-bold text-red-600 mb-3">Chưa cấu hình Supabase</h1>
           <p className="text-neutral-600 text-sm leading-6">
@@ -103,7 +108,7 @@ export default function Admin() {
 
   if (!session) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="admin-ui min-h-screen flex items-center justify-center bg-white">
         <Card className="p-8 max-w-md w-full border-neutral-200 shadow-sm">
           <h1 className="text-2xl font-serif font-bold text-[#0A3151] mb-1 text-center">Đăng nhập quản trị</h1>
           <p className="text-neutral-500 mb-6 text-center text-sm">Hệ quản trị chuyên dụng</p>
@@ -137,7 +142,7 @@ export default function Admin() {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="admin-ui min-h-screen flex items-center justify-center bg-white">
         <Card className="p-8 max-w-md w-full text-center border-neutral-200 shadow-sm">
           <h1 className="text-2xl font-serif font-bold text-[#0A3151] mb-2">Không có quyền truy cập</h1>
           <p className="text-neutral-500 mb-8">Tài khoản <strong>{session.user.email}</strong> chưa được cấp quyền quản trị CMS.</p>
@@ -165,7 +170,7 @@ export default function Admin() {
   }, {});
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex">
+    <div className="admin-ui min-h-screen bg-neutral-50 flex">
       <aside className="w-64 bg-[#0A3151] text-white fixed h-full flex flex-col shadow-xl z-20">
         <div className="p-6 border-b border-white/10">
           <div className="flex items-center gap-3">
@@ -300,6 +305,157 @@ function QualityChecklist({ items }: { items: ChecklistItem[] }) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+type StatCard = {
+  label: string;
+  value: number | string;
+  hint: string;
+  tone: string;
+};
+
+type WorkflowStep = {
+  label: string;
+  hint: string;
+  done: boolean;
+  active?: boolean;
+};
+
+const selectControlClass = 'h-10 rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-[#0A3151]/20';
+
+function AdminStatGrid({ items }: { items: StatCard[] }) {
+  return (
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      {items.map(item => (
+        <div key={item.label} className="bg-white border border-neutral-100 rounded-lg p-4 shadow-sm">
+          <div className={`w-9 h-1 rounded-full mb-3 ${item.tone}`} />
+          <p className="text-[10px] uppercase tracking-wider font-bold text-neutral-400">{item.label}</p>
+          <p className="text-2xl font-bold text-neutral-900 mt-1">{item.value}</p>
+          <p className="text-xs text-neutral-500 mt-1">{item.hint}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function WorkflowSteps({ steps }: { steps: WorkflowStep[] }) {
+  return (
+    <div className="space-y-3">
+      {steps.map((step, index) => (
+        <div
+          key={step.label}
+          className={`rounded-lg border p-3 ${step.active ? 'border-[#0A3151] bg-blue-50' : step.done ? 'border-green-200 bg-green-50' : 'border-neutral-200 bg-white'}`}
+        >
+          <div className="flex items-start gap-3">
+            <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${step.done ? 'bg-green-600 text-white' : step.active ? 'bg-[#0A3151] text-white' : 'bg-neutral-100 text-neutral-500'}`}>
+              {step.done ? <CheckCircle2 className="w-3.5 h-3.5" /> : index + 1}
+            </span>
+            <div>
+              <p className="text-sm font-bold text-neutral-800">{step.label}</p>
+              <p className="text-xs text-neutral-500 mt-0.5">{step.hint}</p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function EmptyTableState({ message }: { message: string }) {
+  return (
+    <tr>
+      <td colSpan={5} className="p-10 text-center text-sm text-neutral-400">
+        {message}
+      </td>
+    </tr>
+  );
+}
+
+function createStagingKey() {
+  return typeof crypto !== 'undefined' && 'randomUUID' in crypto
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function productImagesToEditorImages(images: ProductImage[] = []): EditorImage[] {
+  return images
+    .slice()
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map((image, index) => ({
+      id: image.id,
+      source: 'persisted',
+      url: image.url,
+      storagePath: image.storage_path,
+      mediaAssetId: image.media_asset_id,
+      alt: image.alt,
+      isPrimary: image.is_primary,
+      sortOrder: index,
+      width: image.width,
+      height: image.height,
+      mimeType: image.mime_type,
+    }));
+}
+
+function bookImagesToEditorImages(images: BookImage[] = []): EditorImage[] {
+  return images
+    .slice()
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map((image, index) => ({
+      id: image.id,
+      source: 'persisted',
+      url: image.url,
+      storagePath: image.storage_path,
+      mediaAssetId: image.media_asset_id,
+      alt: image.alt,
+      isPrimary: image.is_primary,
+      sortOrder: index,
+      width: image.width,
+      height: image.height,
+      mimeType: image.mime_type,
+    }));
+}
+
+function editorImagesToCatalogImages(images: EditorImage[]) {
+  return images.map(image => ({
+    url: image.url,
+    alt: image.alt,
+    isPrimary: image.isPrimary,
+  }));
+}
+
+function qualityChecksToChecklist(checks: QualityCheck[]): ChecklistItem[] {
+  return checks.map(check => ({
+    label: check.detail ? `${check.label} (${check.detail})` : check.label,
+    ok: check.passed,
+    warn: check.severity === 'warning',
+  }));
+}
+
+function EditorTabs<T extends string>({
+  tabs,
+  active,
+  onChange,
+}: {
+  tabs: Array<{ id: T; label: string }>;
+  active: T;
+  onChange: (id: T) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-1 border-b border-neutral-100 bg-white px-5 pt-4">
+      {tabs.map(tab => (
+        <button
+          key={tab.id}
+          type="button"
+          onClick={() => onChange(tab.id)}
+          className={`border-b-2 px-4 py-3 text-sm font-bold transition-colors ${
+            active === tab.id ? 'border-[#0A3151] text-[#0A3151]' : 'border-transparent text-neutral-500 hover:text-neutral-900'
+          }`}
+        >
+          {tab.label}
+        </button>
+      ))}
     </div>
   );
 }
@@ -613,29 +769,22 @@ function SettingsManager({ session }: { session: Session }) {
 // BooksManager
 // ============================================================
 
-type BookFormData = { title: string; author: string; year: string; image: string; description: string; price: number; isNew: boolean; status: BookType['status'] };
+type BookFormData = { title: string; author: string; year: string; description: string; price: number; isNew: boolean };
+type BookEditorTab = 'basic' | 'description' | 'review';
 
-function getBookChecklist(formData: BookFormData, images: Array<{ alt: string; is_primary: boolean }>): ChecklistItem[] {
-  const hasPrimary = images.some(i => i.is_primary);
-  const allAlt = images.length > 0 && images.every(i => i.alt && i.alt.trim().length > 0);
-  return [
-    { label: 'Tiêu đề sách', ok: !!formData.title },
-    { label: 'Tác giả', ok: !!formData.author },
-    { label: 'Mô tả (tối thiểu 50 ký tự)', ok: formData.description.length >= 50, warn: formData.description.length > 0 && formData.description.length < 50 },
-    { label: 'Đã upload ảnh bìa', ok: images.length > 0, warn: images.length === 0 },
-    { label: 'Ảnh bìa primary được chọn', ok: hasPrimary, warn: !hasPrimary && images.length > 0 },
-    { label: 'Alt text cho tất cả ảnh', ok: allAlt, warn: !allAlt && images.length > 0 },
-  ];
-}
+const emptyBookForm = (): BookFormData => ({ title: '', author: '', year: '', description: '', price: 0, isNew: false });
 
 function BooksManager({ session }: { session: Session }) {
   const [books, setBooks] = useState<BookWithImages[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [justCreated, setJustCreated] = useState(false);
-  const [galleryImages, setGalleryImages] = useState<Array<BookImage>>([]);
-  const [formData, setFormData] = useState<BookFormData>({ title: '', author: '', year: '', image: '', description: '', price: 0, isNew: false, status: 'draft' });
+  const [stagingKey, setStagingKey] = useState(createStagingKey());
+  const [editorImages, setEditorImages] = useState<EditorImage[]>([]);
+  const [formData, setFormData] = useState<BookFormData>(emptyBookForm());
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | BookType['status']>('all');
+  const [sortMode, setSortMode] = useState<'newest' | 'title' | 'price'>('newest');
+  const [activeTab, setActiveTab] = useState<BookEditorTab>('basic');
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
@@ -648,42 +797,69 @@ function BooksManager({ session }: { session: Session }) {
   const resetForm = () => {
     setIsAdding(false);
     setEditingId(null);
-    setJustCreated(false);
-    setGalleryImages([]);
-    setFormData({ title: '', author: '', year: '', image: '', description: '', price: 0, isNew: false, status: 'draft' });
+    setEditorImages([]);
+    setFormData(emptyBookForm());
+    setStagingKey(createStagingKey());
+    setActiveTab('basic');
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCancel = async () => {
+    await media.deleteUnattachedStagedAssets(stagingKey).catch(() => undefined);
+    resetForm();
+  };
+
+  const saveBook = async (status: BookType['status']) => {
+    const publishChecks = getBookPublishChecks({ ...formData, images: editorImages });
+    if (!formData.title.trim()) {
+      alert('Nhập tên sách trước khi lưu.');
+      setActiveTab('basic');
+      return;
+    }
+    if (status === 'published') {
+      if (hasBlockingErrors(publishChecks)) {
+        alert('Chưa đủ điều kiện đăng lên web. Vui lòng kiểm tra checklist.');
+        setActiveTab('review');
+        return;
+      }
+      if (hasWarnings(publishChecks) && !window.confirm('Một số khuyến nghị chất lượng chưa đạt. Bạn vẫn muốn đăng lên web?')) return;
+    }
+
     setSaving(true);
     try {
       if (!editingId) {
         const book = await content.createBook({
           title: formData.title, author: formData.author, year: formData.year,
           description: formData.description, price: formData.price,
-          isNew: formData.isNew, status: 'draft', imageUrl: formData.image || undefined,
+          isNew: formData.isNew, status,
         });
+        const attached = await media.attachBookEditorImages(book.id, editorImages);
         setEditingId(book.id);
-        setJustCreated(true);
+        setEditorImages(bookImagesToEditorImages(attached));
+        setStagingKey(createStagingKey());
         await load();
       } else {
         await content.updateBook(editingId, {
           title: formData.title, author: formData.author, year: formData.year,
           description: formData.description, price: formData.price,
-          is_new: formData.isNew, status: formData.status, imageUrl: formData.image || undefined,
+          is_new: formData.isNew, status,
         });
-        resetForm();
+        const attached = await media.attachBookEditorImages(editingId, editorImages);
+        setEditorImages(bookImagesToEditorImages(attached));
         await load();
       }
+      if (status === 'published') resetForm();
+      else alert('Đã lưu bản nháp.');
     } catch (e) { alert(e instanceof Error ? e.message : 'Lỗi khi lưu'); }
     setSaving(false);
   };
 
   const handleEdit = (book: BookWithImages) => {
-    setFormData({ title: book.title, author: book.author ?? '', year: book.year ?? '', image: '', description: book.description ?? '', price: book.price ?? 0, isNew: book.is_new, status: book.status });
+    setFormData({ title: book.title, author: book.author ?? '', year: book.year ?? '', description: book.description ?? '', price: book.price ?? 0, isNew: book.is_new });
+    setEditorImages(bookImagesToEditorImages(book.book_images ?? []));
     setEditingId(book.id);
+    setStagingKey(createStagingKey());
     setIsAdding(true);
-    setJustCreated(false);
+    setActiveTab('basic');
   };
 
   const handleDelete = async (id: string) => {
@@ -692,87 +868,173 @@ function BooksManager({ session }: { session: Session }) {
     await load();
   };
 
-  const filtered = books.filter(b =>
-    b.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (b.author ?? '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const search = searchTerm.trim().toLowerCase();
+  const bookChecks = getBookPublishChecks({ ...formData, images: editorImages });
+  const bookStats: StatCard[] = [
+    { label: 'Tổng sách', value: books.length, hint: 'Tất cả bản ghi', tone: 'bg-[#0A3151]' },
+    { label: 'Đã xuất bản', value: books.filter(b => b.status === 'published').length, hint: 'Đang hiển thị ngoài web', tone: 'bg-green-500' },
+    { label: 'Bản nháp', value: books.filter(b => b.status === 'draft').length, hint: 'Cần hoàn thiện', tone: 'bg-amber-500' },
+    { label: 'Thiếu ảnh', value: books.filter(b => (b.book_images?.length ?? 0) === 0).length, hint: 'Nên bổ sung bìa', tone: 'bg-red-400' },
+  ];
+  const workflowSteps: WorkflowStep[] = [
+    { label: 'Thông tin', hint: 'Tên sách, tác giả, năm, giá', done: !!formData.title && !!formData.author && !!formData.year && formData.price > 0, active: isAdding && !editingId },
+    { label: 'Hình ảnh', hint: 'Upload bìa và chọn ảnh chính', done: editorImages.length > 0 && editorImages.some(i => i.isPrimary), active: activeTab === 'basic' },
+    { label: 'Xuất bản', hint: 'Kiểm tra chất lượng rồi đăng', done: !hasBlockingErrors(bookChecks), active: activeTab === 'review' },
+  ];
+  const filtered = books
+    .filter(b => {
+      const matchesSearch = !search ||
+        b.title.toLowerCase().includes(search) ||
+        (b.author ?? '').toLowerCase().includes(search) ||
+        (b.description ?? '').toLowerCase().includes(search);
+      const matchesStatus = statusFilter === 'all' || b.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => {
+      if (sortMode === 'title') return a.title.localeCompare(b.title, 'vi');
+      if (sortMode === 'price') return (b.price ?? 0) - (a.price ?? 0);
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
         <div>
           <h2 className="text-xl font-bold text-neutral-800">Thư viện Sách</h2>
-          <p className="text-xs text-neutral-400 mt-1">Quản lý kho sách sức khỏe và y khoa</p>
+          <p className="text-xs text-neutral-400 mt-1">Quản lý sách theo dòng nhập liệu: tạo nháp, bổ sung bìa, kiểm tra và xuất bản.</p>
         </div>
         <Button onClick={() => { resetForm(); setIsAdding(true); }} className="bg-[#0A3151] hover:bg-[#0D426E] text-white">
           <Plus className="w-4 h-4 mr-2" /> Thêm sách mới
         </Button>
       </div>
 
+      <AdminStatGrid items={bookStats} />
+
       {isAdding && (
-        <Card className="p-6 border-none shadow-md mb-8">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex justify-between items-center mb-4 border-b pb-4">
+        <Card className="border-none shadow-md overflow-hidden">
+          <form onSubmit={e => e.preventDefault()}>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border-b border-neutral-100 bg-neutral-50 p-5">
               <div>
-                <h3 className="font-bold text-lg">{editingId && !justCreated ? 'Sửa thông tin sách' : editingId ? 'Bước 2: Upload ảnh bìa' : 'Bước 1: Thông tin cơ bản'}</h3>
-                {justCreated && <p className="text-xs text-green-600 mt-0.5">Bản nháp đã tạo. Hãy upload ảnh bìa bên dưới.</p>}
+                <p className="text-[10px] uppercase tracking-wider font-bold text-neutral-400">Dòng nhập liệu sách</p>
+                <h3 className="font-bold text-lg text-neutral-900">{editingId ? 'Chỉnh sửa sách' : 'Tạo sách mới'}</h3>
+                <p className="text-xs text-neutral-500 mt-0.5">Upload ảnh ngay trong form, sau đó chọn Lưu nháp hoặc Đăng lên web.</p>
               </div>
-              <Button type="button" variant="ghost" size="sm" onClick={resetForm}>✕</Button>
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" variant="outline" onClick={handleCancel}>Hủy</Button>
+                <Button type="button" variant="outline" disabled={saving} onClick={() => saveBook('draft')}>
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                  Lưu nháp
+                </Button>
+                <Button type="button" disabled={saving} onClick={() => saveBook('published')} className="bg-[#0A3151] text-white">
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+                  {editingId ? 'Cập nhật bài đăng' : 'Đăng lên web'}
+                </Button>
+              </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div><label className="label-xs">Tên sách</label><Input required value={formData.title} onChange={e => setFormData(p => ({ ...p, title: e.target.value }))} /></div>
-              <div><label className="label-xs">Tác giả</label><Input required value={formData.author} onChange={e => setFormData(p => ({ ...p, author: e.target.value }))} /></div>
-              <div><label className="label-xs">Năm xuất bản</label><Input required value={formData.year} onChange={e => setFormData(p => ({ ...p, year: e.target.value }))} /></div>
-              <div><label className="label-xs">Giá (VNĐ)</label><Input required type="number" value={formData.price} onChange={e => setFormData(p => ({ ...p, price: Number(e.target.value) }))} /></div>
-              {editingId && (
-                <div><label className="label-xs">Trạng thái</label>
-                  <select value={formData.status} onChange={e => setFormData(p => ({ ...p, status: e.target.value as BookType['status'] }))}
-                    className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm">
-                    <option value="draft">Bản nháp</option>
-                    <option value="published">Xuất bản</option>
-                    <option value="archived">Lưu trữ</option>
-                  </select>
+
+            <EditorTabs<BookEditorTab>
+              tabs={[
+                { id: 'basic', label: 'Thông tin cơ bản' },
+                { id: 'description', label: 'Mô tả' },
+                { id: 'review', label: 'SEO & kiểm duyệt' },
+              ]}
+              active={activeTab}
+              onChange={setActiveTab}
+            />
+
+            <div className="grid lg:grid-cols-[230px_1fr_320px]">
+              <aside className="border-b lg:border-b-0 lg:border-r border-neutral-100 bg-white p-5">
+                <WorkflowSteps steps={workflowSteps} />
+                <div className="mt-4 rounded-lg bg-blue-50 p-3 text-xs leading-5 text-blue-900">
+                  Ảnh có thể tải lên trước khi lưu. Hệ thống tự gắn ảnh khi bạn lưu nháp hoặc đăng.
                 </div>
-              )}
-              <div className="col-span-2"><label className="label-xs">Mô tả</label><Textarea required value={formData.description} onChange={e => setFormData(p => ({ ...p, description: e.target.value }))} /></div>
-              <div className="col-span-2 flex items-center gap-2">
-                <input type="checkbox" id="book-isNew" checked={formData.isNew} onChange={e => setFormData(p => ({ ...p, isNew: e.target.checked }))} />
-                <label htmlFor="book-isNew" className="text-sm">Đánh dấu là sách mới</label>
+              </aside>
+
+              <div className="p-5 space-y-6">
+                {activeTab === 'basic' && <div className="space-y-5">
+                  <CompactMediaManager
+                    label="Ảnh bìa sách"
+                    entityType="book"
+                    stagingKey={stagingKey}
+                    images={editorImages}
+                    onChange={setEditorImages}
+                    session={session}
+                    maxImages={5}
+                    aspectHint="3:4"
+                  />
+                  <h4 className="text-sm font-bold text-neutral-900 mb-3">1. Thông tin hiển thị</h4>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div><label className="label-xs">Tên sách</label><Input required value={formData.title} onChange={e => setFormData(p => ({ ...p, title: e.target.value }))} placeholder="Ví dụ: Y học thường thức..." /></div>
+                    <div><label className="label-xs">Tác giả</label><Input required value={formData.author} onChange={e => setFormData(p => ({ ...p, author: e.target.value }))} placeholder="Bác sĩ Wynn Tran" /></div>
+                    <div><label className="label-xs">Năm xuất bản</label><Input required value={formData.year} onChange={e => setFormData(p => ({ ...p, year: e.target.value }))} placeholder="2026" /></div>
+                    <div><label className="label-xs">Giá (VNĐ)</label><Input required type="number" min={0} value={formData.price} onChange={e => setFormData(p => ({ ...p, price: Number(e.target.value) }))} /></div>
+                    <label className="flex items-center gap-2 rounded-md border border-neutral-200 px-3 py-2 text-sm text-neutral-700">
+                      <input type="checkbox" checked={formData.isNew} onChange={e => setFormData(p => ({ ...p, isNew: e.target.checked }))} />
+                      Đánh dấu là sách mới
+                    </label>
+                  </div>
+                </div>}
+
+                {activeTab === 'description' && (
+                  <div>
+                    <h4 className="text-sm font-bold text-neutral-900 mb-3">2. Mô tả sách</h4>
+                    <Textarea required className="min-h-64" value={formData.description} onChange={e => setFormData(p => ({ ...p, description: e.target.value }))} placeholder="Tóm tắt lợi ích, đối tượng độc giả và nội dung chính của sách." />
+                    <p className="mt-2 text-xs text-neutral-400">{formData.description.length}/3000 ký tự</p>
+                  </div>
+                )}
+
+                {activeTab === 'review' && (
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-bold text-neutral-900">3. Kiểm duyệt trước khi đăng</h4>
+                    <QualityChecklist items={qualityChecksToChecklist(bookChecks)} />
+                    <div className="rounded-lg bg-neutral-50 p-4 text-sm leading-6 text-neutral-600">
+                      Bấm <strong>Đăng lên web</strong> khi checklist lỗi đỏ đã đạt. Các cảnh báo màu vàng là khuyến nghị chất lượng.
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
 
-            {editingId && (
-              <>
-                <MediaGallery
-                  entityId={editingId}
-                  entityType="book"
-                  maxImages={5}
-                  aspectHint="3:4"
-                  session={session}
-                  onChanged={imgs => setGalleryImages(imgs as BookImage[])}
-                />
-                <QualityChecklist items={getBookChecklist(formData, galleryImages)} />
-                <AdvancedImageUrlInput
-                  value={formData.image}
-                  onChange={url => setFormData(p => ({ ...p, image: url }))}
-                />
-              </>
-            )}
-
-            <div className="flex gap-2 justify-end pt-4 border-t">
-              <Button type="button" variant="outline" onClick={resetForm}>Hủy</Button>
-              <Button type="submit" disabled={saving} className="bg-[#0A3151] px-8 text-white">
-                {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                {editingId ? 'Cập nhật' : 'Tạo bản nháp →'}
-              </Button>
+              <aside className="border-t lg:border-t-0 lg:border-l border-neutral-100 bg-neutral-50 p-5 space-y-4">
+                <CatalogPreviewShell>
+                  <BookCatalogCard
+                    preview
+                    book={{
+                      title: formData.title,
+                      author: formData.author,
+                      year: formData.year,
+                      price: formData.price,
+                      isNew: formData.isNew,
+                      description: formData.description,
+                      images: editorImagesToCatalogImages(editorImages),
+                    }}
+                  />
+                </CatalogPreviewShell>
+                <QualityChecklist items={qualityChecksToChecklist(bookChecks)} />
+              </aside>
             </div>
           </form>
         </Card>
       )}
 
-      <div className="flex items-center gap-4 mb-4 bg-white p-3 rounded-lg shadow-sm border border-neutral-100">
-        <Search className="w-4 h-4 text-neutral-400 ml-2" />
-        <Input className="border-none shadow-none focus-visible:ring-0 text-sm p-0 h-auto" placeholder="Tìm kiếm sách..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+      <div className="bg-white p-3 rounded-lg shadow-sm border border-neutral-100">
+        <div className="grid lg:grid-cols-[1fr_180px_180px] gap-3">
+          <div className="flex items-center gap-3 rounded-md border border-neutral-200 px-3">
+            <Search className="w-4 h-4 text-neutral-400" />
+            <Input className="border-none shadow-none focus-visible:ring-0 text-sm p-0 h-10" placeholder="Tìm theo tên sách, tác giả, mô tả..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+          </div>
+          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value as 'all' | BookType['status'])} className={`${selectControlClass} w-full`}>
+            <option value="all">Tất cả trạng thái</option>
+            <option value="draft">Bản nháp</option>
+            <option value="published">Đã xuất bản</option>
+            <option value="archived">Lưu trữ</option>
+          </select>
+          <select value={sortMode} onChange={e => setSortMode(e.target.value as 'newest' | 'title' | 'price')} className={`${selectControlClass} w-full`}>
+            <option value="newest">Mới cập nhật</option>
+            <option value="title">Tên A-Z</option>
+            <option value="price">Giá cao trước</option>
+          </select>
+        </div>
+        <p className="mt-2 text-xs text-neutral-400">Đang hiển thị {filtered.length}/{books.length} đầu sách.</p>
       </div>
 
       <Card className="border-none shadow-sm overflow-hidden">
@@ -788,6 +1050,7 @@ function BooksManager({ session }: { session: Session }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 bg-white">
+              {filtered.length === 0 && <EmptyTableState message="Không có sách phù hợp với bộ lọc hiện tại." />}
               {filtered.map(book => {
                 const primary = book.book_images?.find(i => i.is_primary);
                 return (
@@ -821,29 +1084,22 @@ function BooksManager({ session }: { session: Session }) {
 // ProductsManager
 // ============================================================
 
-type ProductFormData = { name: string; price: number; image: string; description: string; tag: string; status: Product['status'] };
+type ProductFormData = { name: string; price: number; description: string; tag: string; brand: string };
+type ProductEditorTab = 'basic' | 'description' | 'review';
 
-function getProductChecklist(formData: ProductFormData, images: Array<{ alt: string; is_primary: boolean }>): ChecklistItem[] {
-  const hasPrimary = images.some(i => i.is_primary);
-  const allAlt = images.length > 0 && images.every(i => i.alt && i.alt.trim().length > 0);
-  return [
-    { label: 'Tên sản phẩm', ok: !!formData.name },
-    { label: 'Giá sản phẩm', ok: formData.price > 0 },
-    { label: 'Mô tả sản phẩm', ok: formData.description.length >= 30, warn: formData.description.length > 0 && formData.description.length < 30 },
-    { label: 'Nên có ít nhất 3 ảnh', ok: images.length >= 3, warn: images.length > 0 && images.length < 3 },
-    { label: 'Ảnh primary được chọn', ok: hasPrimary, warn: !hasPrimary && images.length > 0 },
-    { label: 'Alt text cho tất cả ảnh', ok: allAlt, warn: !allAlt && images.length > 0 },
-  ];
-}
+const emptyProductForm = (): ProductFormData => ({ name: '', price: 0, description: '', tag: '', brand: '' });
 
 function ProductsManager({ session }: { session: Session }) {
   const [products, setProducts] = useState<ProductWithImages[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [justCreated, setJustCreated] = useState(false);
-  const [galleryImages, setGalleryImages] = useState<Array<ProductImage>>([]);
-  const [formData, setFormData] = useState<ProductFormData>({ name: '', price: 0, image: '', description: '', tag: '', status: 'draft' });
+  const [stagingKey, setStagingKey] = useState(createStagingKey());
+  const [editorImages, setEditorImages] = useState<EditorImage[]>([]);
+  const [formData, setFormData] = useState<ProductFormData>(emptyProductForm());
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | Product['status']>('all');
+  const [sortMode, setSortMode] = useState<'newest' | 'name' | 'price'>('newest');
+  const [activeTab, setActiveTab] = useState<ProductEditorTab>('basic');
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => { if (supabase) setProducts(await content.getAllProducts()); }, []);
@@ -852,117 +1108,232 @@ function ProductsManager({ session }: { session: Session }) {
   const resetForm = () => {
     setIsAdding(false);
     setEditingId(null);
-    setJustCreated(false);
-    setGalleryImages([]);
-    setFormData({ name: '', price: 0, image: '', description: '', tag: '', status: 'draft' });
+    setEditorImages([]);
+    setFormData(emptyProductForm());
+    setStagingKey(createStagingKey());
+    setActiveTab('basic');
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCancel = async () => {
+    await media.deleteUnattachedStagedAssets(stagingKey).catch(() => undefined);
+    resetForm();
+  };
+
+  const saveProduct = async (status: Product['status']) => {
+    const publishChecks = getProductPublishChecks({ ...formData, images: editorImages });
+    if (!formData.name.trim()) {
+      alert('Nhập tên sản phẩm trước khi lưu.');
+      setActiveTab('basic');
+      return;
+    }
+    if (status === 'published') {
+      if (hasBlockingErrors(publishChecks)) {
+        alert('Chưa đủ điều kiện đăng lên web. Vui lòng kiểm tra checklist.');
+        setActiveTab('review');
+        return;
+      }
+      if (hasWarnings(publishChecks) && !window.confirm('Một số khuyến nghị chất lượng hoặc cảnh báo y tế chưa đạt. Bạn vẫn muốn đăng lên web?')) return;
+    }
+
     setSaving(true);
     try {
       if (!editingId) {
         const product = await content.createProduct({
           name: formData.name, description: formData.description, price: formData.price,
-          tag: formData.tag || undefined, status: 'draft', imageUrl: formData.image || undefined,
+          tag: formData.tag || undefined, brand: formData.brand || undefined, status,
         });
+        const attached = await media.attachProductEditorImages(product.id, editorImages);
         setEditingId(product.id);
-        setJustCreated(true);
+        setEditorImages(productImagesToEditorImages(attached));
+        setStagingKey(createStagingKey());
         await load();
       } else {
         await content.updateProduct(editingId, {
           name: formData.name, price: formData.price, description: formData.description,
-          tag: formData.tag, status: formData.status, imageUrl: formData.image || undefined,
+          tag: formData.tag, brand: formData.brand || null, status,
         });
-        resetForm();
+        const attached = await media.attachProductEditorImages(editingId, editorImages);
+        setEditorImages(productImagesToEditorImages(attached));
         await load();
       }
+      if (status === 'published') resetForm();
+      else alert('Đã lưu bản nháp.');
     } catch (e) { alert(e instanceof Error ? e.message : 'Lỗi'); }
     setSaving(false);
   };
 
   const handleEdit = (p: ProductWithImages) => {
-    setFormData({ name: p.name, price: p.price ?? 0, image: '', description: p.description ?? '', tag: p.tag ?? '', status: p.status });
+    setFormData({ name: p.name, price: p.price ?? 0, description: p.description ?? '', tag: p.tag ?? '', brand: p.brand ?? '' });
+    setEditorImages(productImagesToEditorImages(p.product_images ?? []));
     setEditingId(p.id);
+    setStagingKey(createStagingKey());
     setIsAdding(true);
-    setJustCreated(false);
+    setActiveTab('basic');
   };
 
-  const filtered = products.filter(p =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const search = searchTerm.trim().toLowerCase();
+  const productChecks = getProductPublishChecks({ ...formData, images: editorImages });
+  const productStats: StatCard[] = [
+    { label: 'Tổng sản phẩm', value: products.length, hint: 'Tất cả bản ghi', tone: 'bg-[#0A3151]' },
+    { label: 'Đã xuất bản', value: products.filter(p => p.status === 'published').length, hint: 'Đang hiển thị ngoài web', tone: 'bg-green-500' },
+    { label: 'Bản nháp', value: products.filter(p => p.status === 'draft').length, hint: 'Cần hoàn thiện', tone: 'bg-amber-500' },
+    { label: 'Thiếu ảnh', value: products.filter(p => (p.product_images?.length ?? 0) === 0).length, hint: 'Nên bổ sung ảnh', tone: 'bg-red-400' },
+  ];
+  const workflowSteps: WorkflowStep[] = [
+    { label: 'Thông tin', hint: 'Tên, giá, tag, mô tả', done: !!formData.name && formData.price > 0 && formData.description.length >= 30, active: isAdding && !editingId },
+    { label: 'Hình ảnh', hint: 'Upload ảnh vuông và chọn ảnh chính', done: editorImages.length > 0 && editorImages.some(i => i.isPrimary), active: activeTab === 'basic' },
+    { label: 'Xuất bản', hint: 'Kiểm tra chất lượng rồi đăng', done: !hasBlockingErrors(productChecks), active: activeTab === 'review' },
+  ];
+  const filtered = products
+    .filter(p => {
+      const matchesSearch = !search ||
+        p.name.toLowerCase().includes(search) ||
+        (p.description ?? '').toLowerCase().includes(search) ||
+        (p.tag ?? '').toLowerCase().includes(search) ||
+        (p.brand ?? '').toLowerCase().includes(search);
+      const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => {
+      if (sortMode === 'name') return a.name.localeCompare(b.name, 'vi');
+      if (sortMode === 'price') return (b.price ?? 0) - (a.price ?? 0);
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
         <div>
           <h2 className="text-xl font-bold text-neutral-800">Danh mục Sản phẩm</h2>
-          <p className="text-xs text-neutral-400 mt-1">Quản lý sản phẩm thực phẩm chức năng và vật tư y tế</p>
+          <p className="text-xs text-neutral-400 mt-1">Quản lý sản phẩm theo dòng nhập liệu: tạo nháp, bổ sung ảnh, kiểm tra và xuất bản.</p>
         </div>
         <Button onClick={() => { resetForm(); setIsAdding(true); }} className="bg-[#0A3151] hover:bg-[#0D426E] text-white">
           <Plus className="w-4 h-4 mr-2" /> Thêm sản phẩm
         </Button>
       </div>
 
+      <AdminStatGrid items={productStats} />
+
       {isAdding && (
-        <Card className="p-6 border-none shadow-md mb-8">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex justify-between items-center mb-4 border-b pb-4">
+        <Card className="border-none shadow-md overflow-hidden">
+          <form onSubmit={e => e.preventDefault()}>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border-b border-neutral-100 bg-neutral-50 p-5">
               <div>
-                <h3 className="font-bold text-lg">{editingId && !justCreated ? 'Sửa sản phẩm' : editingId ? 'Bước 2: Upload ảnh sản phẩm' : 'Bước 1: Thông tin cơ bản'}</h3>
-                {justCreated && <p className="text-xs text-green-600 mt-0.5">Bản nháp đã tạo. Hãy upload ảnh sản phẩm bên dưới.</p>}
+                <p className="text-[10px] uppercase tracking-wider font-bold text-neutral-400">Dòng nhập liệu sản phẩm</p>
+                <h3 className="font-bold text-lg text-neutral-900">{editingId ? 'Chỉnh sửa sản phẩm' : 'Tạo sản phẩm mới'}</h3>
+                <p className="text-xs text-neutral-500 mt-0.5">Upload ảnh ngay trong form, sau đó chọn Lưu nháp hoặc Đăng lên web.</p>
               </div>
-              <Button type="button" variant="ghost" size="sm" onClick={resetForm}>✕</Button>
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" variant="outline" onClick={handleCancel}>Hủy</Button>
+                <Button type="button" variant="outline" disabled={saving} onClick={() => saveProduct('draft')}>
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                  Lưu nháp
+                </Button>
+                <Button type="button" disabled={saving} onClick={() => saveProduct('published')} className="bg-[#0A3151] text-white">
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+                  {editingId ? 'Cập nhật bài đăng' : 'Đăng lên web'}
+                </Button>
+              </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div><label className="label-xs">Tên sản phẩm</label><Input required value={formData.name} onChange={e => setFormData(p => ({ ...p, name: e.target.value }))} /></div>
-              <div><label className="label-xs">Giá (VNĐ)</label><Input required type="number" value={formData.price} onChange={e => setFormData(p => ({ ...p, price: Number(e.target.value) }))} /></div>
-              <div><label className="label-xs">Tag (VD: Bán chạy)</label><Input value={formData.tag} onChange={e => setFormData(p => ({ ...p, tag: e.target.value }))} /></div>
-              {editingId && (
-                <div><label className="label-xs">Trạng thái</label>
-                  <select value={formData.status} onChange={e => setFormData(p => ({ ...p, status: e.target.value as Product['status'] }))}
-                    className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm">
-                    <option value="draft">Bản nháp</option>
-                    <option value="published">Xuất bản</option>
-                    <option value="archived">Lưu trữ</option>
-                  </select>
+
+            <EditorTabs<ProductEditorTab>
+              tabs={[
+                { id: 'basic', label: 'Thông tin cơ bản' },
+                { id: 'description', label: 'Mô tả' },
+                { id: 'review', label: 'SEO & kiểm duyệt' },
+              ]}
+              active={activeTab}
+              onChange={setActiveTab}
+            />
+
+            <div className="grid lg:grid-cols-[230px_1fr_320px]">
+              <aside className="border-b lg:border-b-0 lg:border-r border-neutral-100 bg-white p-5">
+                <WorkflowSteps steps={workflowSteps} />
+                <div className="mt-4 rounded-lg bg-blue-50 p-3 text-xs leading-5 text-blue-900">
+                  Ảnh có thể tải lên trước khi lưu. Hệ thống tự gắn ảnh khi bạn lưu nháp hoặc đăng.
                 </div>
-              )}
-              <div className="col-span-2"><label className="label-xs">Mô tả</label><Textarea required value={formData.description} onChange={e => setFormData(p => ({ ...p, description: e.target.value }))} /></div>
-            </div>
+              </aside>
 
-            {editingId && (
-              <>
-                <MediaGallery
-                  entityId={editingId}
-                  entityType="product"
-                  maxImages={5}
-                  aspectHint="1:1"
-                  session={session}
-                  onChanged={imgs => setGalleryImages(imgs as ProductImage[])}
-                />
-                <QualityChecklist items={getProductChecklist(formData, galleryImages)} />
-                <AdvancedImageUrlInput
-                  value={formData.image}
-                  onChange={url => setFormData(p => ({ ...p, image: url }))}
-                />
-              </>
-            )}
+              <div className="p-5 space-y-6">
+                {activeTab === 'basic' && <div className="space-y-5">
+                  <CompactMediaManager
+                    label="Hình ảnh sản phẩm"
+                    entityType="product"
+                    stagingKey={stagingKey}
+                    images={editorImages}
+                    onChange={setEditorImages}
+                    session={session}
+                    maxImages={9}
+                    aspectHint="1:1"
+                  />
+                  <h4 className="text-sm font-bold text-neutral-900 mb-3">1. Thông tin hiển thị</h4>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div><label className="label-xs">Tên sản phẩm</label><Input required value={formData.name} onChange={e => setFormData(p => ({ ...p, name: e.target.value }))} placeholder="Tên sản phẩm hiển thị ngoài website" /></div>
+                    <div><label className="label-xs">Giá (VNĐ)</label><Input required type="number" min={0} value={formData.price} onChange={e => setFormData(p => ({ ...p, price: Number(e.target.value) }))} /></div>
+                    <div><label className="label-xs">Tag ngắn</label><Input value={formData.tag} onChange={e => setFormData(p => ({ ...p, tag: e.target.value }))} placeholder="VD: Bán chạy, Mới, Ưu đãi" /></div>
+                    <div><label className="label-xs">Thương hiệu</label><Input value={formData.brand} onChange={e => setFormData(p => ({ ...p, brand: e.target.value }))} placeholder="Nếu có" /></div>
+                  </div>
+                </div>}
 
-            <div className="flex gap-2 justify-end pt-4 border-t">
-              <Button type="button" variant="outline" onClick={resetForm}>Hủy</Button>
-              <Button type="submit" disabled={saving} className="bg-[#0A3151] px-8 text-white">
-                {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                {editingId ? 'Cập nhật' : 'Tạo bản nháp →'}
-              </Button>
+                {activeTab === 'description' && (
+                  <div>
+                    <h4 className="text-sm font-bold text-neutral-900 mb-3">2. Mô tả sản phẩm</h4>
+                    <Textarea required className="min-h-64" value={formData.description} onChange={e => setFormData(p => ({ ...p, description: e.target.value }))} placeholder="Mô tả công dụng, đối tượng phù hợp và lưu ý khi sử dụng." />
+                    <p className="mt-2 text-xs text-neutral-400">{formData.description.length}/3000 ký tự</p>
+                  </div>
+                )}
+
+                {activeTab === 'review' && (
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-bold text-neutral-900">3. Kiểm duyệt trước khi đăng</h4>
+                    <QualityChecklist items={qualityChecksToChecklist(productChecks)} />
+                    <div className="rounded-lg bg-neutral-50 p-4 text-sm leading-6 text-neutral-600">
+                      Cảnh báo y tế chỉ là lớp rà soát hỗ trợ. Hãy tránh các câu khẳng định chữa khỏi, thay thế thuốc hoặc cam kết hiệu quả.
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <aside className="border-t lg:border-t-0 lg:border-l border-neutral-100 bg-neutral-50 p-5 space-y-4">
+                <CatalogPreviewShell>
+                  <ProductCatalogCard
+                    preview
+                    product={{
+                      name: formData.name,
+                      price: formData.price,
+                      tag: formData.tag,
+                      brand: formData.brand,
+                      description: formData.description,
+                      images: editorImagesToCatalogImages(editorImages),
+                    }}
+                  />
+                </CatalogPreviewShell>
+                <QualityChecklist items={qualityChecksToChecklist(productChecks)} />
+              </aside>
             </div>
           </form>
         </Card>
       )}
 
-      <div className="flex items-center gap-4 mb-4 bg-white p-3 rounded-lg shadow-sm border border-neutral-100">
-        <Search className="w-4 h-4 text-neutral-400 ml-2" />
-        <Input className="border-none shadow-none focus-visible:ring-0 text-sm p-0 h-auto" placeholder="Tìm kiếm sản phẩm..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+      <div className="bg-white p-3 rounded-lg shadow-sm border border-neutral-100">
+        <div className="grid lg:grid-cols-[1fr_180px_180px] gap-3">
+          <div className="flex items-center gap-3 rounded-md border border-neutral-200 px-3">
+            <Search className="w-4 h-4 text-neutral-400" />
+            <Input className="border-none shadow-none focus-visible:ring-0 text-sm p-0 h-10" placeholder="Tìm theo tên, tag, thương hiệu, mô tả..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+          </div>
+          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value as 'all' | Product['status'])} className={`${selectControlClass} w-full`}>
+            <option value="all">Tất cả trạng thái</option>
+            <option value="draft">Bản nháp</option>
+            <option value="published">Đã xuất bản</option>
+            <option value="archived">Lưu trữ</option>
+          </select>
+          <select value={sortMode} onChange={e => setSortMode(e.target.value as 'newest' | 'name' | 'price')} className={`${selectControlClass} w-full`}>
+            <option value="newest">Mới cập nhật</option>
+            <option value="name">Tên A-Z</option>
+            <option value="price">Giá cao trước</option>
+          </select>
+        </div>
+        <p className="mt-2 text-xs text-neutral-400">Đang hiển thị {filtered.length}/{products.length} sản phẩm.</p>
       </div>
 
       <Card className="border-none shadow-sm overflow-hidden">
@@ -978,6 +1349,7 @@ function ProductsManager({ session }: { session: Session }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 bg-white">
+              {filtered.length === 0 && <EmptyTableState message="Không có sản phẩm phù hợp với bộ lọc hiện tại." />}
               {filtered.map(p => {
                 const primary = p.product_images?.find(i => i.is_primary);
                 return (

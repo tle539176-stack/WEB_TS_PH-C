@@ -1,8 +1,10 @@
 import { supabase, assertSupabase } from '../lib/supabase';
 import type { ProductImage, BookImage, MediaAsset, MediaAssetInsert } from '../types/database';
+import type { EditorEntityType, EditorImage } from '../types/editor';
 
 const BUCKET = 'site-media';
-const MAX_IMAGES = 5;
+const MAX_PRODUCT_IMAGES = 9;
+const MAX_BOOK_IMAGES = 5;
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
@@ -201,6 +203,191 @@ export async function deleteMediaAsset(asset: MediaAsset): Promise<void> {
 }
 
 // ============================================================
+// Staged editor media
+// ============================================================
+
+function normalizeEditorImages(images: EditorImage[]): EditorImage[] {
+  const sorted = images
+    .slice()
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((image, index) => ({ ...image, sortOrder: index }));
+  if (sorted.length === 0) return sorted;
+  const primaryIndex = sorted.findIndex(image => image.isPrimary);
+  return sorted.map((image, index) => ({
+    ...image,
+    isPrimary: primaryIndex >= 0 ? index === primaryIndex : index === 0,
+  }));
+}
+
+export async function uploadStagedMediaAsset(input: {
+  file: File;
+  entityType: EditorEntityType;
+  stagingKey: string;
+  alt?: string;
+  uploadedBy?: string;
+}): Promise<MediaAsset> {
+  const folder = `staging/${input.entityType}s/${input.stagingKey}`;
+  return uploadMediaAsset({
+    file: input.file,
+    folder,
+    entityType: input.entityType,
+    entityId: undefined,
+    alt: input.alt ?? '',
+    uploadedBy: input.uploadedBy,
+  });
+}
+
+export async function deleteUnattachedStagedAssets(stagingKey: string): Promise<void> {
+  assertSupabase(supabase);
+  const folders = [`staging/products/${stagingKey}`, `staging/books/${stagingKey}`];
+  for (const folder of folders) {
+    const { data } = await supabase
+      .from('media_assets')
+      .select('*')
+      .eq('folder', folder)
+      .is('entity_id', null);
+    const assets = (data ?? []) as MediaAsset[];
+    for (const asset of assets) {
+      await supabase.storage.from(BUCKET).remove([asset.storage_path]);
+      await supabase.from('media_assets').delete().eq('id', asset.id);
+    }
+  }
+}
+
+export async function deleteUnattachedMediaAsset(mediaAssetId: string, storagePath: string | null): Promise<void> {
+  assertSupabase(supabase);
+  const { data } = await supabase
+    .from('media_assets')
+    .select('*')
+    .eq('id', mediaAssetId)
+    .maybeSingle();
+  const asset = data as MediaAsset | null;
+  if (!asset || asset.entity_id) return;
+  const refs = await getMediaReferenceCount({ mediaAssetId, storagePath: storagePath ?? asset.storage_path });
+  if (refs > 0) return;
+  await supabase.storage.from(BUCKET).remove([asset.storage_path]);
+  await supabase.from('media_assets').delete().eq('id', mediaAssetId);
+}
+
+export async function attachProductEditorImages(productId: string, images: EditorImage[]): Promise<ProductImage[]> {
+  assertSupabase(supabase);
+  const normalized = normalizeEditorImages(images).slice(0, MAX_PRODUCT_IMAGES);
+  const existing = await getProductImages(productId);
+  const keepPersistedIds = new Set(normalized.filter(image => image.source === 'persisted').map(image => image.id));
+
+  for (const image of existing) {
+    if (!keepPersistedIds.has(image.id)) {
+      await deleteProductImage(image);
+    }
+  }
+
+  for (const image of normalized) {
+    if (image.source === 'persisted') {
+      await supabase
+        .from('product_images')
+        .update({
+          alt: image.alt,
+          sort_order: image.sortOrder,
+          is_primary: image.isPrimary,
+        })
+        .eq('id', image.id);
+      if (image.mediaAssetId) await updateMediaAssetAlt(image.mediaAssetId, image.alt);
+      continue;
+    }
+
+    const { data: inserted, error } = await supabase
+      .from('product_images')
+      .insert({
+        product_id: productId,
+        url: image.url,
+        storage_path: image.storagePath,
+        alt: image.alt,
+        sort_order: image.sortOrder,
+        is_primary: image.isPrimary,
+        width: image.width ?? null,
+        height: image.height ?? null,
+        mime_type: image.mimeType ?? null,
+        media_asset_id: image.mediaAssetId,
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    if (image.mediaAssetId) {
+      await supabase
+        .from('media_assets')
+        .update({ entity_type: 'product', entity_id: productId, alt: image.alt })
+        .eq('id', image.mediaAssetId);
+    }
+    image.id = (inserted as ProductImage).id;
+  }
+
+  const refreshed = await getProductImages(productId);
+  if (refreshed.length > 0 && !refreshed.some(image => image.is_primary)) {
+    await setPrimaryProductImage(refreshed[0].id, productId);
+  }
+  return getProductImages(productId);
+}
+
+export async function attachBookEditorImages(bookId: string, images: EditorImage[]): Promise<BookImage[]> {
+  assertSupabase(supabase);
+  const normalized = normalizeEditorImages(images).slice(0, MAX_BOOK_IMAGES);
+  const existing = await getBookImages(bookId);
+  const keepPersistedIds = new Set(normalized.filter(image => image.source === 'persisted').map(image => image.id));
+
+  for (const image of existing) {
+    if (!keepPersistedIds.has(image.id)) {
+      await deleteBookImage(image);
+    }
+  }
+
+  for (const image of normalized) {
+    if (image.source === 'persisted') {
+      await supabase
+        .from('book_images')
+        .update({
+          alt: image.alt,
+          sort_order: image.sortOrder,
+          is_primary: image.isPrimary,
+        })
+        .eq('id', image.id);
+      if (image.mediaAssetId) await updateMediaAssetAlt(image.mediaAssetId, image.alt);
+      continue;
+    }
+
+    const { data: inserted, error } = await supabase
+      .from('book_images')
+      .insert({
+        book_id: bookId,
+        url: image.url,
+        storage_path: image.storagePath,
+        alt: image.alt,
+        sort_order: image.sortOrder,
+        is_primary: image.isPrimary,
+        width: image.width ?? null,
+        height: image.height ?? null,
+        mime_type: image.mimeType ?? null,
+        media_asset_id: image.mediaAssetId,
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    if (image.mediaAssetId) {
+      await supabase
+        .from('media_assets')
+        .update({ entity_type: 'book', entity_id: bookId, alt: image.alt })
+        .eq('id', image.mediaAssetId);
+    }
+    image.id = (inserted as BookImage).id;
+  }
+
+  const refreshed = await getBookImages(bookId);
+  if (refreshed.length > 0 && !refreshed.some(image => image.is_primary)) {
+    await setPrimaryBookImage(refreshed[0].id, bookId);
+  }
+  return getBookImages(bookId);
+}
+
+// ============================================================
 // Product images
 // ============================================================
 
@@ -218,7 +405,7 @@ export async function uploadProductImage(
 ): Promise<ProductImage> {
   assertSupabase(supabase);
   const existing = await getProductImages(productId);
-  if (existing.length >= MAX_IMAGES) throw new Error(`Tối đa ${MAX_IMAGES} ảnh cho mỗi sản phẩm.`);
+  if (existing.length >= MAX_PRODUCT_IMAGES) throw new Error(`Tối đa ${MAX_PRODUCT_IMAGES} ảnh cho mỗi sản phẩm.`);
 
   const asset = await uploadMediaAsset({
     file,
@@ -268,7 +455,7 @@ export async function addProductImage(
 ): Promise<ProductImage> {
   assertSupabase(supabase);
   const existing = await getProductImages(productId);
-  if (existing.length >= MAX_IMAGES) throw new Error(`Tối đa ${MAX_IMAGES} ảnh cho mỗi sản phẩm.`);
+  if (existing.length >= MAX_PRODUCT_IMAGES) throw new Error(`Tối đa ${MAX_PRODUCT_IMAGES} ảnh cho mỗi sản phẩm.`);
   const isPrimary = opts?.isPrimary ?? existing.length === 0;
   if (isPrimary) {
     await supabase.from('product_images').update({ is_primary: false }).eq('product_id', productId);
@@ -338,7 +525,7 @@ export async function uploadBookImage(
 ): Promise<BookImage> {
   assertSupabase(supabase);
   const existing = await getBookImages(bookId);
-  if (existing.length >= MAX_IMAGES) throw new Error(`Tối đa ${MAX_IMAGES} ảnh cho mỗi sách.`);
+  if (existing.length >= MAX_BOOK_IMAGES) throw new Error(`Tối đa ${MAX_BOOK_IMAGES} ảnh cho mỗi sách.`);
 
   const asset = await uploadMediaAsset({
     file,
@@ -388,7 +575,7 @@ export async function addBookImage(
 ): Promise<BookImage> {
   assertSupabase(supabase);
   const existing = await getBookImages(bookId);
-  if (existing.length >= MAX_IMAGES) throw new Error(`Tối đa ${MAX_IMAGES} ảnh cho mỗi sách.`);
+  if (existing.length >= MAX_BOOK_IMAGES) throw new Error(`Tối đa ${MAX_BOOK_IMAGES} ảnh cho mỗi sách.`);
   const isPrimary = opts?.isPrimary ?? existing.length === 0;
   if (isPrimary) {
     await supabase.from('book_images').update({ is_primary: false }).eq('book_id', bookId);

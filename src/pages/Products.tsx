@@ -1,21 +1,14 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
-import { ShoppingCart, Filter, Search, ExternalLink } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { Search, ShieldCheck } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { ProductCatalogCard } from '@/components/catalog/ProductCatalogCard';
 import { getPublishedProducts } from '@/services/contentService';
+import { productToCardViewModel } from '@/lib/catalogViewModels';
 import type { ProductWithImages } from '@/types/database';
 
-function getPrimaryImageUrl(images: { url: string; is_primary: boolean }[]): string {
-  return images.find(i => i.is_primary)?.url ?? images[0]?.url ?? '';
-}
-
-function formatPrice(price: number | null): string {
-  if (price == null) return '';
-  return price.toLocaleString('vi-VN') + '₫';
+function uniqueValues(values: Array<string | null>): string[] {
+  return Array.from(new Set(values.filter((value): value is string => !!value && value.trim().length > 0))).sort((a, b) => a.localeCompare(b, 'vi'));
 }
 
 export default function Products() {
@@ -23,6 +16,9 @@ export default function Products() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [selectedTag, setSelectedTag] = useState('all');
+  const [selectedBrand, setSelectedBrand] = useState('all');
+  const [sortMode, setSortMode] = useState<'newest' | 'name' | 'price'>('newest');
 
   useEffect(() => {
     getPublishedProducts()
@@ -31,97 +27,119 @@ export default function Products() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = search
-    ? products.filter(p =>
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
-        (p.description ?? '').toLowerCase().includes(search.toLowerCase())
-      )
-    : products;
+  const tags = uniqueValues(products.map(product => product.tag));
+  const brands = uniqueValues(products.map(product => product.brand));
+  const query = search.trim().toLowerCase();
+  const filtered = products
+    .filter(product => {
+      const matchesSearch = !query ||
+        product.name.toLowerCase().includes(query) ||
+        (product.description ?? '').toLowerCase().includes(query) ||
+        (product.brand ?? '').toLowerCase().includes(query) ||
+        (product.tag ?? '').toLowerCase().includes(query);
+      const matchesTag = selectedTag === 'all' || product.tag === selectedTag;
+      const matchesBrand = selectedBrand === 'all' || product.brand === selectedBrand;
+      return matchesSearch && matchesTag && matchesBrand;
+    })
+    .sort((a, b) => {
+      if (sortMode === 'name') return a.name.localeCompare(b.name, 'vi');
+      if (sortMode === 'price') return (b.price ?? 0) - (a.price ?? 0);
+      return new Date(b.published_at ?? b.created_at).getTime() - new Date(a.published_at ?? a.created_at).getTime();
+    });
+
+  const hasActiveFilter = selectedTag !== 'all' || selectedBrand !== 'all' || !!query;
 
   return (
-    <div className="pt-32 pb-24 bg-white">
+    <div className="pt-28 pb-24 bg-[#F7F8FA] min-h-screen">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
-          <div className="max-w-2xl">
-            <h1 className="text-4xl md:text-5xl font-serif font-bold mb-6">Sản Phẩm Khuyên Dùng</h1>
-            <p className="text-neutral-600">Danh sách các sản phẩm chăm sóc sức khỏe và sắc đẹp được Bác sĩ Wynn Tran tuyển chọn kỹ lưỡng dựa trên tiêu chuẩn y khoa.</p>
+        <section className="mb-10">
+          <div className="max-w-3xl">
+            <Badge className="bg-[#0A3151] text-white border-none mb-5">Sản phẩm khuyên dùng</Badge>
+            <h1 className="text-4xl md:text-5xl font-serif font-bold text-neutral-950 mb-5">Danh Mục Sản Phẩm</h1>
+            <p className="text-neutral-600 leading-7">
+              Lọc nhanh theo tag, thương hiệu và từ khóa để tìm đúng nhóm sản phẩm đang cần xem.
+            </p>
           </div>
-          <div className="flex gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-              <Input
-                placeholder="Tìm sản phẩm..."
-                className="pl-10 w-[250px] border-neutral-200"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-              />
+
+          <div className="mt-8 bg-white border border-neutral-200 rounded-lg p-3 shadow-sm">
+            <div className="grid lg:grid-cols-[1fr_180px_180px_180px] gap-3">
+              <div className="flex items-center gap-3 rounded-md border border-neutral-200 px-3">
+                <Search className="w-4 h-4 text-neutral-400 shrink-0" />
+                <Input
+                  value={search}
+                  onChange={event => setSearch(event.target.value)}
+                  placeholder="Tìm sản phẩm, thương hiệu, tag..."
+                  className="border-none shadow-none focus-visible:ring-0 h-11 p-0"
+                />
+              </div>
+              <select
+                value={selectedTag}
+                onChange={event => setSelectedTag(event.target.value)}
+                className="h-11 rounded-md border border-neutral-200 bg-white px-3 text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-[#0A3151]/20"
+              >
+                <option value="all">Tất cả tag</option>
+                {tags.map(tag => <option key={tag} value={tag}>{tag}</option>)}
+              </select>
+              <select
+                value={selectedBrand}
+                onChange={event => setSelectedBrand(event.target.value)}
+                className="h-11 rounded-md border border-neutral-200 bg-white px-3 text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-[#0A3151]/20"
+              >
+                <option value="all">Tất cả thương hiệu</option>
+                {brands.map(brand => <option key={brand} value={brand}>{brand}</option>)}
+              </select>
+              <select
+                value={sortMode}
+                onChange={event => setSortMode(event.target.value as 'newest' | 'name' | 'price')}
+                className="h-11 rounded-md border border-neutral-200 bg-white px-3 text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-[#0A3151]/20"
+              >
+                <option value="newest">Mới nhất</option>
+                <option value="name">Tên A-Z</option>
+                <option value="price">Giá cao trước</option>
+              </select>
             </div>
-            <Button variant="outline" className="gap-2 border-neutral-200">
-              <Filter className="w-4 h-4" /> Lọc
-            </Button>
+
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className="text-xs text-neutral-400">{filtered.length}/{products.length} sản phẩm</span>
+              {hasActiveFilter && (
+                <button
+                  type="button"
+                  onClick={() => { setSearch(''); setSelectedTag('all'); setSelectedBrand('all'); }}
+                  className="rounded-full bg-neutral-100 px-3 py-1.5 text-xs font-bold text-neutral-600 hover:bg-neutral-200"
+                >
+                  Xóa bộ lọc
+                </button>
+              )}
+              {selectedTag !== 'all' && <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700">{selectedTag}</span>}
+              {selectedBrand !== 'all' && <span className="rounded-full bg-green-50 px-3 py-1.5 text-xs font-bold text-green-700">{selectedBrand}</span>}
+            </div>
           </div>
-        </div>
+        </section>
 
         {loading && <p className="text-center text-neutral-400 py-20">Đang tải...</p>}
         {error && <p className="text-center text-red-500 py-20">{error}</p>}
         {!loading && !error && filtered.length === 0 && (
-          <p className="text-center text-neutral-400 py-20">Chưa có sản phẩm nào.</p>
+          <div className="bg-white border border-neutral-200 rounded-lg py-16 text-center text-neutral-500">
+            Không có sản phẩm phù hợp với bộ lọc hiện tại.
+          </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {filtered.map((product, i) => (
-            <motion.div
-              key={product.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.08 }}
-            >
-              <Card className="h-full border-none shadow-sm hover:shadow-xl transition-all duration-300 group overflow-hidden">
-                <div className="relative aspect-square overflow-hidden bg-white p-6">
-                  {getPrimaryImageUrl(product.product_images) && (
-                    <img
-                      src={getPrimaryImageUrl(product.product_images)}
-                      alt={product.name}
-                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
-                      referrerPolicy="no-referrer"
-                    />
-                  )}
-                  {product.tag && (
-                    <Badge className="absolute top-4 left-4 bg-[#0A3151] text-white border-none">{product.tag}</Badge>
-                  )}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-                    <Button size="icon" className="bg-white text-[#1A1A1A] hover:bg-white/90">
-                      <ShoppingCart className="w-5 h-5" />
-                    </Button>
-                    <Link to={`/products/${product.slug}`}>
-                      <Button size="icon" className="bg-white text-[#1A1A1A] hover:bg-white/90">
-                        <ExternalLink className="w-5 h-5" />
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-                <CardContent className="pt-6">
-                  {product.brand && (
-                    <p className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-1">{product.brand}</p>
-                  )}
-                  <h3 className="text-lg font-bold font-serif mb-2 group-hover:text-[#0A3151] transition-colors">{product.name}</h3>
-                  <p className="text-sm text-neutral-600 line-clamp-2">{product.description}</p>
-                </CardContent>
-                <CardFooter className="pb-6 pt-0 flex justify-between items-center">
-                  <span className="text-lg font-bold text-[#1A1A1A]">{formatPrice(product.price)}</span>
-                  <Link to={`/products/${product.slug}`}>
-                    <Button variant="link" className="text-[#0A3151] font-bold p-0 h-auto">
-                      Xem thêm
-                    </Button>
-                  </Link>
-                </CardFooter>
-              </Card>
-            </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-7">
+          {filtered.map(product => (
+            <div key={product.id} className="h-full">
+              <ProductCatalogCard product={productToCardViewModel(product)} />
+            </div>
           ))}
         </div>
 
-        <div className="mt-20 text-center">
-          <p className="text-neutral-500 text-sm mb-6 italic">* Lưu ý: Các sản phẩm trên chỉ mang tính chất tham khảo. Quý vị nên tham khảo ý kiến bác sĩ trước khi sử dụng.</p>
+        <div className="mt-16 bg-white border border-neutral-200 rounded-lg p-6 md:p-8 flex gap-4">
+          <ShieldCheck className="w-6 h-6 text-[#0A3151] shrink-0 mt-0.5" />
+          <div>
+            <h2 className="font-bold text-neutral-950 mb-2">Lưu ý khi tham khảo sản phẩm</h2>
+            <p className="text-sm leading-6 text-neutral-600">
+              Danh sách sản phẩm chỉ mang tính tham khảo. Người dùng nên đọc kỹ hướng dẫn và hỏi ý kiến chuyên môn trước khi sử dụng, đặc biệt khi đang điều trị hoặc có bệnh nền.
+            </p>
+          </div>
         </div>
       </div>
     </div>

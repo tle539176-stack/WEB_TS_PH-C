@@ -87,7 +87,7 @@
     --chart-3: oklch(0.439 0 0);
     --chart-4: oklch(0.371 0 0);
     --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
+    --radius: 0rem;
     --sidebar: oklch(0.985 0 0);
     --sidebar-foreground: oklch(0.145 0 0);
     --sidebar-primary: oklch(0.205 0 0);
@@ -142,4 +142,36 @@
   html {
     @apply font-sans;
     }
+}
+
+@layer components {
+  .admin-ui {
+    --admin-font: 'Geist Variable', Inter, ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .admin-ui,
+  .admin-ui *,
+  .admin-ui ::placeholder {
+    font-family: var(--admin-font) !important;
+  }
+}
+
+@layer base {
+  :root,
+  .dark {
+    --radius: 0rem;
+    --radius-sm: 0rem;
+    --radius-md: 0rem;
+    --radius-lg: 0rem;
+    --radius-xl: 0rem;
+    --radius-2xl: 0rem;
+    --radius-3xl: 0rem;
+    --radius-4xl: 0rem;
+  }
+
+  *,
+  *::before,
+  *::after {
+    border-radius: 0 !important;
+  }
 }

@@ -1,26 +1,28 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
-import { ShoppingCart, Star, ExternalLink } from 'lucide-react';
+import { BookOpen, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { BookCatalogCard } from '@/components/catalog/BookCatalogCard';
 import { getPublishedBooks } from '@/services/contentService';
+import { bookToCardViewModel } from '@/lib/catalogViewModels';
 import type { BookWithImages } from '@/types/database';
 
 function getPrimaryImageUrl(images: { url: string; is_primary: boolean }[]): string {
   return images.find(i => i.is_primary)?.url ?? images[0]?.url ?? '';
 }
 
-function formatPrice(price: number | null): string {
-  if (price == null) return '';
-  return price.toLocaleString('vi-VN') + '₫';
+function getPublishedTime(book: BookWithImages): number {
+  return new Date(book.published_at ?? book.created_at).getTime();
 }
 
 export default function Books() {
   const [books, setBooks] = useState<BookWithImages[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+  const [onlyNew, setOnlyNew] = useState(false);
+  const [sortMode, setSortMode] = useState<'newest' | 'title' | 'price'>('newest');
 
   useEffect(() => {
     getPublishedBooks()
@@ -29,97 +31,123 @@ export default function Books() {
       .finally(() => setLoading(false));
   }, []);
 
+  const query = search.trim().toLowerCase();
+  const filtered = books
+    .filter(book => {
+      const matchesSearch = !query ||
+        book.title.toLowerCase().includes(query) ||
+        (book.author ?? '').toLowerCase().includes(query) ||
+        (book.subtitle ?? '').toLowerCase().includes(query) ||
+        (book.description ?? '').toLowerCase().includes(query) ||
+        (book.year ?? '').toLowerCase().includes(query);
+      return matchesSearch && (!onlyNew || book.is_new);
+    })
+    .sort((a, b) => {
+      if (sortMode === 'title') return a.title.localeCompare(b.title, 'vi');
+      if (sortMode === 'price') return (b.price ?? 0) - (a.price ?? 0);
+      return getPublishedTime(b) - getPublishedTime(a);
+    });
+  const featured = books.find(book => book.is_new) ?? books[0];
+
   return (
-    <div className="pt-32 pb-24 bg-white">
+    <div className="pt-28 pb-24 bg-[#F7F8FA] min-h-screen">
       <div className="container mx-auto px-4">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <h1 className="text-4xl md:text-5xl font-serif font-bold mb-6">Tủ Sách Bác Sĩ Wynn Tran</h1>
-          <p className="text-neutral-600">Những kiến thức y khoa được đúc kết tâm huyết, trình bày dễ hiểu dành cho mọi gia đình.</p>
-        </div>
+        <section className="grid lg:grid-cols-[1fr_360px] gap-8 lg:gap-12 items-end mb-10">
+          <div>
+            <Badge className="bg-[#0A3151] text-white border-none mb-5">Thư viện sách</Badge>
+            <h1 className="text-4xl md:text-5xl font-serif font-bold text-neutral-950 mb-5">Tủ Sách Bác Sĩ Wynn Tran</h1>
+            <p className="text-neutral-600 max-w-2xl leading-7">
+              Tìm nhanh các đầu sách sức khỏe, đọc mô tả ngắn, xem giá và mở trang chi tiết mà không cần rê chuột.
+            </p>
 
-        {loading && (
-          <p className="text-center text-neutral-400 py-20">Đang tải...</p>
-        )}
-        {error && (
-          <p className="text-center text-red-500 py-20">{error}</p>
-        )}
-        {!loading && !error && books.length === 0 && (
-          <p className="text-center text-neutral-400 py-20">Chưa có sách nào được xuất bản.</p>
-        )}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {books.map((book, i) => (
-            <motion.div
-              key={book.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-            >
-              <Card className="h-full border-none shadow-sm hover:shadow-xl transition-all duration-300 group overflow-hidden">
-                <div className="relative aspect-[2/3] overflow-hidden">
-                  {getPrimaryImageUrl(book.book_images) && (
-                    <img
-                      src={getPrimaryImageUrl(book.book_images)}
-                      alt={book.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      referrerPolicy="no-referrer"
-                    />
-                  )}
-                  {book.is_new && (
-                    <Badge className="absolute top-4 right-4 bg-[#0A3151] text-white border-none">Mới nhất</Badge>
-                  )}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-                    <Button size="icon" className="bg-white text-[#1A1A1A] hover:bg-white/90">
-                      <ShoppingCart className="w-5 h-5" />
-                    </Button>
-                    <Link to={`/books/${book.slug}`}>
-                      <Button size="icon" className="bg-white text-[#1A1A1A] hover:bg-white/90">
-                        <ExternalLink className="w-5 h-5" />
-                      </Button>
-                    </Link>
-                  </div>
+            <div className="mt-8 bg-white border border-neutral-200 rounded-lg p-3 shadow-sm">
+              <div className="grid md:grid-cols-[1fr_auto] gap-3">
+                <div className="flex items-center gap-3 rounded-md border border-neutral-200 px-3">
+                  <Search className="w-4 h-4 text-neutral-400 shrink-0" />
+                  <Input
+                    value={search}
+                    onChange={event => setSearch(event.target.value)}
+                    placeholder="Tìm theo tên sách, tác giả, năm xuất bản..."
+                    className="border-none shadow-none focus-visible:ring-0 h-11 p-0"
+                  />
                 </div>
-                <CardContent className="pt-6">
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="text-xs font-bold text-[#0A3151] uppercase tracking-widest">{book.year}</span>
-                    {book.rating != null && (
-                      <div className="flex items-center gap-1 text-yellow-500">
-                        <Star className="w-3 h-3 fill-current" />
-                        <span className="text-xs font-bold">{book.rating}</span>
+                <select
+                  value={sortMode}
+                  onChange={event => setSortMode(event.target.value as 'newest' | 'title' | 'price')}
+                  className="h-11 rounded-md border border-neutral-200 bg-white px-3 text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-[#0A3151]/20"
+                >
+                  <option value="newest">Mới nhất</option>
+                  <option value="title">Tên A-Z</option>
+                  <option value="price">Giá cao trước</option>
+                </select>
+              </div>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setOnlyNew(value => !value)}
+                  className={`rounded-full px-4 py-2 text-xs font-bold transition-colors ${onlyNew ? 'bg-[#0A3151] text-white' : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'}`}
+                >
+                  Sách mới
+                </button>
+                <span className="text-xs text-neutral-400">{filtered.length}/{books.length} đầu sách</span>
+              </div>
+            </div>
+          </div>
+
+          {featured && (
+            <Link to={`/books/${featured.slug}`} className="block">
+              <div className="bg-white border border-neutral-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex gap-4">
+                  <div className="w-24 shrink-0 aspect-[2/3] rounded-md bg-neutral-100 overflow-hidden">
+                    {getPrimaryImageUrl(featured.book_images) ? (
+                      <img
+                        src={getPrimaryImageUrl(featured.book_images)}
+                        alt={featured.title}
+                        className="w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-neutral-400">
+                        <BookOpen className="w-6 h-6" />
                       </div>
                     )}
                   </div>
-                  <h3 className="text-xl font-bold font-serif mb-1 group-hover:text-[#0A3151] transition-colors">{book.title}</h3>
-                  {book.subtitle && <p className="text-sm text-neutral-500 italic mb-4">{book.subtitle}</p>}
-                  <p className="text-sm text-neutral-600 line-clamp-2">{book.description}</p>
-                </CardContent>
-                <CardFooter className="pb-6 pt-0 flex justify-between items-center">
-                  <span className="text-lg font-bold text-[#1A1A1A]">{formatPrice(book.price)}</span>
-                  <Link to={`/books/${book.slug}`}>
-                    <Button variant="link" className="text-[#0A3151] font-bold p-0 h-auto">
-                      Chi tiết
-                    </Button>
-                  </Link>
-                </CardFooter>
-              </Card>
-            </motion.div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] uppercase tracking-wider font-bold text-[#0A3151]">Gợi ý nổi bật</p>
+                    <h2 className="mt-2 font-serif font-bold text-lg text-neutral-950 line-clamp-2">{featured.title}</h2>
+                    <p className="mt-2 text-sm text-neutral-500 line-clamp-3">{featured.description}</p>
+                    <p className="mt-3 text-sm font-bold text-neutral-900">
+                      {featured.price == null ? 'Liên hệ' : featured.price.toLocaleString('vi-VN') + 'đ'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          )}
+        </section>
+
+        {loading && <p className="text-center text-neutral-400 py-20">Đang tải...</p>}
+        {error && <p className="text-center text-red-500 py-20">{error}</p>}
+        {!loading && !error && filtered.length === 0 && (
+          <div className="bg-white border border-neutral-200 rounded-lg py-16 text-center text-neutral-500">
+            Không có sách phù hợp với bộ lọc hiện tại.
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filtered.map(book => (
+            <div key={book.id} className="h-full">
+              <BookCatalogCard book={bookToCardViewModel(book)} />
+            </div>
           ))}
         </div>
 
-        <div className="mt-24 p-12 bg-[#0A3151] text-white flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="max-w-xl">
-            <h2 className="text-3xl font-serif font-bold mb-4">Bạn muốn nhận thông tin về sách mới?</h2>
-            <p className="text-white/70">Đăng ký nhận bản tin để không bỏ lỡ những kiến thức y khoa mới nhất và các ưu đãi đặc biệt.</p>
-          </div>
-          <div className="flex w-full md:w-auto gap-2">
-            <input
-              type="email"
-              placeholder="Email của bạn"
-              className="bg-white/10 border border-white/20 px-6 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 w-full md:w-64"
-            />
-            <Button className="bg-white text-[#0A3151] hover:bg-white/90 px-8">
-              Đăng ký
-            </Button>
+        <div className="mt-16 bg-[#0A3151] text-white rounded-lg p-8 md:p-10">
+          <div className="max-w-3xl">
+            <h2 className="text-2xl md:text-3xl font-serif font-bold mb-3">Theo dõi sách và tài liệu mới</h2>
+            <p className="text-white/75 leading-7">
+              Các đầu sách được cập nhật từ hệ thống Admin sau khi chuyển sang trạng thái xuất bản và có ảnh bìa chính.
+            </p>
           </div>
         </div>
       </div>
