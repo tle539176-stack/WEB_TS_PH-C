@@ -1,0 +1,12 @@
+node_modules/
+build/
+dist/
+coverage/
+.claude/
+tmp-media-test/
+.DS_Store
+*.log
+.env*
+!.env.example
+serviceAccount*.json
+firebase-adminsdk*.json
