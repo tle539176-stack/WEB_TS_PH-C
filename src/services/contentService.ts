@@ -11,7 +11,8 @@ import type {
   Category, CategoryInsert,
   Product, ProductInsert, ProductWithImages,
   Book, BookInsert, BookWithImages,
-  Note, NoteInsert, NoteWithCategory,
+  Note, NoteInsert, NoteSource, NoteWithCategory, NoteWithMedicalMeta,
+  Person, ContentReview,
 } from '../types/database';
 
 // ============================================================
@@ -28,13 +29,14 @@ export async function getCategories(): Promise<Category[]> {
   return data ?? [];
 }
 
-export async function createCategory(input: { name: string; description?: string; type?: string }): Promise<Category> {
+export async function createCategory(input: { name: string; description?: string; type?: string; parent_id?: string }): Promise<Category> {
   assertSupabase(supabase);
   const row: CategoryInsert = {
     name: input.name,
     slug: slugify(input.name),
     description: input.description ?? null,
     type: input.type ?? 'note',
+    parent_id: input.parent_id ?? null,
     sort_order: 0,
   };
   const { data, error } = await supabase.from('categories').insert(row).select().single();
@@ -42,10 +44,11 @@ export async function createCategory(input: { name: string; description?: string
   return data;
 }
 
-export async function updateCategory(id: string, input: Partial<{ name: string; description: string; type: string }>): Promise<void> {
+export async function updateCategory(id: string, input: Partial<{ name: string; description: string; type: string; parent_id: string }>): Promise<void> {
   assertSupabase(supabase);
   const updates: Record<string, unknown> = { ...input };
   if (input.name) updates['slug'] = slugify(input.name);
+  if ('parent_id' in input && !input.parent_id) updates['parent_id'] = null;
   const { error } = await supabase.from('categories').update(updates as Partial<CategoryInsert>).eq('id', id);
   if (error) throw error;
 }
@@ -315,16 +318,43 @@ export async function getBookBySlug(slug: string): Promise<BookWithImages | null
   return data as BookWithImages;
 }
 
-export async function getNoteBySlug(slug: string): Promise<NoteWithCategory | null> {
+export async function getNoteBySlug(slug: string): Promise<NoteWithMedicalMeta | null> {
   if (!supabase) return null;
-  const { data, error } = await supabase
+
+  // Get note with category and structured sources
+  const { data: note, error } = await supabase
     .from('notes')
-    .select('*, categories(*)')
+    .select('*, categories(*), note_sources(*)')
     .eq('slug', slug)
     .eq('status', 'published')
     .single();
-  if (error) return null;
-  return data as NoteWithCategory;
+  if (error || !note) return null;
+
+  const noteData = note as Note & { categories: Category | null; note_sources: unknown[] };
+
+  // Get author, reviewer, and content_reviews in parallel
+  const [authorResult, reviewerResult, reviewsResult] = await Promise.all([
+    noteData.author_id
+      ? supabase.from('people').select('*').eq('id', noteData.author_id).maybeSingle()
+      : Promise.resolve(null),
+    noteData.reviewed_by_id
+      ? supabase.from('people').select('*').eq('id', noteData.reviewed_by_id).maybeSingle()
+      : Promise.resolve(null),
+    supabase
+      .from('content_reviews')
+      .select('*')
+      .eq('entity_type', 'note')
+      .eq('entity_id', noteData.id)
+      .order('reviewed_at', { ascending: false }),
+  ]);
+
+  return {
+    ...noteData,
+    note_sources: (noteData.note_sources ?? []) as import('../types/database').NoteSourceRow[],
+    author: (authorResult?.data as Person | null) ?? null,
+    reviewer: (reviewerResult?.data as Person | null) ?? null,
+    content_reviews: ((reviewsResult.data ?? []) as ContentReview[]),
+  } as NoteWithMedicalMeta;
 }
 
 export async function getProductBySlug(slug: string): Promise<ProductWithImages | null> {
@@ -361,6 +391,12 @@ export async function createNote(input: {
   category_id?: string; cover_image_url?: string;
   cover_storage_path?: string; cover_alt?: string;
   read_time?: string; status?: Note['status'];
+  sources?: NoteSource[]; next_review_at?: string;
+  seo_title?: string; seo_description?: string;
+  author_id?: string; reviewed_by_id?: string;
+  medical_specialty?: string; medical_audience?: string;
+  disclaimer_ack?: boolean; reviewed_at?: string;
+  schema_type?: string; word_count?: number; reading_level?: string;
 }): Promise<Note> {
   assertSupabase(supabase);
   const row: NoteInsert = {
@@ -374,9 +410,19 @@ export async function createNote(input: {
     cover_alt: input.cover_alt ?? '',
     read_time: input.read_time ?? null,
     status: input.status ?? 'draft',
-    sources: [],
-    next_review_at: null,
-    seo_title: null, seo_description: null,
+    sources: input.sources ?? [],
+    next_review_at: input.next_review_at ?? null,
+    seo_title: input.seo_title ?? null,
+    seo_description: input.seo_description ?? null,
+    author_id: input.author_id ?? null,
+    reviewed_by_id: input.reviewed_by_id ?? null,
+    medical_specialty: input.medical_specialty ?? null,
+    medical_audience: input.medical_audience ?? 'Patient',
+    disclaimer_ack: input.disclaimer_ack ?? false,
+    reviewed_at: input.reviewed_at ?? null,
+    schema_type: input.schema_type ?? 'MedicalWebPage',
+    word_count: input.word_count ?? null,
+    reading_level: input.reading_level ?? null,
     published_at: input.status === 'published' ? new Date().toISOString() : null,
   };
   const { data, error } = await supabase.from('notes').insert(row).select().single();
@@ -430,6 +476,170 @@ export async function getDashboardStats(): Promise<{ products: number; books: nu
     notes: n.count ?? 0,
     categories: c.count ?? 0,
   };
+}
+
+export type WorkQueueItem = {
+  type: 'book' | 'product' | 'note';
+  id: string;
+  title: string;
+  issue: string;
+  issueType: 'error' | 'warning';
+};
+
+export async function getAdminWorkQueue(): Promise<WorkQueueItem[]> {
+  assertSupabase(supabase);
+  const items: WorkQueueItem[] = [];
+
+  const [draftBooks, draftProducts, reviewNotes, draftNotes, reviewDueNotes, seoBooks, seoProducts, seoNotes, missingReviewer, missingDisclaimer] =
+    await Promise.allSettled([
+      supabase
+        .from('books')
+        .select('id, title')
+        .eq('status', 'draft')
+        .order('updated_at', { ascending: false })
+        .limit(8),
+      supabase
+        .from('products')
+        .select('id, name')
+        .eq('status', 'draft')
+        .order('updated_at', { ascending: false })
+        .limit(8),
+      supabase
+        .from('notes')
+        .select('id, title')
+        .eq('status', 'in_review')
+        .order('updated_at', { ascending: false })
+        .limit(10),
+      supabase
+        .from('notes')
+        .select('id, title, cover_image_url, excerpt, category_id')
+        .eq('status', 'draft')
+        .order('updated_at', { ascending: false })
+        .limit(10),
+      supabase
+        .from('notes')
+        .select('id, title, next_review_at')
+        .eq('status', 'published')
+        .not('next_review_at', 'is', null)
+        .lte('next_review_at', new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString())
+        .order('next_review_at', { ascending: true })
+        .limit(5),
+      supabase
+        .from('books')
+        .select('id, title')
+        .eq('status', 'published')
+        .or('seo_title.is.null,seo_description.is.null')
+        .limit(5),
+      supabase
+        .from('products')
+        .select('id, name')
+        .eq('status', 'published')
+        .or('seo_title.is.null,seo_description.is.null')
+        .limit(5),
+      supabase
+        .from('notes')
+        .select('id, title')
+        .eq('status', 'published')
+        .or('seo_title.is.null,seo_description.is.null')
+        .limit(5),
+      supabase
+        .from('notes')
+        .select('id, title')
+        .eq('status', 'published')
+        .is('reviewed_by_id', null)
+        .limit(5),
+      supabase
+        .from('notes')
+        .select('id, title')
+        .eq('status', 'published')
+        .eq('disclaimer_ack', false)
+        .limit(5),
+    ]);
+
+  if (draftBooks.status === 'fulfilled') {
+    const bookIds = (draftBooks.value.data ?? []).map(b => b.id);
+    if (bookIds.length > 0) {
+      const { data: bookImages } = await supabase
+        .from('book_images')
+        .select('book_id')
+        .in('book_id', bookIds);
+      const withImages = new Set((bookImages ?? []).map((r: { book_id: string }) => r.book_id));
+      (draftBooks.value.data ?? [])
+        .filter(b => !withImages.has(b.id))
+        .forEach(b => items.push({ type: 'book', id: b.id, title: b.title, issue: 'Bản nháp chưa có ảnh bìa', issueType: 'error' }));
+    }
+  }
+
+  if (draftProducts.status === 'fulfilled') {
+    const prodIds = (draftProducts.value.data ?? []).map(p => p.id);
+    if (prodIds.length > 0) {
+      const { data: prodImages } = await supabase
+        .from('product_images')
+        .select('product_id')
+        .in('product_id', prodIds);
+      const withImages = new Set((prodImages ?? []).map((r: { product_id: string }) => r.product_id));
+      (draftProducts.value.data ?? [])
+        .filter(p => !withImages.has(p.id))
+        .forEach(p => items.push({ type: 'product', id: p.id, title: p.name, issue: 'Bản nháp chưa có ảnh', issueType: 'error' }));
+    }
+  }
+
+  if (reviewNotes.status === 'fulfilled') {
+    (reviewNotes.value.data ?? []).forEach(n =>
+      items.push({ type: 'note', id: n.id, title: n.title, issue: 'Đang chờ duyệt', issueType: 'warning' }),
+    );
+  }
+
+  if (draftNotes.status === 'fulfilled') {
+    (draftNotes.value.data ?? []).forEach((n: { id: string; title: string; cover_image_url: string | null; excerpt: string | null; category_id: string | null }) => {
+      const missing: string[] = [];
+      if (!n.cover_image_url) missing.push('ảnh bìa');
+      if (!n.excerpt) missing.push('tóm tắt');
+      if (!n.category_id) missing.push('chuyên mục');
+      if (missing.length > 0) {
+        items.push({ type: 'note', id: n.id, title: n.title, issue: `Nháp thiếu: ${missing.join(', ')}`, issueType: 'error' });
+      }
+    });
+  }
+
+  if (reviewDueNotes.status === 'fulfilled') {
+    (reviewDueNotes.value.data ?? []).forEach((n: { id: string; title: string; next_review_at: string }) => {
+      const daysLeft = Math.ceil((new Date(n.next_review_at).getTime() - Date.now()) / 86400000);
+      items.push({
+        type: 'note', id: n.id, title: n.title,
+        issue: daysLeft <= 0 ? 'Đã quá hạn review' : `Đến hạn review trong ${daysLeft} ngày`,
+        issueType: daysLeft <= 0 ? 'error' : 'warning',
+      });
+    });
+  }
+
+  if (seoBooks.status === 'fulfilled') {
+    (seoBooks.value.data ?? []).forEach(b =>
+      items.push({ type: 'book', id: b.id, title: b.title, issue: 'Thiếu SEO title/description', issueType: 'warning' }),
+    );
+  }
+  if (seoProducts.status === 'fulfilled') {
+    (seoProducts.value.data ?? []).forEach(p =>
+      items.push({ type: 'product', id: p.id, title: p.name, issue: 'Thiếu SEO title/description', issueType: 'warning' }),
+    );
+  }
+  if (seoNotes.status === 'fulfilled') {
+    (seoNotes.value.data ?? []).forEach(n =>
+      items.push({ type: 'note', id: n.id, title: n.title, issue: 'Thiếu SEO title/description', issueType: 'warning' }),
+    );
+  }
+  if (missingReviewer.status === 'fulfilled') {
+    (missingReviewer.value.data ?? []).forEach(n =>
+      items.push({ type: 'note', id: n.id, title: n.title, issue: 'Đã đăng nhưng thiếu reviewer y tế', issueType: 'error' }),
+    );
+  }
+  if (missingDisclaimer.status === 'fulfilled') {
+    (missingDisclaimer.value.data ?? []).forEach(n =>
+      items.push({ type: 'note', id: n.id, title: n.title, issue: 'Đã đăng nhưng chưa xác nhận disclaimer', issueType: 'warning' }),
+    );
+  }
+
+  return items;
 }
 
 export async function getRecentActivity(limit = 5): Promise<Array<{ id: string; type: string; title: string; updated_at: string; action: string }>> {

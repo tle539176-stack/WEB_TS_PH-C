@@ -54,13 +54,13 @@ export default function Books() {
       <div className="container mx-auto px-4">
         <section className="grid lg:grid-cols-[1fr_360px] gap-8 lg:gap-12 items-end mb-10">
           <div>
-            <Badge className="bg-[#0A3151] text-white border-none mb-5">Thư viện sách</Badge>
+            <Badge className="bg-[#0A3151] text-white border-none mb-5 px-4 py-1.5 rounded-full uppercase tracking-wider text-xs shadow-sm">Thư viện sách</Badge>
             <h1 className="text-4xl md:text-5xl font-serif font-bold text-neutral-950 mb-5">Tủ Sách Bác Sĩ Wynn Tran</h1>
             <p className="text-neutral-600 max-w-2xl leading-7">
               Tìm nhanh các đầu sách sức khỏe, đọc mô tả ngắn, xem giá và mở trang chi tiết mà không cần rê chuột.
             </p>
 
-            <div className="mt-8 bg-white border border-neutral-200 rounded-lg p-3 shadow-sm">
+            <div className="mt-8 bg-white border border-neutral-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow">
               <div className="grid md:grid-cols-[1fr_auto] gap-3">
                 <div className="flex items-center gap-3 rounded-md border border-neutral-200 px-3">
                   <Search className="w-4 h-4 text-neutral-400 shrink-0" />
@@ -68,13 +68,13 @@ export default function Books() {
                     value={search}
                     onChange={event => setSearch(event.target.value)}
                     placeholder="Tìm theo tên sách, tác giả, năm xuất bản..."
-                    className="border-none shadow-none focus-visible:ring-0 h-11 p-0"
+                    className="border-none shadow-none focus-visible:ring-0 h-11 p-0 bg-transparent"
                   />
                 </div>
                 <select
                   value={sortMode}
                   onChange={event => setSortMode(event.target.value as 'newest' | 'title' | 'price')}
-                  className="h-11 rounded-md border border-neutral-200 bg-white px-3 text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-[#0A3151]/20"
+                  className="h-11 rounded-xl border border-neutral-200 bg-white px-3 text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-[#0A3151]/20 cursor-pointer"
                 >
                   <option value="newest">Mới nhất</option>
                   <option value="title">Tên A-Z</option>
@@ -96,9 +96,9 @@ export default function Books() {
 
           {featured && (
             <Link to={`/books/${featured.slug}`} className="block">
-              <div className="bg-white border border-neutral-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                 <div className="flex gap-4">
-                  <div className="w-24 shrink-0 aspect-[2/3] rounded-md bg-neutral-100 overflow-hidden">
+                  <div className="w-28 shrink-0 aspect-[2/3] rounded-xl bg-neutral-100 overflow-hidden shadow-sm">
                     {getPrimaryImageUrl(featured.book_images) ? (
                       <img
                         src={getPrimaryImageUrl(featured.book_images)}
@@ -113,9 +113,9 @@ export default function Books() {
                     )}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[10px] uppercase tracking-wider font-bold text-[#0A3151]">Gợi ý nổi bật</p>
-                    <h2 className="mt-2 font-serif font-bold text-lg text-neutral-950 line-clamp-2">{featured.title}</h2>
-                    <p className="mt-2 text-sm text-neutral-500 line-clamp-3">{featured.description}</p>
+                    <p className="text-[10px] uppercase tracking-wider font-bold text-[#0A3151] bg-[#0A3151]/5 inline-block px-2 py-1 rounded-md">Gợi ý nổi bật</p>
+                    <h2 className="mt-3 font-serif font-bold text-lg text-neutral-950 line-clamp-2 group-hover:text-[#0A3151] transition-colors">{featured.title}</h2>
+                    <p className="mt-2 text-sm text-neutral-500 line-clamp-3 leading-relaxed">{featured.description}</p>
                     <p className="mt-3 text-sm font-bold text-neutral-900">
                       {featured.price == null ? 'Liên hệ' : featured.price.toLocaleString('vi-VN') + 'đ'}
                     </p>
@@ -142,7 +142,8 @@ export default function Books() {
           ))}
         </div>
 
-        <div className="mt-16 bg-[#0A3151] text-white rounded-lg p-8 md:p-10">
+        <div className="mt-16 bg-[#0A3151] text-white rounded-3xl p-10 md:p-12 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl pointer-events-none" />
           <div className="max-w-3xl">
             <h2 className="text-2xl md:text-3xl font-serif font-bold mb-3">Theo dõi sách và tài liệu mới</h2>
             <p className="text-white/75 leading-7">

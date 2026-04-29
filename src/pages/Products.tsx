@@ -54,14 +54,14 @@ export default function Products() {
       <div className="container mx-auto px-4">
         <section className="mb-10">
           <div className="max-w-3xl">
-            <Badge className="bg-[#0A3151] text-white border-none mb-5">Sản phẩm khuyên dùng</Badge>
+            <Badge className="bg-[#0A3151] text-white border-none mb-5 px-4 py-1.5 rounded-full uppercase tracking-wider text-xs shadow-sm">Sản phẩm khuyên dùng</Badge>
             <h1 className="text-4xl md:text-5xl font-serif font-bold text-neutral-950 mb-5">Danh Mục Sản Phẩm</h1>
             <p className="text-neutral-600 leading-7">
               Lọc nhanh theo tag, thương hiệu và từ khóa để tìm đúng nhóm sản phẩm đang cần xem.
             </p>
           </div>
 
-          <div className="mt-8 bg-white border border-neutral-200 rounded-lg p-3 shadow-sm">
+          <div className="mt-8 bg-white border border-neutral-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow">
             <div className="grid lg:grid-cols-[1fr_180px_180px_180px] gap-3">
               <div className="flex items-center gap-3 rounded-md border border-neutral-200 px-3">
                 <Search className="w-4 h-4 text-neutral-400 shrink-0" />
@@ -69,13 +69,13 @@ export default function Products() {
                   value={search}
                   onChange={event => setSearch(event.target.value)}
                   placeholder="Tìm sản phẩm, thương hiệu, tag..."
-                  className="border-none shadow-none focus-visible:ring-0 h-11 p-0"
+                  className="border-none shadow-none focus-visible:ring-0 h-11 p-0 bg-transparent"
                 />
               </div>
               <select
                 value={selectedTag}
                 onChange={event => setSelectedTag(event.target.value)}
-                className="h-11 rounded-md border border-neutral-200 bg-white px-3 text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-[#0A3151]/20"
+                className="h-11 rounded-xl border border-neutral-200 bg-white px-3 text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-[#0A3151]/20 cursor-pointer"
               >
                 <option value="all">Tất cả tag</option>
                 {tags.map(tag => <option key={tag} value={tag}>{tag}</option>)}
@@ -83,7 +83,7 @@ export default function Products() {
               <select
                 value={selectedBrand}
                 onChange={event => setSelectedBrand(event.target.value)}
-                className="h-11 rounded-md border border-neutral-200 bg-white px-3 text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-[#0A3151]/20"
+                className="h-11 rounded-xl border border-neutral-200 bg-white px-3 text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-[#0A3151]/20 cursor-pointer"
               >
                 <option value="all">Tất cả thương hiệu</option>
                 {brands.map(brand => <option key={brand} value={brand}>{brand}</option>)}
@@ -91,7 +91,7 @@ export default function Products() {
               <select
                 value={sortMode}
                 onChange={event => setSortMode(event.target.value as 'newest' | 'name' | 'price')}
-                className="h-11 rounded-md border border-neutral-200 bg-white px-3 text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-[#0A3151]/20"
+                className="h-11 rounded-xl border border-neutral-200 bg-white px-3 text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-[#0A3151]/20 cursor-pointer"
               >
                 <option value="newest">Mới nhất</option>
                 <option value="name">Tên A-Z</option>
@@ -110,8 +110,8 @@ export default function Products() {
                   Xóa bộ lọc
                 </button>
               )}
-              {selectedTag !== 'all' && <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700">{selectedTag}</span>}
-              {selectedBrand !== 'all' && <span className="rounded-full bg-green-50 px-3 py-1.5 text-xs font-bold text-green-700">{selectedBrand}</span>}
+              {selectedTag !== 'all' && <span className="rounded-full bg-blue-50 border border-blue-100 px-3 py-1.5 text-xs font-bold text-blue-700 shadow-sm">{selectedTag}</span>}
+              {selectedBrand !== 'all' && <span className="rounded-full bg-green-50 border border-green-100 px-3 py-1.5 text-xs font-bold text-green-700 shadow-sm">{selectedBrand}</span>}
             </div>
           </div>
         </section>
@@ -132,8 +132,8 @@ export default function Products() {
           ))}
         </div>
 
-        <div className="mt-16 bg-white border border-neutral-200 rounded-lg p-6 md:p-8 flex gap-4">
-          <ShieldCheck className="w-6 h-6 text-[#0A3151] shrink-0 mt-0.5" />
+        <div className="mt-16 bg-[#F8FAFC] border border-blue-100 rounded-3xl p-6 md:p-8 flex gap-5 shadow-sm">
+          <div className="bg-white p-3 rounded-2xl shadow-sm shrink-0 h-fit"><ShieldCheck className="w-6 h-6 text-[#0A3151]" /></div>
           <div>
             <h2 className="font-bold text-neutral-950 mb-2">Lưu ý khi tham khảo sản phẩm</h2>
             <p className="text-sm leading-6 text-neutral-600">

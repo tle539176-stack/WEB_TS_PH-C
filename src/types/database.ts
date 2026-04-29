@@ -7,6 +7,87 @@ export type Category = {
   description: string | null;
   type: string;
   sort_order: number;
+  parent_id: string | null;
+  seo_title: string | null;
+  seo_description: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Person = {
+  id: string;
+  display_name: string;
+  slug: string;
+  role: 'author' | 'reviewer' | 'editor' | 'admin' | 'contributor';
+  professional_title: string | null;
+  credentials: string | null;
+  specialties: string[];
+  bio: string | null;
+  profile_url: string | null;
+  same_as: string[];
+  is_public: boolean;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type NoteSourceRow = {
+  id: string;
+  note_id: string;
+  title: string;
+  url: string | null;
+  publisher: string | null;
+  source_type: 'guideline' | 'journal' | 'systematic_review' | 'textbook' | 'government' | 'organization' | 'website' | 'other';
+  doi: string | null;
+  pmid: string | null;
+  published_at: string | null;
+  accessed_at: string | null;
+  evidence_level: 'high' | 'moderate' | 'low' | 'expert_opinion' | 'unknown' | null;
+  notes: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ContentReview = {
+  id: string;
+  entity_type: 'note' | 'product' | 'book' | 'setting';
+  entity_id: string;
+  reviewer_id: string | null;
+  decision: 'approved' | 'needs_changes' | 'rejected' | 'expired';
+  review_scope: 'medical' | 'editorial' | 'seo' | 'legal' | 'product_safety';
+  summary: string | null;
+  evidence_notes: string | null;
+  reviewed_at: string;
+  next_review_at: string | null;
+  created_by: string | null;
+  created_at: string;
+};
+
+export type ContentRevision = {
+  id: string;
+  entity_type: 'note' | 'product' | 'book' | 'setting';
+  entity_id: string | null;
+  entity_key: string | null;
+  version: number;
+  status: string | null;
+  title: string | null;
+  snapshot: Record<string, unknown>;
+  created_by: string | null;
+  created_at: string;
+};
+
+export type ContentMedia = {
+  id: string;
+  entity_type: 'note' | 'product' | 'book' | 'setting';
+  entity_id: string;
+  media_asset_id: string;
+  role: 'cover' | 'gallery' | 'inline' | 'logo' | 'hero' | 'footer';
+  alt_override: string | null;
+  caption_override: string | null;
+  sort_order: number;
+  is_primary: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -145,6 +226,18 @@ export type Note = {
   sources: NoteSource[];
   seo_title: string | null;
   seo_description: string | null;
+  // Fields in DB since migration 001, now exposed in type:
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  // Fields added in migration 003:
+  author_id: string | null;
+  reviewed_by_id: string | null;
+  medical_specialty: string | null;
+  medical_audience: string;
+  disclaimer_ack: boolean;
+  schema_type: string;
+  word_count: number | null;
+  reading_level: string | null;
   created_at: string;
   updated_at: string;
   published_at: string | null;
@@ -168,6 +261,8 @@ export type AuditLog = {
   created_at: string;
 };
 
+// ---- Insert types ----
+
 export type CategoryInsert = {
   id?: string;
   name: string;
@@ -175,6 +270,76 @@ export type CategoryInsert = {
   description?: string | null;
   type?: string;
   sort_order?: number;
+  parent_id?: string | null;
+  seo_title?: string | null;
+  seo_description?: string | null;
+  is_active?: boolean;
+};
+
+export type PersonInsert = {
+  id?: string;
+  display_name: string;
+  slug: string;
+  role?: Person['role'];
+  professional_title?: string | null;
+  credentials?: string | null;
+  specialties?: string[];
+  bio?: string | null;
+  profile_url?: string | null;
+  same_as?: string[];
+  is_public?: boolean;
+  is_active?: boolean;
+};
+
+export type NoteSourceRowInsert = {
+  id?: string;
+  note_id: string;
+  title: string;
+  url?: string | null;
+  publisher?: string | null;
+  source_type?: NoteSourceRow['source_type'];
+  doi?: string | null;
+  pmid?: string | null;
+  published_at?: string | null;
+  accessed_at?: string | null;
+  evidence_level?: NoteSourceRow['evidence_level'];
+  notes?: string | null;
+  sort_order?: number;
+};
+
+export type ContentReviewInsert = {
+  entity_type: ContentReview['entity_type'];
+  entity_id: string;
+  reviewer_id?: string | null;
+  decision?: ContentReview['decision'];
+  review_scope?: ContentReview['review_scope'];
+  summary?: string | null;
+  evidence_notes?: string | null;
+  reviewed_at?: string;
+  next_review_at?: string | null;
+  created_by?: string | null;
+};
+
+export type ContentRevisionInsert = {
+  entity_type: ContentRevision['entity_type'];
+  entity_id?: string | null;
+  entity_key?: string | null;
+  version: number;
+  status?: string | null;
+  title?: string | null;
+  snapshot: Record<string, unknown>;
+  created_by?: string | null;
+};
+
+export type ContentMediaInsert = {
+  entity_type: ContentMedia['entity_type'];
+  entity_id: string;
+  media_asset_id: string;
+  role?: ContentMedia['role'];
+  alt_override?: string | null;
+  caption_override?: string | null;
+  sort_order?: number;
+  is_primary?: boolean;
 };
 
 export type ProductInsert = {
@@ -259,6 +424,16 @@ export type NoteInsert = {
   sources?: NoteSource[];
   seo_title?: string | null;
   seo_description?: string | null;
+  reviewed_by?: string | null;
+  reviewed_at?: string | null;
+  author_id?: string | null;
+  reviewed_by_id?: string | null;
+  medical_specialty?: string | null;
+  medical_audience?: string;
+  disclaimer_ack?: boolean;
+  schema_type?: string;
+  word_count?: number | null;
+  reading_level?: string | null;
   published_at?: string | null;
 };
 
@@ -321,15 +496,42 @@ export type Database = {
         referencedRelation: 'books';
         referencedColumns: ['id'];
       }]>;
-      notes: Table<Note, NoteInsert, Partial<NoteInsert>, [{
-        foreignKeyName: 'notes_category_id_fkey';
-        columns: ['category_id'];
-        isOneToOne: false;
-        referencedRelation: 'categories';
-        referencedColumns: ['id'];
-      }]>;
+      notes: Table<Note, NoteInsert, Partial<NoteInsert>, [
+        {
+          foreignKeyName: 'notes_category_id_fkey';
+          columns: ['category_id'];
+          isOneToOne: false;
+          referencedRelation: 'categories';
+          referencedColumns: ['id'];
+        },
+        {
+          foreignKeyName: 'notes_author_id_fkey';
+          columns: ['author_id'];
+          isOneToOne: false;
+          referencedRelation: 'people';
+          referencedColumns: ['id'];
+        },
+        {
+          foreignKeyName: 'notes_reviewed_by_id_fkey';
+          columns: ['reviewed_by_id'];
+          isOneToOne: false;
+          referencedRelation: 'people';
+          referencedColumns: ['id'];
+        }
+      ]>;
       settings: Table<Setting, SettingInsert, Partial<SettingInsert>>;
       audit_logs: Table<AuditLog, AuditLogInsert, Partial<AuditLogInsert>>;
+      people: Table<Person, PersonInsert, Partial<PersonInsert>>;
+      note_sources: Table<NoteSourceRow, NoteSourceRowInsert, Partial<NoteSourceRowInsert>, [{
+        foreignKeyName: 'note_sources_note_id_fkey';
+        columns: ['note_id'];
+        isOneToOne: false;
+        referencedRelation: 'notes';
+        referencedColumns: ['id'];
+      }]>;
+      content_reviews: Table<ContentReview, ContentReviewInsert, Partial<ContentReviewInsert>>;
+      content_revisions: Table<ContentRevision, ContentRevisionInsert, Partial<ContentRevisionInsert>>;
+      content_media: Table<ContentMedia, ContentMediaInsert, Partial<ContentMediaInsert>>;
     };
     Views: { [_ in never]: never };
     Functions: { [_ in never]: never };
@@ -341,3 +543,11 @@ export type Database = {
 export type ProductWithImages = Product & { product_images: ProductImage[] };
 export type BookWithImages = Book & { book_images: BookImage[] };
 export type NoteWithCategory = Note & { categories: Category | null };
+
+export type NoteWithMedicalMeta = Note & {
+  categories: Category | null;
+  author: Person | null;
+  reviewer: Person | null;
+  note_sources: NoteSourceRow[];
+  content_reviews: (ContentReview & { reviewer: Person | null })[];
+};

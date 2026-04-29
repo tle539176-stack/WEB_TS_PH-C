@@ -1,21 +1,27 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { ArrowLeft, Calendar, Clock, Share2 } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Share2, ShieldCheck, UserCheck } from 'lucide-react';
 import DOMPurify from 'dompurify';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getNoteBySlug } from '@/services/contentService';
-import type { NoteWithCategory } from '@/types/database';
+import { buildMedicalWebPageJsonLd } from '@/lib/structuredData';
+import type { NoteWithMedicalMeta } from '@/types/database';
 
-function formatDate(dateStr: string | null): string {
+function formatDate(dateStr: string | null | undefined): string {
   if (!dateStr) return '';
   return new Date(dateStr).toLocaleDateString('vi-VN');
 }
 
+function formatDateLong(dateStr: string | null | undefined): string {
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
 export default function NoteDetail() {
   const { slug } = useParams<{ slug: string }>();
-  const [note, setNote] = useState<NoteWithCategory | null>(null);
+  const [note, setNote] = useState<NoteWithMedicalMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -40,8 +46,38 @@ export default function NoteDetail() {
     );
   }
 
+  // Combine structured sources (preferred) with legacy JSONB fallback
+  const displaySources = note.note_sources?.length
+    ? note.note_sources
+    : (note.sources ?? []).map((s, i) => ({
+        id: `legacy-${i}`,
+        note_id: note.id,
+        title: s.title,
+        url: s.url,
+        publisher: null,
+        source_type: 'website' as const,
+        doi: null, pmid: null,
+        published_at: null,
+        accessed_at: s.accessed_at ?? null,
+        evidence_level: null,
+        notes: null,
+        sort_order: i,
+        created_at: '', updated_at: '',
+      }));
+
+  const jsonLd = buildMedicalWebPageJsonLd(note);
+
+  const reviewerPerson = note.reviewer;
+  const authorPerson = note.author;
+
   return (
     <div className="pt-32 pb-24 bg-white">
+      {/* JSON-LD structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <Link to="/notes" className="inline-flex items-center gap-2 text-neutral-500 hover:text-[#0A3151] transition-colors mb-12 group">
@@ -56,39 +92,86 @@ export default function NoteDetail() {
           >
             <div className="space-y-6">
               {note.categories?.name && (
-                <Badge className="bg-[#0A3151]/10 text-[#0A3151] hover:bg-[#0A3151]/20 border-none px-4 py-1">
+                <Badge className="bg-[#0A3151]/10 text-[#0A3151] hover:bg-[#0A3151]/20 border-none px-4 py-1 rounded-full shadow-sm">
                   {note.categories.name}
                 </Badge>
               )}
               <h1 className="text-4xl md:text-6xl font-serif font-bold leading-tight text-[#1A1A1A]">
                 {note.title}
               </h1>
+
+              {/* Meta bar */}
               <div className="flex flex-wrap items-center gap-6 text-sm text-neutral-500 py-4 border-y border-neutral-100">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-neutral-200 overflow-hidden">
-                    <img src="https://picsum.photos/seed/dr/100/100" alt="Dr. Wynn Tran" />
+                {/* Author or reviewer avatar */}
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-neutral-200 overflow-hidden border-2 border-white shadow-sm flex items-center justify-center text-neutral-500 font-bold text-sm">
+                    {authorPerson
+                      ? authorPerson.display_name[0].toUpperCase()
+                      : reviewerPerson
+                        ? reviewerPerson.display_name[0].toUpperCase()
+                        : 'Dr'}
                   </div>
-                  <span className="font-bold text-[#1A1A1A]">Dr. Wynn Tran</span>
+                  <div>
+                    {authorPerson && (
+                      <p className="font-bold text-[#1A1A1A] text-sm">{authorPerson.display_name}</p>
+                    )}
+                    {authorPerson?.professional_title && (
+                      <p className="text-[11px] text-neutral-400">{authorPerson.professional_title}</p>
+                    )}
+                    {!authorPerson && reviewerPerson && (
+                      <p className="font-bold text-[#1A1A1A] text-sm">{reviewerPerson.display_name}</p>
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
+
+                <div className="flex items-center gap-2 bg-neutral-50 px-3 py-1.5 rounded-full">
+                  <Calendar className="w-4 h-4 text-neutral-400" />
                   {formatDate(note.published_at)}
                 </div>
                 {note.read_time && (
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
+                  <div className="flex items-center gap-2 bg-neutral-50 px-3 py-1.5 rounded-full">
+                    <Clock className="w-4 h-4 text-neutral-400" />
                     {note.read_time} đọc
                   </div>
                 )}
-                <Button variant="ghost" size="sm" className="ml-auto gap-2 text-neutral-500">
-                  <Share2 className="w-4 h-4" /> Chia sẻ
+                <Button variant="outline" size="sm" className="ml-auto gap-2 text-neutral-600 rounded-full hover:bg-neutral-50">
+                  <Share2 className="w-4 h-4" /> Chia sẻ bài viết
                 </Button>
               </div>
+
+              {/* Medical review info bar */}
+              {(reviewerPerson || note.reviewed_at) && (
+                <div className="flex flex-wrap items-center gap-4 text-xs bg-[#0A3151]/5 border border-[#0A3151]/10 rounded-xl px-5 py-3">
+                  <ShieldCheck className="w-4 h-4 text-[#0A3151] shrink-0" />
+                  {reviewerPerson && (
+                    <div>
+                      <span className="text-neutral-500">Reviewer y tế: </span>
+                      <span className="font-bold text-[#0A3151]">{reviewerPerson.display_name}</span>
+                      {reviewerPerson.credentials && <span className="text-neutral-500 ml-1">({reviewerPerson.credentials})</span>}
+                      {reviewerPerson.professional_title && <span className="text-neutral-400 ml-1">· {reviewerPerson.professional_title}</span>}
+                    </div>
+                  )}
+                  {note.reviewed_at && (
+                    <div>
+                      <span className="text-neutral-500">Ngày review: </span>
+                      <span className="font-medium text-neutral-700">{formatDateLong(note.reviewed_at)}</span>
+                    </div>
+                  )}
+                  {note.next_review_at && (
+                    <div>
+                      <span className="text-neutral-500">Review tiếp theo: </span>
+                      <span className={`font-medium ${new Date(note.next_review_at) < new Date() ? 'text-red-600' : 'text-neutral-700'}`}>
+                        {formatDateLong(note.next_review_at)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {note.cover_image_url && (
-              <div className="overflow-hidden aspect-[21/9] shadow-lg">
-                <img src={note.cover_image_url} alt={(note as typeof note & { cover_alt?: string }).cover_alt || note.title} className="w-full h-full object-cover" />
+              <div className="overflow-hidden aspect-[21/9] rounded-3xl shadow-xl border border-neutral-100">
+                <img src={note.cover_image_url} alt={note.cover_alt || note.title} className="w-full h-full object-cover" />
               </div>
             )}
 
@@ -103,27 +186,83 @@ export default function NoteDetail() {
                   <p className="text-neutral-400 italic">Chưa có nội dung.</p>
                 )}
 
-                <div className="mt-16 p-8 bg-white border border-neutral-100">
+                <div className="mt-16 p-8 bg-neutral-50 rounded-3xl border border-neutral-100 relative">
+                  <div className="absolute top-0 left-8 -translate-y-1/2 w-12 h-12 bg-[#0A3151] rounded-2xl flex items-center justify-center shadow-lg">
+                    <span className="text-white text-4xl font-serif leading-none mt-4">"</span>
+                  </div>
                   <h3 className="text-xl font-bold font-serif mb-4">Lời khuyên từ Bác sĩ:</h3>
                   <p className="italic text-neutral-600">
                     "Sức khỏe không phải là thứ chúng ta có thể mua được, nhưng nó là một tài khoản tiết kiệm vô cùng quý giá. Hãy bắt đầu chăm sóc nó ngay từ hôm nay bằng những thói quen nhỏ nhất."
                   </p>
                 </div>
 
-                {note.sources && note.sources.length > 0 && (
-                  <div className="mt-8 p-6 bg-neutral-50 border border-neutral-100">
-                    <h3 className="font-bold font-serif mb-4">Tài liệu tham khảo</h3>
-                    <ul className="space-y-2">
-                      {note.sources.map((src, i) => (
-                        <li key={i} className="text-sm text-neutral-600">
-                          <a href={src.url} target="_blank" rel="noopener noreferrer" className="hover:text-[#0A3151] underline">
-                            {src.title}
-                          </a>
+                {/* References section */}
+                {displaySources.length > 0 && (
+                  <div className="mt-8 p-8 bg-white rounded-3xl border border-neutral-100 shadow-sm">
+                    <h3 className="font-bold font-serif mb-5 text-lg text-[#0A3151]">Tài liệu tham khảo</h3>
+                    <ol className="space-y-4 list-decimal list-outside ml-5">
+                      {displaySources.map((src, i) => (
+                        <li key={src.id ?? i} className="text-sm text-neutral-600 pl-1">
+                          <div className="space-y-0.5">
+                            {src.url ? (
+                              <a
+                                href={src.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:text-[#0A3151] underline font-medium"
+                              >
+                                {src.title}
+                              </a>
+                            ) : (
+                              <span className="font-medium">{src.title}</span>
+                            )}
+                            <div className="flex flex-wrap gap-x-3 text-xs text-neutral-400">
+                              {src.publisher && <span>{src.publisher}</span>}
+                              {src.published_at && <span>{src.published_at}</span>}
+                              {src.doi && (
+                                <a href={`https://doi.org/${src.doi}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#0A3151]">
+                                  DOI: {src.doi}
+                                </a>
+                              )}
+                              {src.pmid && (
+                                <a href={`https://pubmed.ncbi.nlm.nih.gov/${src.pmid}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#0A3151]">
+                                  PMID: {src.pmid}
+                                </a>
+                              )}
+                              {src.accessed_at && <span>Truy cập: {src.accessed_at}</span>}
+                              {src.evidence_level && src.evidence_level !== 'unknown' && (
+                                <span className="bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase">
+                                  {src.evidence_level}
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         </li>
                       ))}
-                    </ul>
+                    </ol>
                   </div>
                 )}
+
+                {/* Medical disclaimer */}
+                <div className="mt-8 p-6 bg-amber-50 border border-amber-200 rounded-2xl">
+                  <div className="flex items-start gap-3">
+                    <UserCheck className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                    <div className="text-sm text-amber-900 space-y-1">
+                      <p className="font-bold">Tuyên bố miễn trách y tế</p>
+                      <p className="leading-relaxed text-amber-800">
+                        Nội dung bài viết chỉ mang tính chất thông tin giáo dục sức khỏe, không thay thế lời khuyên y tế, chẩn đoán hoặc điều trị từ bác sĩ có chuyên môn.
+                        Vui lòng tham khảo ý kiến bác sĩ trước khi đưa ra quyết định về sức khỏe.
+                      </p>
+                      {reviewerPerson && (
+                        <p className="text-xs text-amber-700 mt-2">
+                          Bài viết này đã được review bởi <strong>{reviewerPerson.display_name}</strong>
+                          {reviewerPerson.credentials ? ` (${reviewerPerson.credentials})` : ''}
+                          {note.reviewed_at ? ` vào ${formatDateLong(note.reviewed_at)}` : ''}.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-10">

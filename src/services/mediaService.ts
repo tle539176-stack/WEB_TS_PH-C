@@ -631,6 +631,32 @@ export async function reorderBookImages(bookId: string, imageIds: string[]): Pro
 // Note cover
 // ============================================================
 
+export async function uploadStagedNoteCover(input: {
+  file: File;
+  stagingKey: string;
+  alt?: string;
+  uploadedBy?: string;
+}): Promise<{ url: string; storagePath: string; asset: MediaAsset }> {
+  const asset = await uploadMediaAsset({
+    file: input.file,
+    folder: `staging/notes/${input.stagingKey}`,
+    entityType: 'note',
+    entityId: undefined,
+    alt: input.alt ?? '',
+    uploadedBy: input.uploadedBy,
+  });
+  return { url: asset.public_url, storagePath: asset.storage_path, asset };
+}
+
+export async function linkNoteCoverAsset(storagePath: string, noteId: string): Promise<void> {
+  if (!supabase) return;
+  await supabase
+    .from('media_assets')
+    .update({ entity_id: noteId })
+    .eq('storage_path', storagePath)
+    .is('entity_id', null);
+}
+
 export async function uploadNoteCover(
   noteId: string,
   file: File,

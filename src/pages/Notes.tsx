@@ -22,7 +22,7 @@ export default function Notes() {
   useEffect(() => {
     getPublishedNotesWithCategory()
       .then(setNotes)
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   }, []);
 
@@ -30,9 +30,9 @@ export default function Notes() {
 
   const filtered = search
     ? notes.filter(n =>
-        n.title.toLowerCase().includes(search.toLowerCase()) ||
-        (n.excerpt ?? '').toLowerCase().includes(search.toLowerCase())
-      )
+      n.title.toLowerCase().includes(search.toLowerCase()) ||
+      (n.excerpt ?? '').toLowerCase().includes(search.toLowerCase())
+    )
     : notes;
 
   return (
@@ -47,7 +47,7 @@ export default function Notes() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
             <Input
               placeholder="Tìm kiếm bài viết..."
-              className="pl-10 border-neutral-200 focus:ring-[#0A3151]"
+              className="pl-10 rounded-full border-neutral-200 focus:ring-[#0A3151] bg-neutral-50 hover:bg-neutral-100 transition-colors"
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
@@ -70,7 +70,7 @@ export default function Notes() {
               >
                 <Link to={`/notes/${note.slug}`}>
                   <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
-                    <div className="md:col-span-2 overflow-hidden aspect-[4/3] bg-neutral-100">
+                    <div className="md:col-span-2 overflow-hidden rounded-2xl shadow-sm aspect-[4/3] bg-neutral-100 group-hover:shadow-md transition-shadow">
                       {note.cover_image_url && (
                         <img
                           src={note.cover_image_url}
@@ -83,7 +83,7 @@ export default function Notes() {
                     <div className="md:col-span-3 flex flex-col justify-center">
                       <div className="flex items-center gap-4 mb-4">
                         {note.categories?.name && (
-                          <Badge variant="secondary" className="bg-[#0A3151]/10 text-[#0A3151] hover:bg-[#0A3151]/20 border-none">
+                          <Badge variant="secondary" className="bg-[#0A3151]/10 text-[#0A3151] hover:bg-[#0A3151]/20 border-none rounded-full px-3">
                             {note.categories.name}
                           </Badge>
                         )}
@@ -119,12 +119,12 @@ export default function Notes() {
           <div className="space-y-10">
             <section>
               <h3 className="text-xl font-bold font-serif mb-6 pb-2 border-b-2 border-[#0A3151] inline-block">Chuyên mục</h3>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 pt-2">
                 {categories.map(cat => (
                   <Badge
                     key={cat}
                     variant="outline"
-                    className="px-4 py-2 cursor-pointer hover:bg-[#0A3151] hover:text-white transition-colors"
+                    className="px-4 py-2 rounded-full cursor-pointer hover:bg-[#0A3151] hover:text-white transition-all shadow-sm"
                     onClick={() => setSearch(cat)}
                   >
                     {cat}
@@ -136,14 +136,14 @@ export default function Notes() {
               </div>
             </section>
 
-            <Card className="bg-white border-none p-8">
-              <CardContent className="p-0 text-center">
-                <div className="w-16 h-16 bg-white flex items-center justify-center mx-auto mb-6 text-[#0A3151]">
+            <Card className="bg-gradient-to-br from-[#0A3151] to-[#1A252F] border-none p-8 rounded-3xl shadow-xl text-white">
+              <CardContent className="p-0 text-center relative overflow-hidden">
+                <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center mx-auto mb-6 text-white border border-white/20">
                   <Tag className="w-8 h-8" />
                 </div>
-                <h3 className="text-xl font-bold font-serif mb-4">Tải E-book miễn phí</h3>
-                <p className="text-sm text-neutral-600 mb-6">Cẩm nang 10 bước bảo vệ sức khỏe tim mạch tại nhà.</p>
-                <Button className="w-full bg-[#0A3151] hover:bg-[#0D426E] text-white">
+                <h3 className="text-2xl font-bold font-serif mb-4">Tải E-book miễn phí</h3>
+                <p className="text-sm text-white/80 mb-8 leading-relaxed">Cẩm nang 10 bước bảo vệ sức khỏe tim mạch tại nhà chuẩn y khoa.</p>
+                <Button className="w-full bg-white hover:bg-neutral-100 text-[#0A3151] rounded-xl py-6 font-bold text-lg shadow-lg hover:shadow-xl transition-all">
                   Tải ngay
                 </Button>
               </CardContent>

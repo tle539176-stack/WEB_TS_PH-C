@@ -10,6 +10,9 @@ Từ thời điểm này, tài liệu thực thi chính của dự án là:
 4. [05 - Nghiên cứu UI/UX Admin, Thư viện Sách và Sản phẩm](05-admin-ui-ux-research-books-products.md)
 5. [06 - Spec triển khai UI/UX Admin, Thư viện Sách và Sản phẩm](06-admin-ui-ux-implementation-spec.md)
 6. [07 - Kế hoạch thực thi Admin Listing Editor kiểu Shopee/TikTok](07-admin-shopee-tiktok-style-editor-execution-plan.md)
+7. [08 - Audit UX Admin và Roadmap thực thi tổng thể](08-admin-ux-audit-roadmap.md)
+8. [09 - Kế hoạch thực thi nâng cấp cấu trúc dữ liệu CMS y tế](09-medical-cms-data-architecture-execution-plan.md)
+9. [10 - Đặc tả nâng cấp UI/UX Admin Products](10-admin-products-ux-focus-mode-spec.md)
 
 Khi giao việc cho AI hoặc triển khai nâng cấp, dùng `00` làm chuẩn kiến trúc, dùng `03` làm chỉ đạo thực thi theo hiện trạng code mới nhất, và dùng `04` cho phase nâng cấp upload ảnh/Media Library. Mục tiêu cuối cùng là:
 
@@ -17,7 +20,7 @@ Khi giao việc cho AI hoặc triển khai nâng cấp, dùng `00` làm chuẩn 
 Supabase Auth + Supabase Postgres + Supabase Storage + custom Admin UI
 ```
 
-Với phase cải thiện trải nghiệm nhập liệu Admin và redesign public catalog Books/Products, dùng `05` làm tài liệu nghiên cứu và `06` làm spec triển khai nền. Với phase nâng cấp editor theo kiểu Shopee/TikTok gồm preview đúng ngoài web, upload ảnh compact hàng loạt, staged media, và `Lưu nháp`/`Đăng lên web`, dùng `07` làm tài liệu thực thi chính.
+Với phase cải thiện trải nghiệm nhập liệu Admin và redesign public catalog Books/Products, dùng `05` làm tài liệu nghiên cứu và `06` làm spec triển khai nền. Với phase nâng cấp editor theo kiểu Shopee/TikTok gồm preview đúng ngoài web, upload ảnh compact hàng loạt, staged media, và `Lưu nháp`/`Đăng lên web`, dùng `07` làm tài liệu thực thi chính. Với phase nâng cấp tổng thể toàn bộ `/admin` sau khi audit hiện trạng mới nhất, dùng `08` làm tài liệu điều phối chính. Với phase chuẩn hóa cấu trúc dữ liệu y tế/khoa học gồm reviewer, nguồn tham khảo có cấu trúc, review history, revision và JSON-LD, dùng `09` làm tài liệu thực thi chính. Với phase nâng cấp riêng UX module Admin Products theo hướng editor focus mode, dùng `10` làm tài liệu đặc tả để chốt phương án.
 
 ## Trạng thái các tài liệu cũ
 
@@ -79,4 +82,22 @@ Thực thi phase UI/UX theo `docs/05-admin-ui-ux-research-books-products.md` và
 
 ```text
 Thực thi phase 07 theo `docs/07-admin-shopee-tiktok-style-editor-execution-plan.md`: Product/Book Admin editor dùng layout kiểu seller center với tabs + form chính + preview sticky; preview dùng chung component với public `/products` và `/books`; ảnh dùng CompactMediaManager upload nhiều ảnh, thumbnail nhỏ, overlay sửa/xóa/đặt ảnh chính, sắp xếp; bỏ dropdown Trạng thái khỏi editor; chỉ dùng `Lưu nháp` và `Đăng lên web`; cho phép upload ảnh ngay trong form mới bằng staged media, không bắt user tạo nháp trước; có checklist chất lượng và cảnh báo claim y tế trước khi publish; giữ Supabase Auth + Postgres + Storage, không Firebase/mockData, chạy Docker build, `tsc --noEmit`, smoke test `/admin`, `/products`, `/books`, `/env-config.js`.
+```
+
+## Prompt phase 08 - Audit UX Admin tổng thể
+
+```text
+Thực thi phase 08 theo `docs/08-admin-ux-audit-roadmap.md`: biến `/admin` thành Content Operations Workspace; refactor `src/pages/Admin.tsx` chỉ giữ auth gate/sidebar/layout/route; tách Overview, Settings, Categories, Books, Products, Notes thành module riêng; chuẩn hóa toast, confirm dialog, inline error, unsaved changes guard; nâng Dashboard thành work queue; nâng Notes thành CMS editor y tế có staged cover upload, sources, review checklist, preview public, `Lưu nháp`/`Gửi duyệt`/`Đăng lên web`; bổ sung accessibility cho media manager như reorder không cần drag và dialog focus management; giữ Supabase Auth/Postgres/Storage, không Firebase/mockData/service-role trong frontend; chạy build Docker và smoke test Admin.
+```
+
+## Prompt phase 09 - Cấu trúc dữ liệu CMS y tế
+
+```text
+Thực thi phase 09 theo `docs/09-medical-cms-data-architecture-execution-plan.md`: tạo migration additive cho `people`, `note_sources`, `content_reviews`, `content_revisions`, `content_media`; mở rộng `notes` và `categories`; giữ tương thích `notes.sources`, `product_images`, `book_images`; cập nhật TypeScript types, service layer, Admin Notes/People/Categories, publish checklist y tế, public `NoteDetail` và JSON-LD `MedicalWebPage`; giữ Supabase Auth/Postgres/Storage, không Firebase/mockData/service-role trong frontend; chạy migration local, `tsc --noEmit`, Docker build và smoke test `/admin`, `/notes`, `/notes/:slug`.
+```
+
+## Prompt phase 10 - UX Admin Products focus mode
+
+```text
+Thực thi phase đầu theo `docs/10-admin-products-ux-focus-mode-spec.md`: nâng module `Danh mục Sản phẩm` trong `/admin` sang Editor Focus Mode; khi click `Thêm sản phẩm` hoặc edit sản phẩm thì ẩn stat cards, search/filter/sort và bảng danh sách, chỉ giữ editor rộng rãi với breadcrumb, form, media, preview, checklist và action bar; `Lưu nháp` khi tạo mới giữ user trong editor và chuyển sang edit mode, publish thành công quay lại list; thêm guard cơ bản khi rời form có thay đổi; không đổi schema DB, không sửa public `/products`; chạy `tsc --noEmit`, Docker build và smoke test `/admin`.
 ```
