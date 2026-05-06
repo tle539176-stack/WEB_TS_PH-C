@@ -1,116 +1,130 @@
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'motion/react';
-import { Award, GraduationCap, Stethoscope, Heart } from 'lucide-react';
+import { Award, Heart, ShieldCheck, Stethoscope } from 'lucide-react';
+import { DEFAULT_SETTINGS, getSiteSettings, type SiteSettings } from '@/services/settingsService';
+
+function splitParagraphs(value: string): string[] {
+  return value
+    .split(/\n{2,}/)
+    .map(item => item.trim())
+    .filter(Boolean);
+}
+
+function splitHighlights(value: string): string[] {
+  return value
+    .split(/\r?\n/)
+    .map(item => item.trim())
+    .filter(Boolean);
+}
 
 export default function About() {
+  const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS);
+
+  useEffect(() => {
+    getSiteSettings().then(setSettings).catch(() => {});
+  }, []);
+
+  const paragraphs = useMemo(() => splitParagraphs(settings.aboutBody), [settings.aboutBody]);
+  const highlights = useMemo(() => splitHighlights(settings.aboutHighlights), [settings.aboutHighlights]);
+  const initials = settings.aboutTitle
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(-2)
+    .map(part => part[0])
+    .join('')
+    .toUpperCase();
+
   return (
-    <div className="pt-32 pb-24">
+    <div className="pt-32 pb-24 bg-white">
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+            className="text-center mb-14"
           >
-            <h1 className="text-4xl md:text-6xl font-serif font-bold mb-6">Về Bác sĩ Wynn Tran</h1>
-            <div className="w-20 h-1 bg-[#0A3151] mx-auto mb-8" />
-            <p className="text-xl text-neutral-600 italic">"Kiến thức là cách tốt nhất quý vị bảo vệ chính mình!"</p>
+            <p className="text-sm uppercase tracking-[0.24em] text-[#0A3151] font-bold mb-4">Giới thiệu</p>
+            <h1 className="text-4xl md:text-6xl font-serif font-bold mb-5 text-[#1A1A1A]">{settings.aboutTitle}</h1>
+            <p className="text-lg md:text-xl text-neutral-600 max-w-3xl mx-auto leading-relaxed">{settings.aboutSubtitle}</p>
+            {settings.aboutQuote && (
+              <p className="text-base md:text-lg text-neutral-500 italic mt-6">"{settings.aboutQuote}"</p>
+            )}
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-20 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-[360px_minmax(0,1fr)] gap-10 lg:gap-14 mb-20 items-start">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="overflow-hidden rounded-2xl shadow-xl aspect-[3/4]"
+              className="lg:sticky lg:top-28"
             >
-              <img
-                src="https://picsum.photos/seed/drwynn/600/800"
-                alt="Dr. Wynn Tran Profile"
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
-                referrerPolicy="no-referrer"
-              />
+              <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-100 shadow-xl aspect-[3/4]">
+                {settings.aboutImage ? (
+                  <img
+                    src={settings.aboutImage}
+                    alt={settings.aboutImageAlt || settings.aboutTitle}
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-[#0A3151] text-white flex flex-col items-center justify-center p-8 text-center">
+                    <div className="w-24 h-24 rounded-full border border-white/30 flex items-center justify-center text-4xl font-serif font-bold mb-6">
+                      {initials || 'ĐP'}
+                    </div>
+                    <p className="font-serif text-2xl font-bold">{settings.aboutTitle}</p>
+                    <p className="text-sm text-white/75 mt-3 leading-relaxed">{settings.aboutSubtitle}</p>
+                  </div>
+                )}
+              </div>
             </motion.div>
+
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="space-y-6"
+              className="space-y-8"
             >
-              <h2 className="text-2xl font-bold font-serif text-[#0A3151]">Câu chuyện của tôi</h2>
-              <p className="text-neutral-600 leading-relaxed">
-                Bác sĩ Wynn Tran (Trần Huỳnh) hiện là bác sĩ chuyên khoa tại Hoa Kỳ. Anh được biết đến rộng rãi qua các chương trình Livestream chia sẻ kiến thức y khoa trên kênh Youtube Dr. Wynn Tran Official.
-              </p>
-              <p className="text-neutral-600 leading-relaxed">
-                Hành trình từ một kiến trúc sư chuyển sang ngành y tại Mỹ là một minh chứng cho sự nỗ lực không ngừng nghỉ và đam mê phục vụ cộng đồng.
-              </p>
-              <div className="grid grid-cols-2 gap-4 pt-4">
-                <div className="p-5 bg-white rounded-xl border border-neutral-100 shadow-sm hover:shadow-md transition-shadow">
-                  <p className="text-2xl font-bold text-[#0A3151]">15+</p>
-                  <p className="text-xs text-neutral-500 uppercase tracking-wider">Năm kinh nghiệm</p>
+              <section className="space-y-5">
+                <div className="flex items-center gap-3">
+                  <Stethoscope className="w-6 h-6 text-[#0A3151]" />
+                  <h2 className="text-2xl md:text-3xl font-bold font-serif text-[#0A3151]">{settings.aboutSectionTitle}</h2>
                 </div>
-                <div className="p-5 bg-white rounded-xl border border-neutral-100 shadow-sm hover:shadow-md transition-shadow">
-                  <p className="text-2xl font-bold text-[#0A3151]">500k+</p>
-                  <p className="text-xs text-neutral-500 uppercase tracking-wider">Người theo dõi</p>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-
-          <div className="space-y-12">
-            <motion.section
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <div className="flex items-center gap-3 mb-8">
-                <GraduationCap className="w-6 h-6 text-[#0A3151]" />
-                <h3 className="text-2xl font-bold font-serif">Học vấn & Bằng cấp</h3>
-              </div>
-              <div className="space-y-6">
-                {[
-                  { degree: 'Bác sĩ Y khoa (MD)', school: 'Hoa Kỳ', year: '2010' },
-                  { degree: 'Chuyên khoa Nội tổng quát', school: 'Hoa Kỳ', year: '2014' },
-                  { degree: 'Kiến trúc sư', school: 'Đại học Kiến trúc TP.HCM', year: '2000' }
-                ].map((edu, i) => (
-                  <div key={i} className="flex justify-between items-center p-6 bg-white rounded-xl shadow-sm border border-neutral-100 hover:shadow-md transition-shadow hover:border-[#0A3151]/20">
-                    <div>
-                      <h4 className="font-bold text-lg">{edu.degree}</h4>
-                      <p className="text-neutral-500">{edu.school}</p>
-                    </div>
-                    <span className="text-[#0A3151] font-bold">{edu.year}</span>
-                  </div>
-                ))}
-              </div>
-            </motion.section>
-
-            <motion.section
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <div className="flex items-center gap-3 mb-8">
-                <Award className="w-6 h-6 text-[#0A3151]" />
-                <h3 className="text-2xl font-bold font-serif">Hoạt động cộng đồng</h3>
-              </div>
-              <div className="bg-[#0A3151] text-white p-8 rounded-2xl shadow-lg relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl pointer-events-none" />
-                <p className="leading-relaxed mb-6">
-                  Sáng lập tổ chức VietMD.NET giúp sinh viên Y khoa Việt Nam hội nhập y khoa thế giới. Giảng dạy tiếng Anh chuyên ngành y khoa và chia sẻ kinh nghiệm thực hành lâm sàng.
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  {['VietMD.NET', 'Youtube Official', 'Facebook Community', 'Medical Education'].map((tag, i) => (
-                    <span key={i} className="px-4 py-2 bg-white/10 rounded-full text-xs font-medium hover:bg-white/20 transition-colors cursor-default">
-                      {tag}
-                    </span>
+                <div className="space-y-5 text-neutral-600 leading-8 text-base md:text-lg">
+                  {paragraphs.map((paragraph, index) => (
+                    <p key={index}>{paragraph}</p>
                   ))}
                 </div>
-              </div>
-            </motion.section>
+              </section>
+
+              {highlights.length > 0 && (
+                <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {highlights.map((item, index) => {
+                    const Icon = [ShieldCheck, Heart, Award, Stethoscope][index % 4];
+                    return (
+                      <div key={item} className="p-5 border border-neutral-200 bg-white rounded-xl shadow-sm">
+                        <Icon className="w-5 h-5 text-[#0A3151] mb-3" />
+                        <p className="font-semibold text-[#1A1A1A] leading-relaxed">{item}</p>
+                      </div>
+                    );
+                  })}
+                </section>
+              )}
+
+              <section className="bg-[#0A3151] text-white p-7 md:p-8 rounded-2xl shadow-lg">
+                <div className="flex items-start gap-4">
+                  <ShieldCheck className="w-7 h-7 shrink-0 text-white/90" />
+                  <div>
+                    <h3 className="text-xl font-serif font-bold mb-3">Lưu ý y khoa</h3>
+                    <p className="text-white/80 leading-7">
+                      {settings.medicalDisclaimer || DEFAULT_SETTINGS.medicalDisclaimer}
+                    </p>
+                  </div>
+                </div>
+              </section>
+            </motion.div>
           </div>
         </div>
       </div>

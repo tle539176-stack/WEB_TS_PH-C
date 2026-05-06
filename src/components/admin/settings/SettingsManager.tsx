@@ -53,6 +53,17 @@ export function SettingsManager({ session }: { session: Session }) {
     logAction(session, 'select_library_image', 'setting', 'hero', { after: { media_asset_id: asset.id } });
   };
 
+  const selectAboutAsset = (asset: MediaAsset) => {
+    void cleanupDraftSettingPath(settings.aboutStoragePath, savedSettings.aboutStoragePath, asset.storage_path);
+    setSettings(prev => ({
+      ...prev,
+      aboutImage: asset.public_url,
+      aboutStoragePath: asset.storage_path,
+      aboutImageAlt: asset.alt || prev.aboutImageAlt,
+    }));
+    logAction(session, 'select_library_image', 'setting', 'about', { after: { media_asset_id: asset.id } });
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -61,6 +72,7 @@ export function SettingsManager({ session }: { session: Session }) {
         cleanupSavedSettingPath(savedSettings.logoStoragePath, settings.logoStoragePath),
         cleanupSavedSettingPath(savedSettings.heroStoragePath, settings.heroStoragePath),
         cleanupSavedSettingPath(savedSettings.footerStoragePath, settings.footerStoragePath),
+        cleanupSavedSettingPath(savedSettings.aboutStoragePath, settings.aboutStoragePath),
       ]);
       setSavedSettings(settings);
       showToast('Đã lưu cấu hình website.', 'success');
@@ -81,6 +93,9 @@ export function SettingsManager({ session }: { session: Session }) {
     { label: 'Tên website', ok: !!settings.siteName },
     { label: 'Logo (ảnh hoặc chữ tắt)', ok: !!(settings.logoImage || settings.logoText) },
     { label: 'Ảnh Hero trang chủ', ok: !!settings.heroImage, warn: !settings.heroImage },
+    { label: 'Tiêu đề trang giới thiệu', ok: !!settings.aboutTitle },
+    { label: 'Nội dung giới thiệu', ok: settings.aboutBody.length >= 120, warn: settings.aboutBody.length > 0 && settings.aboutBody.length < 120 },
+    { label: 'Ảnh trang giới thiệu', ok: !!settings.aboutImage, warn: !settings.aboutImage },
     { label: 'SEO title', ok: !!settings.seoTitle },
     { label: 'SEO description', ok: settings.seoDescription.length >= 50, warn: settings.seoDescription.length > 0 && settings.seoDescription.length < 50 },
   ];
@@ -184,6 +199,75 @@ export function SettingsManager({ session }: { session: Session }) {
               }}
               placeholder="https://example.com/hero.jpg"
             />
+          </section>
+
+          <section className="col-span-1 md:col-span-2 space-y-6 pt-4 border-t">
+            <div>
+              <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-400">Trang giới thiệu</h3>
+              <p className="text-xs text-neutral-500 mt-1">Nội dung đang hiển thị tại trang /about.</p>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-8">
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-neutral-600 mb-2">Tiêu đề chính</label>
+                    <Input value={settings.aboutTitle} onChange={setInput('aboutTitle')} placeholder="Tiến sĩ Đặng Hữu Phúc" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-neutral-600 mb-2">Dòng mô tả dưới tên</label>
+                    <Input value={settings.aboutSubtitle} onChange={setInput('aboutSubtitle')} />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-neutral-600 mb-2">Câu dẫn</label>
+                  <Input value={settings.aboutQuote} onChange={setInput('aboutQuote')} />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-neutral-600 mb-2">Tiêu đề đoạn nội dung</label>
+                  <Input value={settings.aboutSectionTitle} onChange={setInput('aboutSectionTitle')} />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-neutral-600 mb-2">Nội dung giới thiệu</label>
+                  <Textarea value={settings.aboutBody} onChange={setTextArea('aboutBody')} rows={8} />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-neutral-600 mb-2">Điểm nổi bật, mỗi dòng một mục</label>
+                  <Textarea value={settings.aboutHighlights} onChange={setTextArea('aboutHighlights')} rows={5} />
+                </div>
+              </div>
+              <div className="space-y-4">
+                <MediaUploader
+                  label="Ảnh trang giới thiệu"
+                  currentUrl={settings.aboutImage}
+                  currentAlt={settings.aboutImageAlt}
+                  aspectHint="3:4"
+                  onUpload={async (file, alt) => {
+                    const asset = await media.uploadSettingImage('about', file, { alt, uploadedBy: session.user.id });
+                    return { url: asset.url, storagePath: asset.storagePath };
+                  }}
+                  onUploaded={({ url, storagePath, alt }) => {
+                    void cleanupDraftSettingPath(settings.aboutStoragePath, savedSettings.aboutStoragePath, storagePath);
+                    setSettings(prev => ({ ...prev, aboutImage: url, aboutStoragePath: storagePath, aboutImageAlt: alt }));
+                    logAction(session, 'upload_setting_image', 'setting', 'about', { after: { url } });
+                  }}
+                  onRemove={() => {
+                    void cleanupDraftSettingPath(settings.aboutStoragePath, savedSettings.aboutStoragePath);
+                    setSettings(prev => ({ ...prev, aboutImage: '', aboutStoragePath: '' }));
+                  }}
+                  onAltChange={alt => setSettings(prev => ({ ...prev, aboutImageAlt: alt }))}
+                  onSelectAsset={selectAboutAsset}
+                  libraryFilterEntityType="setting"
+                />
+                <AdvancedImageUrlInput
+                  value={settings.aboutImage}
+                  onChange={url => {
+                    void cleanupDraftSettingPath(settings.aboutStoragePath, savedSettings.aboutStoragePath);
+                    setSettings(prev => ({ ...prev, aboutImage: url, aboutStoragePath: '' }));
+                  }}
+                  placeholder="https://example.com/about-profile.jpg"
+                />
+              </div>
+            </div>
           </section>
 
           <section className="space-y-4">

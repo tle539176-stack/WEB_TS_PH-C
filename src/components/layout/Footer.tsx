@@ -4,13 +4,13 @@ import { useEffect, useState } from 'react';
 import { DEFAULT_SETTINGS, getSiteSettings, SiteSettings } from '../../services/settingsService';
 
 const DEFAULTS = {
-  facebookUrl: 'https://facebook.com/drwynntran',
-  youtubeUrl: 'https://youtube.com/c/DrWynnTranOfficial',
-  instagramUrl: 'https://instagram.com/drwynntran',
-  twitterUrl: 'https://twitter.com/drwynntran',
-  address: 'Los Angeles, California, USA',
-  contactEmail: 'contact@drwynntran.com',
-  contactPhone: '+1 (xxx) xxx-xxxx',
+  facebookUrl: '',
+  youtubeUrl: '',
+  instagramUrl: '',
+  twitterUrl: '',
+  address: '',
+  contactEmail: '',
+  contactPhone: '',
 };
 
 export default function Footer() {
@@ -27,7 +27,13 @@ export default function Footer() {
     { icon: Youtube, url: s?.youtubeUrl || DEFAULTS.youtubeUrl, color: 'hover:bg-red-600' },
     { icon: Instagram, url: s?.instagramUrl || DEFAULTS.instagramUrl, color: 'hover:bg-pink-600' },
     { icon: Twitter, url: s?.twitterUrl || DEFAULTS.twitterUrl, color: 'hover:bg-sky-500' },
-  ];
+  ].filter(social => social.url);
+
+  const contactItems = [
+    { icon: MapPin, value: s?.address || DEFAULTS.address },
+    { icon: Mail, value: s?.contactEmail || DEFAULTS.contactEmail },
+    { icon: Phone, value: s?.contactPhone || DEFAULTS.contactPhone },
+  ].filter(item => item.value);
 
   return (
     <footer id="footer" className="bg-[#1A1A1A] text-white pt-20 pb-10">
@@ -64,7 +70,7 @@ export default function Footer() {
           <div>
             <h4 className="text-lg font-bold mb-6 font-serif">Liên kết nhanh</h4>
             <ul className="flex flex-col gap-4 text-neutral-400 text-sm">
-              <li><Link to="/about" className="hover:text-white transition-colors">Về Bác sĩ Wynn Tran</Link></li>
+              <li><Link to="/about" className="hover:text-white transition-colors">Về {s?.siteName || DEFAULT_SETTINGS.siteName}</Link></li>
               <li><Link to="/books" className="hover:text-white transition-colors">Sách đã xuất bản</Link></li>
               <li><Link to="/notes" className="hover:text-white transition-colors">Ghi chú y khoa</Link></li>
               <li><Link to="/products" className="hover:text-white transition-colors">Sản phẩm khuyên dùng</Link></li>
@@ -85,18 +91,14 @@ export default function Footer() {
           <div>
             <h4 className="text-lg font-bold mb-6 font-serif">Thông tin liên hệ</h4>
             <ul className="flex flex-col gap-4 text-neutral-400 text-sm">
-              <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-neutral-500 shrink-0" />
-                <span>{s?.address || DEFAULTS.address}</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-neutral-500 shrink-0" />
-                <span>{s?.contactEmail || DEFAULTS.contactEmail}</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-neutral-500 shrink-0" />
-                <span>{s?.contactPhone || DEFAULTS.contactPhone}</span>
-              </li>
+              {contactItems.length > 0 ? contactItems.map(({ icon: Icon, value }) => (
+                <li key={value} className="flex items-start gap-3">
+                  <Icon className="w-5 h-5 text-neutral-500 shrink-0" />
+                  <span>{value}</span>
+                </li>
+              )) : (
+                <li className="text-neutral-500">Thông tin liên hệ sẽ được cập nhật.</li>
+              )}
             </ul>
           </div>
         </div>

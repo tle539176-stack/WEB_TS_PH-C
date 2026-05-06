@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { getPublishedBooks } from '@/services/contentService';
 import { getPublishedNotesWithCategory } from '@/services/contentService';
-import { getSiteSettings } from '@/services/settingsService';
+import { DEFAULT_SETTINGS, getSiteSettings, type SiteSettings } from '@/services/settingsService';
 import type { BookWithImages, NoteWithCategory } from '@/types/database';
 
 const DEFAULT_HERO = 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=2070&auto=format&fit=crop';
@@ -24,16 +24,17 @@ function formatDate(dateStr: string | null): string {
 export default function Home() {
   const [books, setBooks] = useState<BookWithImages[]>([]);
   const [notes, setNotes] = useState<NoteWithCategory[]>([]);
-  const [heroImage, setHeroImage] = useState(DEFAULT_HERO);
+  const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS);
 
   useEffect(() => {
     getPublishedBooks().then(setBooks).catch(() => { });
     getPublishedNotesWithCategory().then(data => setNotes(data.slice(0, 3))).catch(() => { });
-    getSiteSettings().then(s => { if (s.heroImage) setHeroImage(s.heroImage); }).catch(() => { });
+    getSiteSettings().then(setSettings).catch(() => { });
   }, []);
 
   const featuredBook = books[0] ?? null;
   const recentNotes = notes;
+  const heroImage = settings.heroImage || DEFAULT_HERO;
 
   return (
     <div className="overflow-hidden bg-white">
@@ -43,10 +44,10 @@ export default function Home() {
           <div className="max-w-4xl mx-auto text-center mb-12">
             <div className="flex items-center justify-center gap-3 mb-6">
               <Badge className="bg-[#0A3151] text-white border-none px-4 py-1.5 rounded-full text-xs uppercase tracking-widest font-semibold shadow-sm">
-                Board Certified Physician
+                Kiến thức sức khỏe
               </Badge>
               <span className="text-sm font-medium text-neutral-600 flex items-center gap-1">
-                <ShieldCheck className="w-4 h-4 text-green-600" /> Medical Expert
+                <ShieldCheck className="w-4 h-4 text-green-600" /> Nội dung tham khảo có trách nhiệm
               </span>
             </div>
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif font-bold leading-[1.1] text-[#1A1A1A] mb-6">
@@ -54,7 +55,7 @@ export default function Home() {
               <span className="text-[#0A3151]">Chăm sóc tận tâm.</span>
             </h1>
             <p className="text-xl text-neutral-600 mb-10 max-w-2xl mx-auto leading-relaxed font-light">
-              Đồng hành cùng bạn trên hành trình bảo vệ sức khỏe và chống lão hóa bằng những kiến thức y khoa chuẩn xác, cập nhật nhất từ Hoa Kỳ.
+              Đồng hành cùng bạn trên hành trình bảo vệ sức khỏe bằng những kiến thức y khoa được trình bày rõ ràng, dễ hiểu và thận trọng.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link to="/books">
@@ -79,28 +80,28 @@ export default function Home() {
           >
             <img
               src={heroImage}
-              alt="Dr. Wynn Tran Clinic"
+              alt={settings.siteName}
               className="w-full h-full object-cover"
               referrerPolicy="no-referrer"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/80 via-[#1A1A1A]/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 flex flex-col md:flex-row justify-between items-start md:items-end text-white gap-8">
               <div>
-                <p className="font-serif text-3xl md:text-4xl font-bold mb-2">Dr. Wynn Tran</p>
-                <p className="text-base md:text-lg opacity-90 font-light tracking-wide">MD, FACP - Internal Medicine</p>
+                <p className="font-serif text-3xl md:text-4xl font-bold mb-2">{settings.siteName}</p>
+                <p className="text-base md:text-lg opacity-90 font-light tracking-wide">{settings.tagline}</p>
               </div>
               <div className="flex gap-8 md:gap-12 text-left md:text-center">
                 <div>
-                  <p className="text-3xl md:text-4xl font-serif font-bold">15+</p>
-                  <p className="text-xs uppercase tracking-wider opacity-80 mt-2 font-medium">Năm kinh nghiệm</p>
+                  <p className="text-2xl md:text-3xl font-serif font-bold">Rõ ràng</p>
+                  <p className="text-xs uppercase tracking-wider opacity-80 mt-2 font-medium">Dễ hiểu</p>
                 </div>
                 <div>
-                  <p className="text-3xl md:text-4xl font-serif font-bold">10k+</p>
-                  <p className="text-xs uppercase tracking-wider opacity-80 mt-2 font-medium">Bệnh nhân</p>
+                  <p className="text-2xl md:text-3xl font-serif font-bold">Thận trọng</p>
+                  <p className="text-xs uppercase tracking-wider opacity-80 mt-2 font-medium">Có trách nhiệm</p>
                 </div>
                 <div>
-                  <p className="text-3xl md:text-4xl font-serif font-bold">3+</p>
-                  <p className="text-xs uppercase tracking-wider opacity-80 mt-2 font-medium">Sách xuất bản</p>
+                  <p className="text-2xl md:text-3xl font-serif font-bold">Có nguồn</p>
+                  <p className="text-xs uppercase tracking-wider opacity-80 mt-2 font-medium">Minh bạch</p>
                 </div>
               </div>
             </div>

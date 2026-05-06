@@ -26,7 +26,7 @@ const MENU_ITEMS = [
   { id: 'people', label: 'Người viết & Reviewer', icon: Users, group: 'Nội dung' },
   { id: 'books', label: 'Thư viện Sách', icon: Book, group: 'Cửa hàng' },
   { id: 'products', label: 'Sản phẩm', icon: ShoppingBag, group: 'Cửa hàng' },
-  { id: 'settings', label: 'Giao diện trang chủ', icon: Settings, group: 'Cấu hình' },
+  { id: 'settings', label: 'Cấu hình website', icon: Settings, group: 'Cấu hình' },
 ] as const;
 
 type MenuId = (typeof MENU_ITEMS)[number]['id'];
@@ -51,10 +51,10 @@ function AdminShell({ session }: { session: Session }) {
           <aside className="w-64 bg-[#0A3151] text-white fixed h-full flex flex-col shadow-xl z-20">
             <div className="p-6 border-b border-white/10">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white text-[#0A3151] rounded flex items-center justify-center font-bold text-xl">WT</div>
+                <div className="w-10 h-10 bg-white text-[#0A3151] rounded flex items-center justify-center font-bold text-xl">DP</div>
                 <div>
                   <h1 className="text-sm font-bold uppercase tracking-wider">Control Center</h1>
-                  <p className="text-[10px] text-white/50">Dr. Wynn Tran CMS</p>
+                  <p className="text-[10px] text-white/50">TS. Đặng Hữu Phúc CMS</p>
                 </div>
               </div>
             </div>
