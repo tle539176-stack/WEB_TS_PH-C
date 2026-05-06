@@ -5,7 +5,7 @@ import { Input } from '../components/ui/input';
 import { Card } from '../components/ui/card';
 import {
   Loader2, LogOut, Book, ShoppingBag, FileText, Tags,
-  LayoutDashboard, Settings, ChevronRight, Users,
+  LayoutDashboard, Settings, ChevronRight, Users, PlaySquare,
 } from 'lucide-react';
 import * as adminAuth from '../services/adminAuthService';
 import { supabase } from '../lib/supabase';
@@ -18,8 +18,10 @@ import { BooksManager } from '../components/admin/books/BooksManager';
 import { ProductsManager } from '../components/admin/products/ProductsManager';
 import { NotesManager } from '../components/admin/notes/NotesManager';
 import { PeopleManager } from '../components/admin/people/PeopleManager';
+import { VideosManager } from '../components/admin/videos/VideosManager';
 
 const MENU_ITEMS = [
+  { id: 'videos', label: 'Video Facebook', icon: PlaySquare, group: 'Nội dung' },
   { id: 'overview', label: 'Tổng quan', icon: LayoutDashboard, group: 'Hệ thống' },
   { id: 'categories', label: 'Danh mục bài viết', icon: Tags, group: 'Nội dung' },
   { id: 'notes', label: 'Ghi chú & Bài viết', icon: FileText, group: 'Nội dung' },
@@ -119,6 +121,7 @@ function AdminShell({ session }: { session: Session }) {
               {activeMenu === 'books'      && <BooksManager session={session} />}
               {activeMenu === 'products'   && <ProductsManager session={session} />}
               {activeMenu === 'notes'      && <NotesManager session={session} />}
+              {activeMenu === 'videos'     && <VideosManager session={session} />}
               {activeMenu === 'people'     && <PeopleManager session={session} />}
             </div>
           </main>

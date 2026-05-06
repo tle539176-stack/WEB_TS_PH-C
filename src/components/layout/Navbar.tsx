@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
-import { Menu, X, BookOpen, User, Home, FileText, ShoppingBag, Share2, Phone } from 'lucide-react';
+import { motion } from 'motion/react';
+import { Menu, BookOpen, User, Home, FileText, Phone, PlayCircle, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
@@ -9,16 +9,18 @@ import { DEFAULT_SETTINGS, getSiteSettings, SiteSettings } from '@/services/sett
 
 const navItems = [
   { name: 'Trang chủ', path: '/', icon: Home },
-  { name: 'Giới thiệu', path: '/about', icon: User },
-  { name: 'Sách mới', path: '/books', icon: BookOpen },
   { name: 'Ghi chú', path: '/notes', icon: FileText },
+  { name: 'Sách', path: '/books', icon: BookOpen },
   { name: 'Sản phẩm', path: '/products', icon: ShoppingBag },
+  { name: 'Video', href: '/#video-facebook', icon: PlayCircle },
+  { name: 'Giới thiệu', path: '/about', icon: User },
 ];
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS);
   const location = useLocation();
+  const siteNameDisplay = (settings.siteName || DEFAULT_SETTINGS.siteName).toLocaleUpperCase('vi-VN');
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -33,48 +35,56 @@ export default function Navbar() {
   return (
     <nav
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b',
-        isScrolled ? 'bg-white py-3 border-neutral-200 shadow-sm' : 'bg-transparent py-5 border-transparent'
+        'public-on-blue fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-[#0A3151] text-white shadow-lg shadow-[#0A3151]/15 transition-all duration-300',
+        isScrolled ? 'py-3' : 'py-4'
       )}
     >
-      <div className="container mx-auto px-4 flex items-center justify-between">
+      <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 md:px-8">
         <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-10 h-10 bg-[#0A3151] flex items-center justify-center text-white font-serif text-xl font-bold group-hover:bg-[#0D426E] transition-colors overflow-hidden">
+          <div className="public-text-blue w-10 h-10 bg-white flex items-center justify-center text-[#0A3151] text-xl font-bold transition-colors overflow-hidden">
             {settings.logoImage
-              ? <img src={settings.logoImage} alt={settings.siteName} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+              ? <img src={settings.logoImage} alt={siteNameDisplay} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               : (settings.logoText || DEFAULT_SETTINGS.logoText)
             }
           </div>
           <div className="flex flex-col">
-            <span className="text-lg font-serif font-bold tracking-tight text-[#0A3151]">{settings.siteName}</span>
-            <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-500 font-medium">{settings.tagline}</span>
+            <span className="text-lg font-bold tracking-tight text-white">{siteNameDisplay}</span>
+            <span className="text-[10px] uppercase tracking-[0.2em] text-white/65 font-medium">{settings.tagline}</span>
           </div>
         </Link>
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-8">
-          {navItems.map((item) => (
+          {navItems.map((item) => item.path ? (
             <Link
-              key={item.path}
+              key={item.name}
               to={item.path}
               className={cn(
-                'text-sm font-medium transition-colors hover:text-[#0A3151] relative py-1',
-                location.pathname === item.path ? 'text-[#0A3151]' : 'text-neutral-500'
+                'text-sm font-medium transition-colors hover:text-white relative py-1',
+                location.pathname === item.path ? 'text-white' : 'text-white/68'
               )}
             >
               {item.name}
               {location.pathname === item.path && (
                 <motion.div
                   layoutId="nav-underline"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0A3151]"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-white"
                   transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                 />
               )}
             </Link>
+          ) : (
+            <a
+              key={item.name}
+              href={item.href}
+              className="relative py-1 text-sm font-medium text-white/68 transition-colors hover:text-white"
+            >
+              {item.name}
+            </a>
           ))}
           <Button 
             render={<a href="#footer" />}
-            className="bg-[#0A3151] hover:bg-[#0D426E] text-white px-6 shadow-lg shadow-blue-900/10 hover:shadow-xl hover:shadow-blue-900/20 transition-all duration-300 hover:-translate-y-0.5"
+            className="public-text-blue bg-white hover:bg-white text-[#0A3151] px-6 shadow-lg shadow-black/10 hover:shadow-xl hover:shadow-black/20 transition-all duration-300 hover:-translate-y-0.5"
           >
             <Phone className="w-4 h-4 mr-2" />
             Liên hệ
@@ -84,14 +94,14 @@ export default function Navbar() {
         {/* Mobile Nav */}
         <div className="md:hidden">
           <Sheet>
-            <SheetTrigger render={<Button variant="ghost" size="icon" />}>
+            <SheetTrigger render={<Button variant="ghost" size="icon" className="text-white hover:bg-white/10 hover:text-white" />}>
               <Menu className="w-6 h-6" />
             </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+            <SheetContent side="right" className="public-site w-[300px] bg-white text-[#0A3151] sm:w-[400px]">
               <div className="flex flex-col gap-8 mt-12">
-                {navItems.map((item) => (
+                {navItems.map((item) => item.path ? (
                   <Link
-                    key={item.path}
+                    key={item.name}
                     to={item.path}
                     className={cn(
                       'flex items-center gap-4 text-lg font-medium p-2 transition-colors',
@@ -101,10 +111,19 @@ export default function Navbar() {
                     <item.icon className="w-5 h-5" />
                     {item.name}
                   </Link>
+                ) : (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    className="flex items-center gap-4 p-2 text-lg font-medium text-[#0A3151] transition-colors hover:bg-[#0A3151]/5"
+                  >
+                    <item.icon className="w-5 h-5" />
+                    {item.name}
+                  </a>
                 ))}
                 <Button 
                   render={<a href="#footer" onClick={() => document.querySelector('[data-state="open"]')?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))} />}
-                  className="bg-[#0A3151] hover:bg-[#0D426E] text-white w-full mt-4 py-6 text-lg shadow-lg transition-all duration-300"
+                  className="public-on-blue bg-[#0A3151] hover:bg-[#0A3151] text-white w-full mt-4 py-6 text-lg shadow-lg transition-all duration-300"
                 >
                   <Phone className="w-5 h-5 mr-3" />
                   Liên hệ ngay

@@ -1,22 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:wght@100..900&display=swap');
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Cormorant Garamond", serif;
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
   body {
     @apply font-sans;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-serif;
+    @apply font-sans;
   }
 }
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -153,6 +154,47 @@
   .admin-ui *,
   .admin-ui ::placeholder {
     font-family: var(--admin-font) !important;
+  }
+
+  .public-site {
+    --public-blue: #0A3151;
+    color: var(--public-blue);
+    font-family: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .public-site .container {
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .public-site .container {
+      padding-inline: 2rem;
+    }
+  }
+
+  .public-site :where(h1, h2, h3, h4, h5, h6, p, span, a, li, label, small, strong, em, button, figcaption, blockquote, td, th, div, input, textarea, select, option) {
+    color: var(--public-blue) !important;
+    font-family: 'Geist Variable', ui-sans-serif, system-ui, sans-serif !important;
+  }
+
+  .public-site ::placeholder {
+    color: var(--public-blue) !important;
+    opacity: 1;
+  }
+
+  .public-site :where([class*="text-neutral"], [class*="text-gray"], [class*="text-slate"], [class*="text-zinc"], [class*="text-stone"], [class*="text-amber"], [class*="text-yellow"], [class*="text-green"], [class*="text-emerald"], [class*="text-red"], [class*="text-orange"], [class*="text-purple"], [class*="text-pink"], [class*="text-rose"], [class*="text-cyan"], [class*="text-sky"], [class*="text-indigo"], [class*="text-black"]) {
+    color: var(--public-blue) !important;
+  }
+
+  .public-site :where(.text-white, .public-on-blue, .public-on-blue *) {
+    color: #fff !important;
+  }
+
+  .public-site :where(.public-text-blue, .public-text-blue *) {
+    color: var(--public-blue) !important;
   }
 }
 

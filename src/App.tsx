@@ -40,7 +40,7 @@ function AppContent() {
   }, [isAdmin]);
 
   return (
-    <div className="min-h-screen bg-white text-[#1A1A1A] font-sans selection:bg-[#0A3151] selection:text-white">
+    <div className={`min-h-screen bg-white font-sans selection:bg-[#0A3151] selection:text-white ${isAdmin ? 'text-[#1A1A1A]' : 'public-site text-[#0A3151]'}`}>
       {!isAdmin && <Navbar />}
       <main>
         <Routes>

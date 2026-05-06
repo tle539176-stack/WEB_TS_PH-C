@@ -6,8 +6,20 @@ services:
         VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-}
         VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:-}
     environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:postgres@web-bac-si-phuc-home-pg-test:5432/web_bac_si}
+      SESSION_SECRET: ${SESSION_SECRET:-home-test-secret}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-AdminTest123}
       VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-}
       VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:-}
     ports:
-      - "${WEB_PORT:-3001}:80"
+      - "${WEB_PORT:-3001}:3000"
+    networks:
+      - web-bac-si-phuc-home-test-net
     restart: unless-stopped
+
+networks:
+  web-bac-si-phuc-home-test-net:
+    external: true

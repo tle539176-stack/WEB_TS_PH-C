@@ -13,6 +13,7 @@ Từ thời điểm này, tài liệu thực thi chính của dự án là:
 7. [08 - Audit UX Admin và Roadmap thực thi tổng thể](08-admin-ux-audit-roadmap.md)
 8. [09 - Kế hoạch thực thi nâng cấp cấu trúc dữ liệu CMS y tế](09-medical-cms-data-architecture-execution-plan.md)
 9. [10 - Đặc tả nâng cấp UI/UX Admin Products](10-admin-products-ux-focus-mode-spec.md)
+10. [11 - Đặc tả nâng cấp Trang chủ Doctor Content Hub](11-public-homepage-doctor-content-hub-spec.md)
 
 Khi giao việc cho AI hoặc triển khai nâng cấp, dùng `00` làm chuẩn kiến trúc, dùng `03` làm chỉ đạo thực thi theo hiện trạng code mới nhất, và dùng `04` cho phase nâng cấp upload ảnh/Media Library. Mục tiêu cuối cùng là:
 
@@ -20,7 +21,7 @@ Khi giao việc cho AI hoặc triển khai nâng cấp, dùng `00` làm chuẩn 
 Supabase Auth + Supabase Postgres + Supabase Storage + custom Admin UI
 ```
 
-Với phase cải thiện trải nghiệm nhập liệu Admin và redesign public catalog Books/Products, dùng `05` làm tài liệu nghiên cứu và `06` làm spec triển khai nền. Với phase nâng cấp editor theo kiểu Shopee/TikTok gồm preview đúng ngoài web, upload ảnh compact hàng loạt, staged media, và `Lưu nháp`/`Đăng lên web`, dùng `07` làm tài liệu thực thi chính. Với phase nâng cấp tổng thể toàn bộ `/admin` sau khi audit hiện trạng mới nhất, dùng `08` làm tài liệu điều phối chính. Với phase chuẩn hóa cấu trúc dữ liệu y tế/khoa học gồm reviewer, nguồn tham khảo có cấu trúc, review history, revision và JSON-LD, dùng `09` làm tài liệu thực thi chính. Với phase nâng cấp riêng UX module Admin Products theo hướng editor focus mode, dùng `10` làm tài liệu đặc tả để chốt phương án.
+Với phase cải thiện trải nghiệm nhập liệu Admin và redesign public catalog Books/Products, dùng `05` làm tài liệu nghiên cứu và `06` làm spec triển khai nền. Với phase nâng cấp editor theo kiểu Shopee/TikTok gồm preview đúng ngoài web, upload ảnh compact hàng loạt, staged media, và `Lưu nháp`/`Đăng lên web`, dùng `07` làm tài liệu thực thi chính. Với phase nâng cấp tổng thể toàn bộ `/admin` sau khi audit hiện trạng mới nhất, dùng `08` làm tài liệu điều phối chính. Với phase chuẩn hóa cấu trúc dữ liệu y tế/khoa học gồm reviewer, nguồn tham khảo có cấu trúc, review history, revision và JSON-LD, dùng `09` làm tài liệu thực thi chính. Với phase nâng cấp riêng UX module Admin Products theo hướng editor focus mode, dùng `10` làm tài liệu đặc tả để chốt phương án. Với phase redesign public trang chủ thành hồ sơ bác sĩ + bộ ghi chú + sách + video Facebook, dùng `11` làm tài liệu đặc tả để chốt bố cục trước khi code.
 
 ## Trạng thái các tài liệu cũ
 
@@ -100,4 +101,10 @@ Thực thi phase 09 theo `docs/09-medical-cms-data-architecture-execution-plan.m
 
 ```text
 Thực thi phase đầu theo `docs/10-admin-products-ux-focus-mode-spec.md`: nâng module `Danh mục Sản phẩm` trong `/admin` sang Editor Focus Mode; khi click `Thêm sản phẩm` hoặc edit sản phẩm thì ẩn stat cards, search/filter/sort và bảng danh sách, chỉ giữ editor rộng rãi với breadcrumb, form, media, preview, checklist và action bar; `Lưu nháp` khi tạo mới giữ user trong editor và chuyển sang edit mode, publish thành công quay lại list; thêm guard cơ bản khi rời form có thay đổi; không đổi schema DB, không sửa public `/products`; chạy `tsc --noEmit`, Docker build và smoke test `/admin`.
+```
+
+## Prompt phase 11 - Public Homepage Doctor Content Hub
+
+```text
+Thực thi nâng cấp trang chủ theo `docs/11-public-homepage-doctor-content-hub-spec.md`: redesign `/` thành Doctor Content Hub gồm Hero danh tính bác sĩ, Bộ Ghi Chú/Bài nghiên cứu, Sách và tài liệu đã xuất bản, Video Facebook cuối trang, Footer; dùng một font Geist cho toàn public website; chữ public chỉ xanh #0A3151 hoặc trắng; không gradient/lớp phủ ảnh hero; không section sản phẩm thương mại trên trang chủ; không đổi schema DB nếu không cần; build Docker và chạy lại trên http://localhost:3001/ để nghiệm thu.
 ```

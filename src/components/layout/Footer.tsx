@@ -21,12 +21,13 @@ export default function Footer() {
   }, []);
 
   const s = settings;
+  const siteNameDisplay = (s?.siteName || DEFAULT_SETTINGS.siteName).toLocaleUpperCase('vi-VN');
 
   const socialLinks = [
-    { icon: Facebook, url: s?.facebookUrl || DEFAULTS.facebookUrl, color: 'hover:bg-blue-600' },
-    { icon: Youtube, url: s?.youtubeUrl || DEFAULTS.youtubeUrl, color: 'hover:bg-red-600' },
-    { icon: Instagram, url: s?.instagramUrl || DEFAULTS.instagramUrl, color: 'hover:bg-pink-600' },
-    { icon: Twitter, url: s?.twitterUrl || DEFAULTS.twitterUrl, color: 'hover:bg-sky-500' },
+    { icon: Facebook, url: s?.facebookUrl || DEFAULTS.facebookUrl, color: 'hover:bg-white/20' },
+    { icon: Youtube, url: s?.youtubeUrl || DEFAULTS.youtubeUrl, color: 'hover:bg-white/20' },
+    { icon: Instagram, url: s?.instagramUrl || DEFAULTS.instagramUrl, color: 'hover:bg-white/20' },
+    { icon: Twitter, url: s?.twitterUrl || DEFAULTS.twitterUrl, color: 'hover:bg-white/20' },
   ].filter(social => social.url);
 
   const contactItems = [
@@ -36,18 +37,18 @@ export default function Footer() {
   ].filter(item => item.value);
 
   return (
-    <footer id="footer" className="bg-[#1A1A1A] text-white pt-20 pb-10">
-      <div className="container mx-auto px-4">
+    <footer id="footer" className="public-on-blue bg-[#0A3151] text-white pt-16 pb-10">
+      <div className="mx-auto w-full max-w-7xl px-4 md:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           <div className="col-span-1 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-6">
-              <div className="w-10 h-10 bg-white flex items-center justify-center text-[#1A1A1A] font-serif text-xl font-bold overflow-hidden">
+              <div className="public-text-blue w-10 h-10 bg-white flex items-center justify-center text-[#0A3151] text-xl font-bold overflow-hidden">
                 {s?.logoImage
-                  ? <img src={s.logoImage} alt={s.siteName || DEFAULT_SETTINGS.siteName} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  ? <img src={s.logoImage} alt={siteNameDisplay} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   : (s?.logoText || DEFAULT_SETTINGS.logoText)
                 }
               </div>
-              <span className="text-xl font-serif font-bold tracking-tight">{s?.siteName || DEFAULT_SETTINGS.siteName}</span>
+              <span className="text-xl font-bold tracking-tight">{siteNameDisplay}</span>
             </Link>
             <p className="text-neutral-400 text-sm leading-relaxed mb-8">
               {s?.footerText || DEFAULT_SETTINGS.footerText}
@@ -68,28 +69,28 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="text-lg font-bold mb-6 font-serif">Liên kết nhanh</h4>
+            <h4 className="text-lg font-bold mb-6">Liên kết nhanh</h4>
             <ul className="flex flex-col gap-4 text-neutral-400 text-sm">
-              <li><Link to="/about" className="hover:text-white transition-colors">Về {s?.siteName || DEFAULT_SETTINGS.siteName}</Link></li>
-              <li><Link to="/books" className="hover:text-white transition-colors">Sách đã xuất bản</Link></li>
               <li><Link to="/notes" className="hover:text-white transition-colors">Ghi chú y khoa</Link></li>
-              <li><Link to="/products" className="hover:text-white transition-colors">Sản phẩm khuyên dùng</Link></li>
-              <li className="pt-2"><Link to="/admin" className="text-[#0A3151] hover:text-white transition-colors">Đăng nhập Quản trị viên</Link></li>
+              <li><Link to="/books" className="hover:text-white transition-colors">Sách đã xuất bản</Link></li>
+              <li><a href="/#video-facebook" className="hover:text-white transition-colors">Video Facebook</a></li>
+              <li><Link to="/about" className="hover:text-white transition-colors">Về {siteNameDisplay}</Link></li>
+              <li className="pt-2"><Link to="/admin" className="hover:text-white transition-colors">Đăng nhập quản trị</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-lg font-bold mb-6 font-serif">Chuyên mục</h4>
+            <h4 className="text-lg font-bold mb-6">Chuyên mục</h4>
             <ul className="flex flex-col gap-4 text-neutral-400 text-sm">
-              <li><a href="#" className="hover:text-white transition-colors">Chống lão hóa</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Dinh dưỡng & Sức khỏe</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Y học thường thức</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Hoạt động cộng đồng</a></li>
+              <li><Link to="/notes" className="hover:text-white transition-colors">Chống lão hóa</Link></li>
+              <li><Link to="/notes" className="hover:text-white transition-colors">Dinh dưỡng</Link></li>
+              <li><Link to="/notes" className="hover:text-white transition-colors">Thực phẩm bổ sung</Link></li>
+              <li><Link to="/notes" className="hover:text-white transition-colors">Tầm soát sức khỏe</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-lg font-bold mb-6 font-serif">Thông tin liên hệ</h4>
+            <h4 className="text-lg font-bold mb-6">Thông tin liên hệ</h4>
             <ul className="flex flex-col gap-4 text-neutral-400 text-sm">
               {contactItems.length > 0 ? contactItems.map(({ icon: Icon, value }) => (
                 <li key={value} className="flex items-start gap-3">
@@ -105,7 +106,7 @@ export default function Footer() {
 
         <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-neutral-500 text-xs">
           <div>
-            <p>© {new Date().getFullYear()} {s?.siteName || DEFAULT_SETTINGS.siteName}. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} {siteNameDisplay}. All rights reserved.</p>
             <p className="mt-2 max-w-2xl leading-relaxed">{s?.medicalDisclaimer || DEFAULT_SETTINGS.medicalDisclaimer}</p>
           </div>
           <div className="flex gap-6">

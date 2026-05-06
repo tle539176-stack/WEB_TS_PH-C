@@ -261,6 +261,22 @@ export type AuditLog = {
   created_at: string;
 };
 
+export type Video = {
+  id: string;
+  title: string;
+  video_url: string;
+  thumbnail_url: string | null;
+  description: string | null;
+  category: string | null;
+  duration: string | null;
+  source: 'facebook' | 'youtube' | 'other';
+  sort_order: number;
+  is_featured: boolean;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 // ---- Insert types ----
 
 export type CategoryInsert = {
@@ -454,6 +470,20 @@ export type AuditLogInsert = {
   after_data?: Record<string, unknown> | null;
 };
 
+export type VideoInsert = {
+  id?: string;
+  title: string;
+  video_url: string;
+  thumbnail_url?: string | null;
+  description?: string | null;
+  category?: string | null;
+  duration?: string | null;
+  source?: Video['source'];
+  sort_order?: number;
+  is_featured?: boolean;
+  is_active?: boolean;
+};
+
 type Relationship = {
   foreignKeyName: string;
   columns: string[];
@@ -521,6 +551,7 @@ export type Database = {
       ]>;
       settings: Table<Setting, SettingInsert, Partial<SettingInsert>>;
       audit_logs: Table<AuditLog, AuditLogInsert, Partial<AuditLogInsert>>;
+      videos: Table<Video, VideoInsert, Partial<VideoInsert>>;
       people: Table<Person, PersonInsert, Partial<PersonInsert>>;
       note_sources: Table<NoteSourceRow, NoteSourceRowInsert, Partial<NoteSourceRowInsert>, [{
         foreignKeyName: 'note_sources_note_id_fkey';

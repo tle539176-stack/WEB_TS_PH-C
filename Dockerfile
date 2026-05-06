@@ -7,20 +7,22 @@ RUN npm ci
 
 COPY . .
 
-ARG VITE_SUPABASE_URL=""
-ARG VITE_SUPABASE_ANON_KEY=""
-ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
-ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
-
 RUN npm run build
 
-FROM nginx:1.27-alpine
+RUN npm prune --omit=dev
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY docker-entrypoint.d/40-env-config.sh /docker-entrypoint.d/40-env-config.sh
-RUN chmod +x /docker-entrypoint.d/40-env-config.sh
-COPY --from=builder /app/dist /usr/share/nginx/html
+FROM node:22-alpine
 
-EXPOSE 80
+WORKDIR /app
 
-CMD ["nginx", "-g", "daemon off;"]
+ENV NODE_ENV=production
+ENV PORT=3000
+
+COPY --from=builder /app/package.json /app/package-lock.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/server ./server
+
+EXPOSE 3000
+
+CMD ["npm", "start"]
