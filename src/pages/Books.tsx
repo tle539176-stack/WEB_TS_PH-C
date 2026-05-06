@@ -61,7 +61,7 @@ export default function Books() {
             </p>
 
             <div className="mt-8 bg-white border border-neutral-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow">
-              <div className="grid md:grid-cols-[1fr_auto] gap-3">
+              <div className="grid gap-3 lg:grid-cols-[1fr_auto]">
                 <div className="flex items-center gap-3 rounded-md border border-neutral-200 px-3">
                   <Search className="w-4 h-4 text-neutral-400 shrink-0" />
                   <Input

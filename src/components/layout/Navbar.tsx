@@ -47,14 +47,14 @@ export default function Navbar() {
               : (settings.logoText || DEFAULT_SETTINGS.logoText)
             }
           </div>
-          <div className="flex flex-col">
-            <span className="text-lg font-bold tracking-tight text-white">{siteNameDisplay}</span>
-            <span className="text-[10px] uppercase tracking-[0.2em] text-white/65 font-medium">{settings.tagline}</span>
+          <div className="flex min-w-0 flex-col">
+            <span className="max-w-[210px] truncate text-lg font-bold tracking-tight text-white sm:max-w-none">{siteNameDisplay}</span>
+            <span className="max-w-[210px] truncate text-[10px] font-medium uppercase tracking-[0.2em] text-white/65 sm:max-w-none">{settings.tagline}</span>
           </div>
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden lg:flex items-center gap-8">
           {navItems.map((item) => item.path ? (
             <Link
               key={item.name}
@@ -92,9 +92,9 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Nav */}
-        <div className="md:hidden">
+        <div className="lg:hidden">
           <Sheet>
-            <SheetTrigger render={<Button variant="ghost" size="icon" className="text-white hover:bg-white/10 hover:text-white" />}>
+            <SheetTrigger render={<Button variant="ghost" size="icon" className="h-11 w-11 text-white hover:bg-white/10 hover:text-white" />}>
               <Menu className="w-6 h-6" />
             </SheetTrigger>
             <SheetContent side="right" className="public-site w-[300px] bg-white text-[#0A3151] sm:w-[400px]">
@@ -104,7 +104,7 @@ export default function Navbar() {
                     key={item.name}
                     to={item.path}
                     className={cn(
-                      'flex items-center gap-4 text-lg font-medium p-2 transition-colors',
+                      'flex min-h-12 items-center gap-4 p-3 text-lg font-medium transition-colors',
                       location.pathname === item.path ? 'bg-neutral-100 text-[#0A3151]' : 'text-neutral-500 hover:bg-neutral-50'
                     )}
                   >
@@ -115,7 +115,7 @@ export default function Navbar() {
                   <a
                     key={item.name}
                     href={item.href}
-                    className="flex items-center gap-4 p-2 text-lg font-medium text-[#0A3151] transition-colors hover:bg-[#0A3151]/5"
+                    className="flex min-h-12 items-center gap-4 p-3 text-lg font-medium text-[#0A3151] transition-colors hover:bg-[#0A3151]/5"
                   >
                     <item.icon className="w-5 h-5" />
                     {item.name}

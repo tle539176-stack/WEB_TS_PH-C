@@ -60,7 +60,7 @@ export default function ProductDetail() {
           Quay lại danh sách sản phẩm
         </Link>
 
-        <div className="grid md:grid-cols-2 gap-12 mt-8">
+        <div className="mt-8 grid gap-10 lg:grid-cols-2 lg:gap-12">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
             {imageUrl ? (
               <img src={imageUrl} alt={primaryImage.alt || product.name} className="w-full rounded-2xl shadow-lg" />
@@ -73,7 +73,7 @@ export default function ProductDetail() {
 
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
             {product.tag && <Badge className="bg-[#0A3151] text-white">{product.tag}</Badge>}
-            <h1 className="text-3xl md:text-4xl font-serif font-bold">{product.name}</h1>
+            <h1 className="text-[34px] font-serif font-bold leading-tight lg:text-4xl">{product.name}</h1>
             {product.brand && <p className="text-neutral-500">Thương hiệu: {product.brand}</p>}
             {product.short_description && <p className="text-lg text-neutral-600">{product.short_description}</p>}
 
@@ -93,7 +93,7 @@ export default function ProductDetail() {
               <div className="flex items-center gap-2"><Truck className="w-5 h-5 text-green-600" /> Giao hàng toàn quốc</div>
             </div>
 
-            <Button size="lg" className="bg-[#0A3151] hover:bg-[#0A3151]/90 text-white gap-2">
+            <Button size="lg" className="w-full bg-[#0A3151] hover:bg-[#0A3151]/90 text-white gap-2 sm:w-auto">
               <ShoppingCart className="w-5 h-5" />
               Mua ngay
             </Button>

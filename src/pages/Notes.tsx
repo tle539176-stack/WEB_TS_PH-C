@@ -38,9 +38,9 @@ export default function Notes() {
   return (
     <div className="pt-32 pb-24 bg-white">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row justify-between items-end gap-8 mb-16">
+        <div className="mb-12 flex flex-col items-start justify-between gap-8 lg:mb-16 lg:flex-row lg:items-end">
           <div className="max-w-xl">
-            <h1 className="text-4xl md:text-5xl font-serif font-bold mb-6">Ghi Chú Chống Lão Hóa</h1>
+            <h1 className="mb-6 text-[34px] font-serif font-bold leading-tight lg:text-5xl">Ghi Chú Chống Lão Hóa</h1>
             <p className="text-neutral-600">Những bài viết chuyên sâu về y học, sức khỏe và bí quyết duy trì sự trẻ trung từ Bác sĩ Wynn Tran.</p>
           </div>
           <div className="relative w-full md:w-80">
@@ -69,8 +69,8 @@ export default function Notes() {
                 className="group cursor-pointer"
               >
                 <Link to={`/notes/${note.slug}`}>
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
-                    <div className="md:col-span-2 overflow-hidden rounded-2xl shadow-sm aspect-[4/3] bg-neutral-100 group-hover:shadow-md transition-shadow">
+                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-5 lg:gap-8">
+                    <div className="overflow-hidden rounded-2xl bg-neutral-100 shadow-sm aspect-[4/3] transition-shadow group-hover:shadow-md lg:col-span-2">
                       {note.cover_image_url && (
                         <img
                           src={note.cover_image_url}
@@ -80,7 +80,7 @@ export default function Notes() {
                         />
                       )}
                     </div>
-                    <div className="md:col-span-3 flex flex-col justify-center">
+                    <div className="flex flex-col justify-center lg:col-span-3">
                       <div className="flex items-center gap-4 mb-4">
                         {note.categories?.name && (
                           <Badge variant="secondary" className="bg-[#0A3151]/10 text-[#0A3151] hover:bg-[#0A3151]/20 border-none rounded-full px-3">

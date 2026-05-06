@@ -124,9 +124,9 @@ export default function BookDetail() {
               {book.description}
             </p>
 
-            <div className="flex items-center gap-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-8">
               <span className="text-3xl font-bold text-[#1A1A1A]">{formatPrice(book.price)}</span>
-              <Button className="bg-[#0A3151] hover:bg-[#0D426E] text-white px-10 py-6 text-lg gap-2">
+              <Button className="w-full bg-[#0A3151] hover:bg-[#0D426E] text-white px-10 py-6 text-lg gap-2 sm:w-auto">
                 <ShoppingCart className="w-5 h-5" />
                 Đặt mua ngay
               </Button>

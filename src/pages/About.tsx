@@ -45,7 +45,7 @@ export default function About() {
             className="text-center mb-14"
           >
             <p className="text-sm uppercase tracking-[0.24em] text-[#0A3151] font-bold mb-4">Giới thiệu</p>
-            <h1 className="text-4xl md:text-6xl font-serif font-bold mb-5 text-[#1A1A1A]">{settings.aboutTitle}</h1>
+            <h1 className="mb-5 text-[34px] font-serif font-bold leading-tight text-[#1A1A1A] md:text-[44px] lg:text-6xl">{settings.aboutTitle}</h1>
             <p className="text-lg md:text-xl text-neutral-600 max-w-3xl mx-auto leading-relaxed">{settings.aboutSubtitle}</p>
             {settings.aboutQuote && (
               <p className="text-base md:text-lg text-neutral-500 italic mt-6">"{settings.aboutQuote}"</p>
@@ -60,7 +60,7 @@ export default function About() {
               transition={{ duration: 0.6 }}
               className="lg:sticky lg:top-28"
             >
-              <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-100 shadow-xl aspect-[3/4]">
+              <div className="mx-auto max-w-[360px] overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-100 shadow-xl aspect-[3/4] lg:max-w-none">
                 {settings.aboutImage ? (
                   <img
                     src={settings.aboutImage}

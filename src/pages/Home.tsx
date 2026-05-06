@@ -94,7 +94,7 @@ const DEMO_BOOKS: DisplayBook[] = [
     title: 'Ghi Chú Chống Lão Hóa',
     slug: 'demo-ghi-chu-chong-lao-hoa',
     description: 'Tài liệu mẫu hệ thống các chủ đề nền tảng về chống lão hóa, dinh dưỡng và lối sống.',
-    coverUrl: null,
+    coverUrl: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=400&auto=format&fit=crop',
     isDemo: true,
   },
   {
@@ -102,7 +102,7 @@ const DEMO_BOOKS: DisplayBook[] = [
     title: 'Dinh Dưỡng Thực Hành',
     slug: 'demo-dinh-duong-thuc-hanh',
     description: 'Tài liệu mẫu giúp người đọc hiểu cách đọc nhãn, chọn thực phẩm và chuẩn bị câu hỏi khi cần tư vấn.',
-    coverUrl: null,
+    coverUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=400&auto=format&fit=crop',
     isDemo: true,
   },
   {
@@ -110,7 +110,7 @@ const DEMO_BOOKS: DisplayBook[] = [
     title: 'Sức Khỏe Bền Vững',
     slug: 'demo-suc-khoe-ben-vung',
     description: 'Tài liệu mẫu về thói quen, giấc ngủ, vận động và các yếu tố nền của sức khỏe lâu dài.',
-    coverUrl: null,
+    coverUrl: 'https://images.unsplash.com/photo-1618365908648-e71bd5716cba?q=80&w=400&auto=format&fit=crop',
     isDemo: true,
   },
   {
@@ -118,7 +118,7 @@ const DEMO_BOOKS: DisplayBook[] = [
     title: 'Tủ Sách Y Khoa Dễ Hiểu',
     slug: 'demo-tu-sach-y-khoa-de-hieu',
     description: 'Tài liệu mẫu gom các chủ đề sức khỏe thường gặp theo cách đọc ngắn gọn và có hệ thống.',
-    coverUrl: null,
+    coverUrl: 'https://images.unsplash.com/photo-1553729459-efe14ef6055d?q=80&w=400&auto=format&fit=crop',
     isDemo: true,
   },
 ];
@@ -254,41 +254,43 @@ export default function Home() {
 
   return (
     <div className="bg-white text-[#0A3151]">
-      <section className="bg-white pt-20 md:pt-24">
-        <div className="mx-auto max-w-7xl px-4 pb-12 md:px-8 md:pb-14">
+      <section className="bg-[#F5F8FA] pt-20 md:pt-24">
+        <div className="mx-auto max-w-7xl px-4 pb-10 md:px-8 md:pb-12">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, ease: 'easeOut' }}
-            className="relative min-h-[430px] overflow-hidden border border-[#0A3151]/15 bg-white md:min-h-[500px] lg:min-h-[560px]"
+            className="relative min-h-[600px] overflow-hidden bg-[#0A3151] shadow-[0_22px_60px_-35px_rgba(10,49,81,0.9)]"
           >
             <img
               src={heroImage}
               alt={settings.aboutImageAlt || settings.siteName}
-              className="absolute inset-0 h-full w-full object-cover object-center"
+              className="absolute inset-0 h-full w-full object-cover object-[66%_center] saturate-[0.96] contrast-[1.02]"
               referrerPolicy="no-referrer"
             />
+            <div className="absolute inset-y-0 left-0 w-[min(720px,82%)] bg-[linear-gradient(90deg,rgba(10,49,81,0.74)_0%,rgba(10,49,81,0.54)_58%,rgba(10,49,81,0)_100%)]" />
+            <div className="absolute inset-y-0 left-0 w-[min(720px,82%)] bg-[linear-gradient(180deg,rgba(4,19,31,0.08)_0%,rgba(4,19,31,0)_38%,rgba(4,19,31,0.1)_100%)]" />
 
-            <div className="relative z-10 flex min-h-[430px] items-center px-5 py-10 md:min-h-[500px] md:px-10 lg:min-h-[560px] lg:px-14">
-              <div className="max-w-2xl">
-                <p className="mb-4 text-xs font-bold uppercase tracking-[0.18em] text-[#0A3151] drop-shadow-[0_1px_0_rgba(255,255,255,0.85)]">
+            <div className="relative z-10 flex min-h-[600px] items-center px-6 py-14 md:px-12 lg:px-16">
+              <div className="public-on-blue max-w-[min(650px,82vw)]">
+                <p className="mb-5 inline-flex border-l border-[#B8975A] pl-3 text-xs font-bold uppercase tracking-[0.22em] opacity-[0.85]">
                   WEBSITE CHÍNH THỨC
                 </p>
-                <h1 className="text-[34px] font-bold leading-[1.08] text-[#0A3151] drop-shadow-[0_1px_0_rgba(255,255,255,0.85)] md:text-[48px] lg:text-[56px]">
+                <h1 className="max-w-[min(620px,82vw)] text-[64px] font-bold leading-[1.03]">
                   TS. ĐẶNG HỮU PHÚC
                 </h1>
-                <p className="mt-5 max-w-xl text-[17px] font-medium leading-8 text-[#0A3151] drop-shadow-[0_1px_0_rgba(255,255,255,0.85)] md:text-[18px]">
+                <p className="mt-6 max-w-[min(540px,82vw)] text-[18px] font-medium leading-8 opacity-[0.88]">
                   Bộ ghi chú sức khỏe được hệ thống từ các chủ đề bác sĩ đang chia sẻ trên Facebook.
                 </p>
 
-                <div className="mt-7 grid gap-2 sm:grid-cols-3">
+                <div className="mt-8 flex flex-wrap gap-2.5">
                   {[
                     { Icon: GraduationCap, label: 'Tiến sĩ Y khoa' },
                     { Icon: BookOpen, label: 'Tác giả sách' },
                     { Icon: ShieldCheck, label: 'Có nguồn tham khảo' },
                   ].map(({ Icon, label }) => (
-                    <div key={label} className="flex min-h-11 items-center gap-2 border border-[#0A3151]/30 bg-white/80 px-3 py-2 text-[#0A3151]">
-                      <Icon className="h-4 w-4 shrink-0" />
+                    <div key={label} className="inline-flex min-h-11 items-center gap-2 border border-white/25 bg-white/10 px-3.5 py-2.5 shadow-[0_12px_30px_-20px_rgba(0,0,0,0.7)] backdrop-blur-md">
+                      <Icon className="h-4 w-4 shrink-0 opacity-[0.85]" />
                       <span className="text-xs font-bold leading-5">{label}</span>
                     </div>
                   ))}
@@ -302,7 +304,7 @@ export default function Home() {
       <section id="bo-ghi-chu" className="bg-white py-14 md:py-16">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
           <div className="mb-8 max-w-3xl border-b border-[#0A3151]/15 pb-5">
-            <h2 className="text-[30px] font-bold leading-tight text-[#0A3151] md:text-[34px]">
+            <h2 className="text-[30px] font-bold uppercase leading-tight tracking-wide text-[#0A3151] md:text-[34px]">
               Bộ Ghi Chú Chống Lão Hóa
             </h2>
             <p className="mt-3 text-base font-medium leading-7 text-[#0A3151]">
@@ -311,10 +313,10 @@ export default function Home() {
           </div>
 
           {leadNote ? (
-            <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+            <div className="grid items-stretch gap-6 lg:grid-cols-[1.05fr_0.95fr]">
               <Link to={leadNote.isDemo ? '/notes' : `/notes/${leadNote.slug}`} className="group block h-full">
-                <article className="grid h-full overflow-hidden border border-[#0A3151]/15 bg-white md:grid-cols-[0.9fr_1.1fr]">
-                  <div className="min-h-[240px] bg-[#0A3151]/5">
+                <article className="grid h-full overflow-hidden border border-[#0A3151]/15 bg-white lg:grid-cols-[0.9fr_1.1fr]">
+                  <div className="h-full min-h-[260px] bg-[#0A3151]/5">
                     {leadNote.coverImageUrl ? (
                       <img
                         src={leadNote.coverImageUrl}
@@ -323,7 +325,7 @@ export default function Home() {
                         referrerPolicy="no-referrer"
                       />
                     ) : (
-                      <div className="flex h-full min-h-[240px] items-center justify-center bg-[#0A3151]/5 px-6 text-center">
+                      <div className="flex h-full min-h-[260px] items-center justify-center bg-[#0A3151]/5 px-6 text-center">
                         <FileText className="h-10 w-10 text-[#0A3151]" />
                       </div>
                     )}
@@ -345,16 +347,13 @@ export default function Home() {
                         <p className="mt-4 line-clamp-3 text-sm font-medium leading-7 text-[#0A3151]">{leadNote.excerpt}</p>
                       )}
                     </div>
-                    <span className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#0A3151]">
-                      Đọc bài đầy đủ <ArrowRight className="h-4 w-4" />
-                    </span>
                   </div>
                 </article>
               </Link>
 
-              <div className="divide-y divide-[#0A3151]/15 border border-[#0A3151]/15 bg-white">
+              <div className="flex h-full flex-col divide-y divide-[#0A3151]/15 border border-[#0A3151]/15 bg-white">
                 {secondaryNotes.length > 0 ? secondaryNotes.map(note => (
-                  <Link key={note.id} to={note.isDemo ? '/notes' : `/notes/${note.slug}`} className="group block p-5 transition-colors hover:bg-[#0A3151]/5">
+                  <Link key={note.id} to={note.isDemo ? '/notes' : `/notes/${note.slug}`} className="group block flex-1 p-5 transition-colors hover:bg-[#0A3151]/5">
                     <article className="grid grid-cols-[76px_1fr] gap-4">
                       <div className="aspect-[4/3] overflow-hidden bg-[#0A3151]/5">
                         {note.coverImageUrl ? (
@@ -397,9 +396,8 @@ export default function Home() {
 
       <section id="sach" className="public-on-blue bg-[#0A3151] py-14 text-white md:py-16">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
-          <div className="mb-8 max-w-3xl border-b border-white/20 pb-5">
-            <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-white">Bằng chứng hệ thống nội dung</p>
-            <h2 className="text-[30px] font-bold leading-tight text-white md:text-[34px]">
+          <div className="mb-8 max-w-3xl border-b border-white/20 pb-5 text-left">
+            <h2 className="text-[30px] font-bold uppercase leading-tight tracking-wide text-white md:text-[34px]">
               Sách và tài liệu đã xuất bản
             </h2>
             <p className="mt-3 text-base font-medium leading-7 text-white">
@@ -408,31 +406,31 @@ export default function Home() {
           </div>
 
           {displayBooks.length > 0 ? (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-10 grid grid-cols-1 gap-8 min-[430px]:grid-cols-2 lg:grid-cols-4 lg:gap-10">
               {displayBooks.map(book => {
                 const cover = book.coverUrl;
                 return (
-                  <Link key={book.id} to={book.isDemo ? '/books' : `/books/${book.slug}`} className="group border border-white/20 p-5 transition-colors hover:bg-white/10">
-                    <article className="grid gap-5">
-                      <div className="aspect-[2/3] max-h-[320px] overflow-hidden bg-white/10">
+                  <Link key={book.id} to={book.isDemo ? '/books' : `/books/${book.slug}`} className="group flex flex-col">
+                    <article className="flex flex-col items-center text-center">
+                      <div className="w-full">
                         {cover ? (
-                          <img src={cover} alt={book.title} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+                          <div className="aspect-[2/3] w-full max-w-[220px] mx-auto overflow-hidden rounded-[2px] border border-white/10 shadow-[0_15px_35px_-5px_rgba(0,0,0,0.5)] transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)]">
+                            <img
+                              src={cover}
+                              alt={book.title}
+                              className="h-full w-full object-cover"
+                              referrerPolicy="no-referrer"
+                            />
+                          </div>
                         ) : (
-                          <div className="public-on-blue flex h-full w-full flex-col items-center justify-center bg-white/10 p-5 text-center">
-                            <BookOpen className="mb-4 h-10 w-10 text-white" />
-                            <span className="text-sm font-bold leading-6 text-white">{book.title}</span>
+                          <div className="aspect-[2/3] w-full max-w-[220px] mx-auto flex flex-col items-center justify-center rounded-[2px] border border-white/15 bg-white/5 shadow-[0_15px_35px_-5px_rgba(0,0,0,0.5)] p-4 text-center transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)]">
+                            <BookOpen className="mb-3 h-8 w-8 text-white/50" />
+                            <span className="text-xs font-bold leading-5 text-white/50">{book.title}</span>
                           </div>
                         )}
                       </div>
-                      <div>
-                        <p className="mb-3 text-xs font-bold uppercase tracking-wider text-white">Tủ sách</p>
-                        <h3 className="line-clamp-2 text-xl font-bold leading-tight text-white">{book.title}</h3>
-                        {book.description && (
-                          <p className="mt-3 line-clamp-3 text-sm font-medium leading-7 text-white">{book.description}</p>
-                        )}
-                        <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-white">
-                          Đọc thêm <ArrowRight className="h-4 w-4" />
-                        </span>
+                      <div className="mt-5 flex flex-col items-center px-2">
+                        <h3 className="line-clamp-2 font-serif text-lg font-medium leading-snug text-white transition-colors group-hover:text-[#B8975A]">{book.title}</h3>
                       </div>
                     </article>
                   </Link>

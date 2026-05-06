@@ -96,7 +96,7 @@ export default function NoteDetail() {
                   {note.categories.name}
                 </Badge>
               )}
-              <h1 className="text-4xl md:text-6xl font-serif font-bold leading-tight text-[#1A1A1A]">
+              <h1 className="text-[34px] font-serif font-bold leading-tight text-[#1A1A1A] md:text-[48px] lg:text-[56px]">
                 {note.title}
               </h1>
 
@@ -134,7 +134,7 @@ export default function NoteDetail() {
                     {note.read_time} đọc
                   </div>
                 )}
-                <Button variant="outline" size="sm" className="ml-auto gap-2 text-neutral-600 rounded-full hover:bg-neutral-50">
+                <Button variant="outline" size="sm" className="w-full gap-2 text-neutral-600 rounded-full hover:bg-neutral-50 sm:ml-auto sm:w-auto">
                   <Share2 className="w-4 h-4" /> Chia sẻ bài viết
                 </Button>
               </div>
@@ -170,7 +170,7 @@ export default function NoteDetail() {
             </div>
 
             {note.cover_image_url && (
-              <div className="overflow-hidden aspect-[21/9] rounded-3xl shadow-xl border border-neutral-100">
+              <div className="overflow-hidden rounded-3xl border border-neutral-100 shadow-xl aspect-[4/3] md:aspect-[21/9]">
                 <img src={note.cover_image_url} alt={note.cover_alt || note.title} className="w-full h-full object-cover" />
               </div>
             )}
