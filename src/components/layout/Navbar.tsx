@@ -40,16 +40,16 @@ export default function Navbar() {
       )}
     >
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 md:px-8">
-        <Link to="/" className="flex items-center gap-2 group">
-          <div className="public-text-blue w-10 h-10 bg-white flex items-center justify-center text-[#0A3151] text-xl font-bold transition-colors overflow-hidden">
+        <Link to="/" className="group flex min-w-0 items-center gap-2">
+          <div className="public-text-blue h-8 w-8 shrink-0 bg-white flex items-center justify-center text-[#0A3151] text-base font-bold transition-colors overflow-hidden md:h-10 md:w-10 md:text-xl">
             {settings.logoImage
               ? <img src={settings.logoImage} alt={siteNameDisplay} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               : (settings.logoText || DEFAULT_SETTINGS.logoText)
             }
           </div>
           <div className="flex min-w-0 flex-col">
-            <span className="max-w-[210px] truncate text-lg font-bold tracking-tight text-white sm:max-w-none">{siteNameDisplay}</span>
-            <span className="max-w-[210px] truncate text-[10px] font-medium uppercase tracking-[0.2em] text-white/65 sm:max-w-none">{settings.tagline}</span>
+            <span className="max-w-[calc(100vw-112px)] truncate text-sm font-bold tracking-tight text-white sm:max-w-none md:text-lg">{siteNameDisplay}</span>
+            <span className="max-w-[calc(100vw-112px)] truncate text-[9px] font-medium uppercase tracking-[0.18em] text-white/65 sm:max-w-none md:text-[10px]">{settings.tagline}</span>
           </div>
         </Link>
 

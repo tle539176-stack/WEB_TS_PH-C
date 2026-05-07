@@ -49,12 +49,12 @@ export function ProductCatalogCard({ product, preview = false }: ProductCatalogC
       </div>
       <CardContent className="pt-5">
         {product.brand && (
-          <p className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-1">{product.brand}</p>
+          <p className="public-kicker mb-1 text-neutral-400">{product.brand}</p>
         )}
-        <h3 className="text-lg font-bold font-serif mb-2 text-neutral-950 line-clamp-2">
+        <h3 className="public-card-title public-article-title mb-2 line-clamp-2">
           {product.name || 'Tên sản phẩm'}
         </h3>
-        <p className="text-sm text-neutral-600 line-clamp-3">
+        <p className="public-small public-muted-text public-title-summary line-clamp-3">
           {product.description || 'Mô tả sản phẩm sẽ hiển thị ở đây.'}
         </p>
       </CardContent>

@@ -40,9 +40,9 @@ function AppContent() {
   }, [isAdmin]);
 
   return (
-    <div className={`min-h-screen bg-white font-sans selection:bg-[#0A3151] selection:text-white ${isAdmin ? 'text-[#1A1A1A]' : 'public-site text-[#0A3151]'}`}>
+    <div className={`min-h-screen w-full max-w-full bg-white font-sans selection:bg-[#0A3151] selection:text-white ${isAdmin ? 'text-[#1A1A1A]' : 'public-site overflow-x-hidden text-[#0A3151]'}`}>
       {!isAdmin && <Navbar />}
-      <main>
+      <main className={isAdmin ? undefined : 'w-full max-w-full overflow-x-hidden'}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />

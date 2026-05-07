@@ -26,20 +26,20 @@ export function FacebookVideoStrip({ videos, facebookUrl }: Props) {
   const viewMoreUrl = facebookUrl || firstRealVideoUrl;
 
   return (
-    <section className="border-y border-[#0A3151]/10 bg-white py-14 md:py-16">
+    <section className="border-y border-[#0A3151]/10 bg-white py-12 md:py-14">
       <div className="mx-auto w-full max-w-7xl px-4 md:px-8">
-        <div className="mb-8 border-b border-[#0A3151]/10 pb-5 text-left">
-          <h2 className="text-[30px] font-bold uppercase leading-tight tracking-wide text-[#0A3151] md:text-[34px]">
+        <div className="mb-6 border-b border-[#0A3151]/10 pb-4 text-left">
+          <h2 className="public-section-title uppercase">
             Video mới từ Facebook
           </h2>
         </div>
 
-        <div className="relative mt-5">
-          <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] md:gap-5 [&::-webkit-scrollbar]:hidden">
+        <div className="relative mt-4">
+          <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] md:gap-4 lg:gap-5 [&::-webkit-scrollbar]:hidden">
             {videos.map((video) => (
               <article
                 key={video.id}
-                className="min-w-[62vw] max-w-[260px] snap-start sm:min-w-[230px] sm:max-w-[230px] lg:min-w-[230px] lg:max-w-[230px]"
+                className="w-[30vw] min-w-[112px] max-w-[138px] shrink-0 snap-start sm:w-[132px] sm:max-w-[132px] md:w-[150px] md:max-w-[150px] lg:w-[210px] lg:max-w-[210px] xl:w-[230px] xl:max-w-[230px]"
               >
                 <button
                   type="button"
@@ -64,13 +64,13 @@ export function FacebookVideoStrip({ videos, facebookUrl }: Props) {
                   )}
 
                   {video.duration && (
-                    <span className="absolute bottom-2 right-2 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium tracking-wide text-white backdrop-blur-sm">
+                    <span className="absolute bottom-1.5 right-1.5 rounded bg-black/70 px-1.5 py-0.5 text-[9px] font-medium tracking-wide text-white backdrop-blur-sm md:bottom-2 md:right-2 md:text-[10px]">
                       {video.duration}
                     </span>
                   )}
                 </button>
 
-                <h3 className="mt-4 line-clamp-2 text-[15px] font-bold leading-snug text-[#0A3151]">
+                <h3 className="public-compact-title mt-3 line-clamp-2">
                   {video.title}
                 </h3>
               </article>
@@ -81,7 +81,7 @@ export function FacebookVideoStrip({ videos, facebookUrl }: Props) {
         </div>
 
         {viewMoreUrl && (
-          <div className="mt-8 flex justify-center">
+          <div className="mt-7 flex justify-center">
             <a href={viewMoreUrl} target="_blank" rel="noreferrer">
               <Button variant="outline" className="border-[#0A3151] px-8 text-[#0A3151] hover:bg-[#0A3151] hover:text-white">
                 Xem thêm

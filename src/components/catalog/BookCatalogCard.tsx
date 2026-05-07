@@ -49,7 +49,7 @@ export function BookCatalogCard({ book, preview = false }: BookCatalogCardProps)
       </div>
       <CardContent className="pt-6">
         <div className="flex justify-between items-start gap-3 mb-2">
-          <span className="text-xs font-bold text-[#0A3151] uppercase tracking-widest">{book.year}</span>
+          <span className="public-kicker text-[#0A3151]">{book.year}</span>
           {book.rating != null && (
             <div className="flex items-center gap-1 text-yellow-500">
               <Star className="w-3 h-3 fill-current" />
@@ -57,11 +57,11 @@ export function BookCatalogCard({ book, preview = false }: BookCatalogCardProps)
             </div>
           )}
         </div>
-        <h3 className="text-xl font-bold font-serif mb-1 text-neutral-950 line-clamp-2">
+        <h3 className="public-card-title public-article-title mb-1 line-clamp-2">
           {book.title || 'Tên sách'}
         </h3>
-        {book.subtitle && <p className="text-sm text-neutral-500 italic mb-4 line-clamp-1">{book.subtitle}</p>}
-        <p className="text-sm text-neutral-600 line-clamp-3">
+        {book.subtitle && <p className="public-small public-muted-text public-title-summary italic line-clamp-1">{book.subtitle}</p>}
+        <p className="public-small public-muted-text public-title-summary line-clamp-3">
           {book.description || 'Mô tả sách sẽ hiển thị ở đây.'}
         </p>
       </CardContent>

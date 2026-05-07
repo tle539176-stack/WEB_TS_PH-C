@@ -44,9 +44,9 @@ export default function About() {
             transition={{ duration: 0.6 }}
             className="text-center mb-14"
           >
-            <p className="text-sm uppercase tracking-[0.24em] text-[#0A3151] font-bold mb-4">Giới thiệu</p>
-            <h1 className="mb-5 text-[34px] font-serif font-bold leading-tight text-[#1A1A1A] md:text-[44px] lg:text-6xl">{settings.aboutTitle}</h1>
-            <p className="text-lg md:text-xl text-neutral-600 max-w-3xl mx-auto leading-relaxed">{settings.aboutSubtitle}</p>
+            <p className="public-kicker mb-4 text-[#0A3151]">Giới thiệu</p>
+            <h1 className="public-page-title public-article-title">{settings.aboutTitle}</h1>
+            <p className="public-body public-muted-text public-title-summary mx-auto max-w-3xl">{settings.aboutSubtitle}</p>
             {settings.aboutQuote && (
               <p className="text-base md:text-lg text-neutral-500 italic mt-6">"{settings.aboutQuote}"</p>
             )}
@@ -74,7 +74,7 @@ export default function About() {
                       {initials || 'ĐP'}
                     </div>
                     <p className="font-serif text-2xl font-bold">{settings.aboutTitle}</p>
-                    <p className="text-sm text-white/75 mt-3 leading-relaxed">{settings.aboutSubtitle}</p>
+                    <p className="public-small public-title-summary text-white/75">{settings.aboutSubtitle}</p>
                   </div>
                 )}
               </div>
@@ -90,9 +90,9 @@ export default function About() {
               <section className="space-y-5">
                 <div className="flex items-center gap-3">
                   <Stethoscope className="w-6 h-6 text-[#0A3151]" />
-                  <h2 className="text-2xl md:text-3xl font-bold font-serif text-[#0A3151]">{settings.aboutSectionTitle}</h2>
+                  <h2 className="public-section-title text-[#0A3151]">{settings.aboutSectionTitle}</h2>
                 </div>
-                <div className="space-y-5 text-neutral-600 leading-8 text-base md:text-lg">
+                <div className="public-body public-muted-text space-y-5">
                   {paragraphs.map((paragraph, index) => (
                     <p key={index}>{paragraph}</p>
                   ))}
@@ -106,7 +106,7 @@ export default function About() {
                     return (
                       <div key={item} className="p-5 border border-neutral-200 bg-white rounded-xl shadow-sm">
                         <Icon className="w-5 h-5 text-[#0A3151] mb-3" />
-                        <p className="font-semibold text-[#1A1A1A] leading-relaxed">{item}</p>
+                        <p className="public-small public-article-title font-semibold">{item}</p>
                       </div>
                     );
                   })}
@@ -117,8 +117,8 @@ export default function About() {
                 <div className="flex items-start gap-4">
                   <ShieldCheck className="w-7 h-7 shrink-0 text-white/90" />
                   <div>
-                    <h3 className="text-xl font-serif font-bold mb-3">Lưu ý y khoa</h3>
-                    <p className="text-white/80 leading-7">
+                    <h3 className="public-card-title">Lưu ý y khoa</h3>
+                    <p className="public-body public-title-summary text-white/80">
                       {settings.medicalDisclaimer || DEFAULT_SETTINGS.medicalDisclaimer}
                     </p>
                   </div>

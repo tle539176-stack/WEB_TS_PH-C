@@ -54,9 +54,9 @@ export default function Products() {
       <div className="container mx-auto px-4">
         <section className="mb-10">
           <div className="max-w-3xl">
-            <Badge className="bg-[#0A3151] text-white border-none mb-5 px-4 py-1.5 rounded-full uppercase tracking-wider text-xs shadow-sm">Sản phẩm khuyên dùng</Badge>
-            <h1 className="text-4xl md:text-5xl font-serif font-bold text-neutral-950 mb-5">Danh Mục Sản Phẩm</h1>
-            <p className="text-neutral-600 leading-7">
+            <Badge className="public-kicker mb-5 border-none bg-[#0A3151] px-4 py-1.5 text-white shadow-sm">Sản phẩm khuyên dùng</Badge>
+            <h1 className="public-page-title public-article-title">Danh Mục Sản Phẩm</h1>
+            <p className="public-body public-muted-text public-title-summary">
               Lọc nhanh theo tag, thương hiệu và từ khóa để tìm đúng nhóm sản phẩm đang cần xem.
             </p>
           </div>
@@ -135,8 +135,8 @@ export default function Products() {
         <div className="mt-16 bg-[#F8FAFC] border border-blue-100 rounded-3xl p-6 md:p-8 flex gap-5 shadow-sm">
           <div className="bg-white p-3 rounded-2xl shadow-sm shrink-0 h-fit"><ShieldCheck className="w-6 h-6 text-[#0A3151]" /></div>
           <div>
-            <h2 className="font-bold text-neutral-950 mb-2">Lưu ý khi tham khảo sản phẩm</h2>
-            <p className="text-sm leading-6 text-neutral-600">
+            <h2 className="public-card-title public-article-title">Lưu ý khi tham khảo sản phẩm</h2>
+            <p className="public-small public-muted-text public-title-summary">
               Danh sách sản phẩm chỉ mang tính tham khảo. Người dùng nên đọc kỹ hướng dẫn và hỏi ý kiến chuyên môn trước khi sử dụng, đặc biệt khi đang điều trị hoặc có bệnh nền.
             </p>
           </div>

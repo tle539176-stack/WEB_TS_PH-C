@@ -40,8 +40,8 @@ export default function Notes() {
       <div className="container mx-auto px-4">
         <div className="mb-12 flex flex-col items-start justify-between gap-8 lg:mb-16 lg:flex-row lg:items-end">
           <div className="max-w-xl">
-            <h1 className="mb-6 text-[34px] font-serif font-bold leading-tight lg:text-5xl">Ghi Chú Chống Lão Hóa</h1>
-            <p className="text-neutral-600">Những bài viết chuyên sâu về y học, sức khỏe và bí quyết duy trì sự trẻ trung từ Bác sĩ Wynn Tran.</p>
+            <h1 className="public-page-title">Ghi Chú Chống Lão Hóa</h1>
+            <p className="public-body public-muted-text public-title-summary">Những bài viết chuyên sâu về y học, sức khỏe và bí quyết duy trì sự trẻ trung từ Bác sĩ Wynn Tran.</p>
           </div>
           <div className="relative w-full md:w-80">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
@@ -81,7 +81,7 @@ export default function Notes() {
                       )}
                     </div>
                     <div className="flex flex-col justify-center lg:col-span-3">
-                      <div className="flex items-center gap-4 mb-4">
+                      <div className="mb-4 flex items-center gap-4">
                         {note.categories?.name && (
                           <Badge variant="secondary" className="bg-[#0A3151]/10 text-[#0A3151] hover:bg-[#0A3151]/20 border-none rounded-full px-3">
                             {note.categories.name}
@@ -92,10 +92,10 @@ export default function Notes() {
                           {formatDate(note.published_at)}
                         </div>
                       </div>
-                      <h2 className="text-2xl font-bold font-serif mb-4 group-hover:text-[#0A3151] transition-colors">
+                      <h2 className="public-lead-title public-article-title transition-colors">
                         {note.title}
                       </h2>
-                      <p className="text-neutral-600 mb-6 line-clamp-2 leading-relaxed">
+                      <p className="public-body public-muted-text public-title-summary mb-6 line-clamp-2">
                         {note.excerpt}
                       </p>
                       <div className="flex items-center justify-between mt-auto">
@@ -118,7 +118,7 @@ export default function Notes() {
 
           <div className="space-y-10">
             <section>
-              <h3 className="text-xl font-bold font-serif mb-6 pb-2 border-b-2 border-[#0A3151] inline-block">Chuyên mục</h3>
+              <h3 className="public-card-title mb-6 inline-block border-b-2 border-[#0A3151] pb-2">Chuyên mục</h3>
               <div className="flex flex-wrap gap-2 pt-2">
                 {categories.map(cat => (
                   <Badge
@@ -141,8 +141,8 @@ export default function Notes() {
                 <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center mx-auto mb-6 text-white border border-white/20">
                   <Tag className="w-8 h-8" />
                 </div>
-                <h3 className="text-2xl font-bold font-serif mb-4">Tải E-book miễn phí</h3>
-                <p className="text-sm text-white/80 mb-8 leading-relaxed">Cẩm nang 10 bước bảo vệ sức khỏe tim mạch tại nhà chuẩn y khoa.</p>
+                <h3 className="public-lead-title">Tải E-book miễn phí</h3>
+                <p className="public-small public-title-summary mb-8 text-white/80">Cẩm nang 10 bước bảo vệ sức khỏe tim mạch tại nhà chuẩn y khoa.</p>
                 <Button className="w-full bg-white hover:bg-neutral-100 text-[#0A3151] rounded-xl py-6 font-bold text-lg shadow-lg hover:shadow-xl transition-all">
                   Tải ngay
                 </Button>

@@ -73,9 +73,9 @@ export default function ProductDetail() {
 
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
             {product.tag && <Badge className="bg-[#0A3151] text-white">{product.tag}</Badge>}
-            <h1 className="text-[34px] font-serif font-bold leading-tight lg:text-4xl">{product.name}</h1>
+            <h1 className="public-page-title">{product.name}</h1>
             {product.brand && <p className="text-neutral-500">Thương hiệu: {product.brand}</p>}
-            {product.short_description && <p className="text-lg text-neutral-600">{product.short_description}</p>}
+            {product.short_description && <p className="public-body public-muted-text public-title-summary">{product.short_description}</p>}
 
             {product.price != null && (
               <div className="text-3xl font-bold text-[#0A3151]">{formatPrice(product.price)}</div>
@@ -102,22 +102,22 @@ export default function ProductDetail() {
 
         {product.description && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-16 prose prose-lg max-w-none">
-            <h2 className="text-2xl font-serif font-bold mb-6">Mô tả sản phẩm</h2>
-            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.description) }} />
+            <h2 className="public-section-title">Mô tả sản phẩm</h2>
+            <div className="public-title-summary" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.description) }} />
           </motion.div>
         )}
 
         {product.usage && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-12 prose prose-lg max-w-none">
-            <h2 className="text-2xl font-serif font-bold mb-6">Hướng dẫn sử dụng</h2>
-            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.usage) }} />
+            <h2 className="public-section-title">Hướng dẫn sử dụng</h2>
+            <div className="public-title-summary" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.usage) }} />
           </motion.div>
         )}
 
         {product.warnings && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-12 prose prose-lg max-w-none">
-            <h2 className="text-2xl font-serif font-bold mb-6">Lưu ý</h2>
-            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.warnings) }} />
+            <h2 className="public-section-title">Lưu ý</h2>
+            <div className="public-title-summary" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.warnings) }} />
           </motion.div>
         )}
       </div>

@@ -96,7 +96,7 @@ export default function NoteDetail() {
                   {note.categories.name}
                 </Badge>
               )}
-              <h1 className="text-[34px] font-serif font-bold leading-tight text-[#1A1A1A] md:text-[48px] lg:text-[56px]">
+              <h1 className="public-page-title public-article-title">
                 {note.title}
               </h1>
 
@@ -113,13 +113,13 @@ export default function NoteDetail() {
                   </div>
                   <div>
                     {authorPerson && (
-                      <p className="font-bold text-[#1A1A1A] text-sm">{authorPerson.display_name}</p>
+                    <p className="public-small font-bold text-[#1A1A1A]">{authorPerson.display_name}</p>
                     )}
                     {authorPerson?.professional_title && (
                       <p className="text-[11px] text-neutral-400">{authorPerson.professional_title}</p>
                     )}
                     {!authorPerson && reviewerPerson && (
-                      <p className="font-bold text-[#1A1A1A] text-sm">{reviewerPerson.display_name}</p>
+                      <p className="public-small font-bold text-[#1A1A1A]">{reviewerPerson.display_name}</p>
                     )}
                   </div>
                 </div>
@@ -179,7 +179,7 @@ export default function NoteDetail() {
               <div className="lg:col-span-3">
                 {note.content ? (
                   <div
-                    className="prose prose-neutral prose-lg max-w-none text-neutral-600 leading-relaxed"
+                    className="prose prose-neutral prose-lg public-body public-muted-text max-w-none"
                     dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(note.content) }}
                   />
                 ) : (
@@ -190,8 +190,8 @@ export default function NoteDetail() {
                   <div className="absolute top-0 left-8 -translate-y-1/2 w-12 h-12 bg-[#0A3151] rounded-2xl flex items-center justify-center shadow-lg">
                     <span className="text-white text-4xl font-serif leading-none mt-4">"</span>
                   </div>
-                  <h3 className="text-xl font-bold font-serif mb-4">Lời khuyên từ Bác sĩ:</h3>
-                  <p className="italic text-neutral-600">
+                  <h3 className="public-card-title">Lời khuyên từ Bác sĩ:</h3>
+                  <p className="public-body public-muted-text public-title-summary italic">
                     "Sức khỏe không phải là thứ chúng ta có thể mua được, nhưng nó là một tài khoản tiết kiệm vô cùng quý giá. Hãy bắt đầu chăm sóc nó ngay từ hôm nay bằng những thói quen nhỏ nhất."
                   </p>
                 </div>
@@ -199,7 +199,7 @@ export default function NoteDetail() {
                 {/* References section */}
                 {displaySources.length > 0 && (
                   <div className="mt-8 p-8 bg-white rounded-3xl border border-neutral-100 shadow-sm">
-                    <h3 className="font-bold font-serif mb-5 text-lg text-[#0A3151]">Tài liệu tham khảo</h3>
+                    <h3 className="public-card-title mb-5 text-[#0A3151]">Tài liệu tham khảo</h3>
                     <ol className="space-y-4 list-decimal list-outside ml-5">
                       {displaySources.map((src, i) => (
                         <li key={src.id ?? i} className="text-sm text-neutral-600 pl-1">
@@ -267,8 +267,8 @@ export default function NoteDetail() {
 
               <div className="space-y-10">
                 <section>
-                  <h3 className="text-lg font-bold font-serif mb-4 pb-2 border-b border-neutral-100">Bài viết liên quan</h3>
-                  <p className="text-sm text-neutral-400">Đang cập nhật...</p>
+                  <h3 className="public-card-title border-b border-neutral-100 pb-2">Bài viết liên quan</h3>
+                  <p className="public-small public-title-summary text-neutral-400">Đang cập nhật...</p>
                 </section>
               </div>
             </div>

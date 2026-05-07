@@ -80,7 +80,7 @@ export default function BookDetail() {
             <div>
               <div className="flex items-center gap-4 mb-4">
                 {book.year && (
-                  <span className="text-sm font-bold text-[#0A3151] uppercase tracking-widest">{book.year}</span>
+                  <span className="public-kicker text-[#0A3151]">{book.year}</span>
                 )}
                 {book.rating != null && (
                   <div className="flex items-center gap-1 text-yellow-500">
@@ -89,14 +89,14 @@ export default function BookDetail() {
                   </div>
                 )}
               </div>
-              <h1 className="text-4xl md:text-5xl font-serif font-bold mb-2">{book.title}</h1>
-              {book.subtitle && <p className="text-xl text-neutral-500 italic">{book.subtitle}</p>}
+              <h1 className="public-page-title">{book.title}</h1>
+              {book.subtitle && <p className="public-body public-muted-text public-title-summary italic">{book.subtitle}</p>}
             </div>
 
             <div className="flex items-center gap-6 py-6 border-y border-neutral-100 flex-wrap">
               {book.author && (
                 <div>
-                  <p className="text-xs text-neutral-400 uppercase tracking-wider mb-1">Tác giả</p>
+                  <p className="public-kicker mb-1 text-neutral-400">Tác giả</p>
                   <p className="font-bold">{book.author}</p>
                 </div>
               )}
@@ -104,7 +104,7 @@ export default function BookDetail() {
                 <>
                   <div className="w-px h-8 bg-neutral-100" />
                   <div>
-                    <p className="text-xs text-neutral-400 uppercase tracking-wider mb-1">Nhà xuất bản</p>
+                    <p className="public-kicker mb-1 text-neutral-400">Nhà xuất bản</p>
                     <p className="font-bold">{book.publisher}</p>
                   </div>
                 </>
@@ -113,14 +113,14 @@ export default function BookDetail() {
                 <>
                   <div className="w-px h-8 bg-neutral-100" />
                   <div>
-                    <p className="text-xs text-neutral-400 uppercase tracking-wider mb-1">Số trang</p>
+                    <p className="public-kicker mb-1 text-neutral-400">Số trang</p>
                     <p className="font-bold">{book.pages} trang</p>
                   </div>
                 </>
               )}
             </div>
 
-            <p className="text-neutral-600 leading-relaxed text-lg">
+            <p className="public-body public-muted-text">
               {book.description}
             </p>
 
@@ -134,7 +134,7 @@ export default function BookDetail() {
 
             {book.content && (
               <div className="space-y-4 pt-8">
-                <h3 className="text-xl font-bold font-serif flex items-center gap-2">
+                <h3 className="public-card-title flex items-center gap-2">
                   <BookIcon className="w-5 h-5 text-[#0A3151]" /> Nội dung nổi bật
                 </h3>
                 <div

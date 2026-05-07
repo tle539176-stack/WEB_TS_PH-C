@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import {
   ArrowRight, BookOpen, CalendarDays, FileText,
-  GraduationCap, ShieldCheck,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { FacebookVideoStrip } from '@/components/home/FacebookVideoStrip';
@@ -14,6 +13,7 @@ import { getHomeVideos } from '@/services/videoService';
 import type { BookWithImages, NoteWithCategory, Video } from '@/types/database';
 
 const DEFAULT_HERO = 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?q=80&w=1887&auto=format&fit=crop';
+
 
 type DisplayNote = {
   id: string;
@@ -255,12 +255,12 @@ export default function Home() {
   return (
     <div className="bg-white text-[#0A3151]">
       <section className="bg-[#F5F8FA] pt-20 md:pt-24">
-        <div className="mx-auto max-w-7xl px-4 pb-10 md:px-8 md:pb-12">
+        <div className="mx-auto hidden max-w-7xl px-8 pb-12 lg:block">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, ease: 'easeOut' }}
-            className="relative min-h-[600px] overflow-hidden bg-[#0A3151] shadow-[0_22px_60px_-35px_rgba(10,49,81,0.9)]"
+            className="relative aspect-[2.08/1] overflow-hidden bg-[#0A3151] shadow-[0_22px_60px_-35px_rgba(10,49,81,0.9)]"
           >
             <img
               src={heroImage}
@@ -268,55 +268,73 @@ export default function Home() {
               className="absolute inset-0 h-full w-full object-cover object-[66%_center] saturate-[0.96] contrast-[1.02]"
               referrerPolicy="no-referrer"
             />
-            <div className="absolute inset-y-0 left-0 w-[min(720px,82%)] bg-[linear-gradient(90deg,rgba(10,49,81,0.74)_0%,rgba(10,49,81,0.54)_58%,rgba(10,49,81,0)_100%)]" />
-            <div className="absolute inset-y-0 left-0 w-[min(720px,82%)] bg-[linear-gradient(180deg,rgba(4,19,31,0.08)_0%,rgba(4,19,31,0)_38%,rgba(4,19,31,0.1)_100%)]" />
+            <div className="absolute inset-y-0 left-0 w-[64%] bg-[linear-gradient(90deg,rgba(10,49,81,0.62)_0%,rgba(10,49,81,0.42)_58%,rgba(10,49,81,0)_100%)]" />
+            <div className="absolute inset-y-0 left-0 w-[64%] bg-[linear-gradient(180deg,rgba(4,19,31,0.06)_0%,rgba(4,19,31,0)_38%,rgba(4,19,31,0.08)_100%)]" />
 
-            <div className="relative z-10 flex min-h-[600px] items-center px-6 py-14 md:px-12 lg:px-16">
-              <div className="public-on-blue max-w-[min(650px,82vw)]">
-                <p className="mb-5 inline-flex border-l border-[#B8975A] pl-3 text-xs font-bold uppercase tracking-[0.22em] opacity-[0.85]">
-                  WEBSITE CHÍNH THỨC
+            <div className="relative z-10 flex h-full items-center px-[clamp(22px,5vw,64px)] py-[clamp(20px,4vw,56px)]">
+              <div className="public-on-blue max-w-[58%]">
+                <p className="mb-[clamp(8px,1.2vw,20px)] text-[clamp(11px,1.3vw,16px)] font-semibold uppercase tracking-[0.18em] text-[#B8975A]">
+                  Tiến sĩ chống lão hóa
                 </p>
-                <h1 className="max-w-[min(620px,82vw)] text-[64px] font-bold leading-[1.03]">
-                  TS. ĐẶNG HỮU PHÚC
+                <h1 className="max-w-full text-[clamp(26px,5.8vw,72px)] font-bold leading-[1.0]">
+                  ĐẶNG HỮU PHÚC
                 </h1>
-                <p className="mt-6 max-w-[min(540px,82vw)] text-[18px] font-medium leading-8 opacity-[0.88]">
-                  Bộ ghi chú sức khỏe được hệ thống từ các chủ đề bác sĩ đang chia sẻ trên Facebook.
+                <p className="mt-[clamp(8px,1.2vw,18px)] text-[clamp(9px,1.05vw,13px)] italic leading-[1.65] opacity-[0.80]">
+                  "Mong muốn lớn nhất của Tiến sĩ Đặng Hữu Phúc là mang kiến thức chống lão hóa đến gần hơn với mọi người, để ai cũng có thể chủ động bảo vệ sức khỏe của chính mình. Vì tôi tin rằng, hiểu đúng về lão hóa chính là cách chống lão hóa hiệu quả nhất."
                 </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
 
-                <div className="mt-8 flex flex-wrap gap-2.5">
-                  {[
-                    { Icon: GraduationCap, label: 'Tiến sĩ Y khoa' },
-                    { Icon: BookOpen, label: 'Tác giả sách' },
-                    { Icon: ShieldCheck, label: 'Có nguồn tham khảo' },
-                  ].map(({ Icon, label }) => (
-                    <div key={label} className="inline-flex min-h-11 items-center gap-2 border border-white/25 bg-white/10 px-3.5 py-2.5 shadow-[0_12px_30px_-20px_rgba(0,0,0,0.7)] backdrop-blur-md">
-                      <Icon className="h-4 w-4 shrink-0 opacity-[0.85]" />
-                      <span className="text-xs font-bold leading-5">{label}</span>
-                    </div>
-                  ))}
-                </div>
+        <div className="mx-auto block w-full max-w-full pb-10 lg:hidden">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, ease: 'easeOut' }}
+            className="relative min-h-[340px] overflow-hidden bg-[#0A3151] shadow-[0_22px_60px_-35px_rgba(10,49,81,0.9)] md:aspect-[2.08/1] md:min-h-0"
+          >
+            <img
+              src={heroImage}
+              alt={settings.aboutImageAlt || settings.siteName}
+              className="absolute inset-0 h-full w-full object-cover object-[66%_center] saturate-[0.96] contrast-[1.02]"
+              referrerPolicy="no-referrer"
+            />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(10,49,81,0.72)_0%,rgba(10,49,81,0.52)_65%,rgba(10,49,81,0.08)_100%)]" />
+
+            <div className="relative z-10 flex h-full min-h-[340px] items-center px-6 py-10 md:min-h-0 md:px-10">
+              <div className="public-on-blue w-[78%] max-w-[340px]">
+                <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#B8975A]">
+                  Tiến sĩ chống lão hóa
+                </p>
+                <h1 className="text-[clamp(32px,8vw,56px)] font-bold leading-[1.0]">
+                  ĐẶNG HỮU PHÚC
+                </h1>
+                <p className="mt-3 text-[11px] italic leading-[1.7] opacity-[0.82]">
+                  "Mong muốn lớn nhất của Tiến sĩ Đặng Hữu Phúc là mang kiến thức chống lão hóa đến gần hơn với mọi người, để ai cũng có thể chủ động bảo vệ sức khỏe của chính mình. Vì tôi tin rằng, hiểu đúng về lão hóa chính là cách chống lão hóa hiệu quả nhất."
+                </p>
               </div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      <section id="bo-ghi-chu" className="bg-white py-14 md:py-16">
+      <section id="bo-ghi-chu" className="bg-white py-12 md:py-14">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
-          <div className="mb-8 max-w-3xl border-b border-[#0A3151]/15 pb-5">
-            <h2 className="text-[30px] font-bold uppercase leading-tight tracking-wide text-[#0A3151] md:text-[34px]">
+          <div className="mb-7 max-w-[760px] border-b border-[#E5E5E5] pb-5">
+            <h2 className="public-section-title uppercase">
               Bộ Ghi Chú Chống Lão Hóa
             </h2>
-            <p className="mt-3 text-base font-medium leading-7 text-[#0A3151]">
+            <p className="public-body public-muted-text public-title-summary max-w-[720px]">
               Các bài viết được hệ thống lại từ những chủ đề bác sĩ Phúc đang chia sẻ, giúp người đọc xem phần đầy đủ sau khi theo dõi video ngắn.
             </p>
           </div>
 
           {leadNote ? (
-            <div className="grid items-stretch gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+            <div className="grid items-stretch gap-7 lg:grid-cols-[1.02fr_0.98fr]">
               <Link to={leadNote.isDemo ? '/notes' : `/notes/${leadNote.slug}`} className="group block h-full">
-                <article className="grid h-full overflow-hidden border border-[#0A3151]/15 bg-white lg:grid-cols-[0.9fr_1.1fr]">
-                  <div className="h-full min-h-[260px] bg-[#0A3151]/5">
+                <article className="grid h-full overflow-hidden border-y border-[#E5E5E5] bg-white lg:grid-cols-[0.92fr_1.08fr]">
+                  <div className="h-full min-h-[220px] bg-[#F6F8FA] lg:min-h-full">
                     {leadNote.coverImageUrl ? (
                       <img
                         src={leadNote.coverImageUrl}
@@ -325,37 +343,37 @@ export default function Home() {
                         referrerPolicy="no-referrer"
                       />
                     ) : (
-                      <div className="flex h-full min-h-[260px] items-center justify-center bg-[#0A3151]/5 px-6 text-center">
+                      <div className="flex h-full min-h-[220px] items-center justify-center bg-[#F6F8FA] px-6 text-center">
                         <FileText className="h-10 w-10 text-[#0A3151]" />
                       </div>
                     )}
                   </div>
-                  <div className="flex flex-col justify-between p-6 md:p-8">
+                  <div className="flex flex-col justify-between p-5 md:p-6 lg:p-7">
                     <div>
-                      <div className="mb-4 flex flex-wrap items-center gap-2.5 text-xs font-semibold text-[#0A3151]">
-                        <span className="public-on-blue bg-[#0A3151] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
+                      <div className="public-meta mb-4 flex flex-wrap items-center gap-2.5">
+                        <span className="public-kicker public-news-accent border-l border-[#9F224E] pl-2">
                           {leadNote.categoryName}
                         </span>
-                        <span className="inline-flex items-center gap-1 text-[#0A3151]">
+                        <span className="public-muted-text inline-flex items-center gap-1">
                           <CalendarDays className="h-3 w-3" />{formatDate(leadNote.publishedAt)}
                         </span>
                       </div>
-                      <h3 className="text-2xl font-bold leading-snug text-[#0A3151] md:text-3xl">
+                      <h3 className="public-article-title public-lead-title transition-colors">
                         {leadNote.title}
                       </h3>
                       {leadNote.excerpt && (
-                        <p className="mt-4 line-clamp-3 text-sm font-medium leading-7 text-[#0A3151]">{leadNote.excerpt}</p>
+                        <p className="public-body public-muted-text public-title-summary line-clamp-3">{leadNote.excerpt}</p>
                       )}
                     </div>
                   </div>
                 </article>
               </Link>
 
-              <div className="flex h-full flex-col divide-y divide-[#0A3151]/15 border border-[#0A3151]/15 bg-white">
+              <div className="flex h-full flex-col divide-y divide-[#E5E5E5] border-y border-[#E5E5E5] bg-white">
                 {secondaryNotes.length > 0 ? secondaryNotes.map(note => (
-                  <Link key={note.id} to={note.isDemo ? '/notes' : `/notes/${note.slug}`} className="group block flex-1 p-5 transition-colors hover:bg-[#0A3151]/5">
-                    <article className="grid grid-cols-[76px_1fr] gap-4">
-                      <div className="aspect-[4/3] overflow-hidden bg-[#0A3151]/5">
+                  <Link key={note.id} to={note.isDemo ? '/notes' : `/notes/${note.slug}`} className="group block flex-1 py-4 transition-colors hover:bg-[#F8FAFC] sm:px-4 lg:px-5">
+                    <article className="grid grid-cols-[88px_minmax(0,1fr)] gap-3 sm:grid-cols-[96px_minmax(0,1fr)] sm:gap-4">
+                      <div className="aspect-[5/3] overflow-hidden bg-[#F6F8FA]">
                         {note.coverImageUrl ? (
                           <img src={note.coverImageUrl} alt={note.title} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
                         ) : (
@@ -365,13 +383,13 @@ export default function Home() {
                         )}
                       </div>
                       <div>
-                        <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-[#0A3151]">
+                        <p className="public-kicker public-news-accent mb-1">
                           {note.categoryName}
                         </p>
-                        <h3 className="line-clamp-2 text-[15px] font-bold leading-snug text-[#0A3151]">
+                        <h3 className="public-article-title public-card-title line-clamp-2">
                           {note.title}
                         </h3>
-                        <p className="mt-1.5 text-xs font-medium text-[#0A3151]">{formatDate(note.publishedAt)}</p>
+                        <p className="public-meta public-muted-text mt-1.5">{formatDate(note.publishedAt)}</p>
                       </div>
                     </article>
                   </Link>
@@ -397,16 +415,16 @@ export default function Home() {
       <section id="sach" className="public-on-blue bg-[#0A3151] py-14 text-white md:py-16">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
           <div className="mb-8 max-w-3xl border-b border-white/20 pb-5 text-left">
-            <h2 className="text-[30px] font-bold uppercase leading-tight tracking-wide text-white md:text-[34px]">
+            <h2 className="public-section-title uppercase text-white">
               Sách và tài liệu đã xuất bản
             </h2>
-            <p className="mt-3 text-base font-medium leading-7 text-white">
+            <p className="public-body public-title-summary text-white">
               Sách được đặt ở đây như một phần hồ sơ chuyên môn: các nội dung đọc sâu hơn, được trình bày thành hệ thống.
             </p>
           </div>
 
           {displayBooks.length > 0 ? (
-            <div className="mt-10 grid grid-cols-1 gap-8 min-[430px]:grid-cols-2 lg:grid-cols-4 lg:gap-10">
+            <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-7 min-[430px]:gap-x-6 md:mt-10 lg:grid-cols-4 lg:gap-10">
               {displayBooks.map(book => {
                 const cover = book.coverUrl;
                 return (
@@ -414,7 +432,7 @@ export default function Home() {
                     <article className="flex flex-col items-center text-center">
                       <div className="w-full">
                         {cover ? (
-                          <div className="aspect-[2/3] w-full max-w-[220px] mx-auto overflow-hidden rounded-[2px] border border-white/10 shadow-[0_15px_35px_-5px_rgba(0,0,0,0.5)] transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)]">
+                          <div className="mx-auto aspect-[2/3] w-full max-w-[142px] overflow-hidden rounded-[2px] border border-white/15 shadow-[0_16px_34px_-8px_rgba(0,0,0,0.72),0_0_0_1px_rgba(255,255,255,0.08)] ring-1 ring-white/10 transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-[0_24px_46px_-10px_rgba(0,0,0,0.82),0_0_0_1px_rgba(255,255,255,0.12)] min-[430px]:max-w-[158px] sm:max-w-[174px] lg:max-w-[220px] lg:shadow-[0_22px_46px_-8px_rgba(0,0,0,0.68),0_0_0_1px_rgba(255,255,255,0.08)] lg:group-hover:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.84),0_0_0_1px_rgba(255,255,255,0.12)]">
                             <img
                               src={cover}
                               alt={book.title}
@@ -423,14 +441,14 @@ export default function Home() {
                             />
                           </div>
                         ) : (
-                          <div className="aspect-[2/3] w-full max-w-[220px] mx-auto flex flex-col items-center justify-center rounded-[2px] border border-white/15 bg-white/5 shadow-[0_15px_35px_-5px_rgba(0,0,0,0.5)] p-4 text-center transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)]">
-                            <BookOpen className="mb-3 h-8 w-8 text-white/50" />
-                            <span className="text-xs font-bold leading-5 text-white/50">{book.title}</span>
+                          <div className="mx-auto flex aspect-[2/3] w-full max-w-[142px] flex-col items-center justify-center rounded-[2px] border border-white/15 bg-white/5 p-3 text-center shadow-[0_16px_34px_-8px_rgba(0,0,0,0.72),0_0_0_1px_rgba(255,255,255,0.08)] ring-1 ring-white/10 transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-[0_24px_46px_-10px_rgba(0,0,0,0.82),0_0_0_1px_rgba(255,255,255,0.12)] min-[430px]:max-w-[158px] sm:max-w-[174px] lg:max-w-[220px] lg:p-4 lg:shadow-[0_22px_46px_-8px_rgba(0,0,0,0.68),0_0_0_1px_rgba(255,255,255,0.08)] lg:group-hover:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.84),0_0_0_1px_rgba(255,255,255,0.12)]">
+                            <BookOpen className="mb-2 h-6 w-6 text-white/50 lg:mb-3 lg:h-8 lg:w-8" />
+                            <span className="public-small font-bold text-white/50">{book.title}</span>
                           </div>
                         )}
                       </div>
-                      <div className="mt-5 flex flex-col items-center px-2">
-                        <h3 className="line-clamp-2 font-serif text-lg font-medium leading-snug text-white transition-colors group-hover:text-[#B8975A]">{book.title}</h3>
+                      <div className="mt-3 flex flex-col items-center px-1 lg:mt-5 lg:px-2">
+                        <h3 className="public-compact-title line-clamp-2 text-white transition-colors group-hover:text-[#B8975A]">{book.title}</h3>
                       </div>
                     </article>
                   </Link>
