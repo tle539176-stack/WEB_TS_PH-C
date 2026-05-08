@@ -369,6 +369,10 @@
     color: var(--public-navy) !important;
   }
 
+  .public-site :where(.public-scroll-arrow, .public-scroll-arrow *) {
+    color: var(--public-herbal-gold) !important;
+  }
+
   .public-hero-scrim {
     position: absolute;
     inset: 0 auto 0 0;

@@ -76,8 +76,8 @@ export function FacebookVideoStrip({ videos, facebookUrl }: Props) {
               </article>
             ))}
           </div>
-          <div className="pointer-events-none absolute right-0 top-1/2 z-10 flex -translate-y-1/2 text-[var(--public-navy)]">
-            <ChevronRight className="h-5 w-5 animate-pulse md:h-6 md:w-6" aria-hidden="true" />
+          <div className="public-scroll-arrow pointer-events-none absolute right-0 top-1/2 z-10 flex -translate-y-1/2 drop-shadow-[0_1px_2px_rgba(10,49,81,0.65)]">
+            <ChevronRight className="h-7 w-7 animate-pulse md:h-8 md:w-8" strokeWidth={3} aria-hidden="true" />
           </div>
 
         </div>
