@@ -255,7 +255,7 @@ export default function Home() {
   return (
     <div className="bg-white text-[var(--public-navy)]">
       <section className="bg-white pt-20 md:pt-24">
-        <div className="mx-auto hidden max-w-7xl px-8 pb-12 lg:block">
+        <div className="mx-auto hidden max-w-7xl px-8 pb-5 lg:block xl:pb-6">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -285,7 +285,7 @@ export default function Home() {
           </motion.div>
         </div>
 
-        <div className="mx-auto block w-full max-w-full pb-10 lg:hidden">
+        <div className="mx-auto block w-full max-w-full pb-4 lg:hidden">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -316,7 +316,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="bo-ghi-chu" className="bg-white py-12 md:py-14">
+      <section id="bo-ghi-chu" className="bg-white pt-6 pb-10 md:pt-6 md:pb-12">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
           <div className="mb-7 max-w-[760px] border-b border-[var(--public-border)] pb-5">
             <h2 className="public-section-title uppercase">
