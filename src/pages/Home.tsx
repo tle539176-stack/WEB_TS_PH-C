@@ -345,10 +345,10 @@ export default function Home() {
                       </div>
                     )}
                   </div>
-                  <div className="flex flex-col justify-between p-5 md:p-6 lg:p-7">
+                  <div className="flex flex-col justify-between px-0 py-5 md:p-6 lg:p-7">
                     <div>
                       <div className="public-meta mb-4 flex flex-wrap items-center gap-2.5">
-                        <span className="public-kicker public-news-accent border-l border-[var(--public-herbal-jade)] pl-2">
+                        <span className="public-kicker public-news-accent md:border-l md:border-[var(--public-herbal-jade)] md:pl-2">
                           {leadNote.categoryName}
                         </span>
                         <span className="public-muted-text inline-flex items-center gap-1">
