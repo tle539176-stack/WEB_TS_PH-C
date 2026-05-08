@@ -167,9 +167,20 @@
   }
 
   .public-site {
-    --public-blue: #0A3151;
+    --public-navy: #0A3151;
+    --public-navy-rgb: 10, 49, 81;
+    --public-medical-blue: #005EB8;
+    --public-herbal-jade: #2F6F5E;
+    --public-soft-sage: #C9E2D0;
+    --public-warm-ivory: #F7F4EC;
+    --public-herbal-gold: #D7B56D;
+    --public-ink: #1F2A2E;
+    --public-muted: #4F5F64;
+    --public-border: #DDE7E2;
+    --public-white: #FFFFFF;
+    --public-blue: var(--public-navy);
     --public-font: 'Merriweather', Georgia, 'Times New Roman', serif;
-    color: var(--public-blue);
+    color: var(--public-navy);
     font-family: var(--public-font);
   }
 
@@ -187,7 +198,7 @@
   }
 
   .public-site :where(h1, h2, h3, h4, h5, h6, p, span, a, li, label, small, strong, em, button, figcaption, blockquote, td, th, div, input, textarea, select, option) {
-    color: var(--public-blue) !important;
+    color: var(--public-navy) !important;
     font-family: var(--public-font) !important;
   }
 
@@ -309,49 +320,49 @@
   }
 
   .public-site :where(.public-article-title, .public-article-title *) {
-    color: #222 !important;
+    color: var(--public-ink) !important;
     font-family: var(--public-font) !important;
   }
 
   .public-site :where(.group:hover .public-article-title, .group:hover .public-article-title *) {
-    color: #9F224E !important;
+    color: var(--public-herbal-jade) !important;
   }
 
   .public-site :where(.public-muted-text, .public-muted-text *) {
-    color: #4F4F4F !important;
+    color: var(--public-muted) !important;
   }
 
   .public-site :where(.public-news-accent, .public-news-accent *) {
-    color: #9F224E !important;
+    color: var(--public-herbal-jade) !important;
   }
 
   .public-site ::placeholder {
-    color: var(--public-blue) !important;
+    color: var(--public-navy) !important;
     opacity: 1;
   }
 
   .public-site :where([class*="text-neutral"], [class*="text-gray"], [class*="text-slate"], [class*="text-zinc"], [class*="text-stone"], [class*="text-amber"], [class*="text-yellow"], [class*="text-green"], [class*="text-emerald"], [class*="text-red"], [class*="text-orange"], [class*="text-purple"], [class*="text-pink"], [class*="text-rose"], [class*="text-cyan"], [class*="text-sky"], [class*="text-indigo"], [class*="text-black"]) {
-    color: var(--public-blue) !important;
+    color: var(--public-navy) !important;
   }
 
   .public-site :where(.public-article-title, .public-article-title *) {
-    color: #222 !important;
+    color: var(--public-ink) !important;
   }
 
   .public-site :where(.public-muted-text, .public-muted-text *) {
-    color: #4F4F4F !important;
+    color: var(--public-muted) !important;
   }
 
   .public-site :where(.public-news-accent, .public-news-accent *) {
-    color: #9F224E !important;
+    color: var(--public-herbal-jade) !important;
   }
 
   .public-site :where(.text-white, .public-on-blue, .public-on-blue *) {
-    color: #fff !important;
+    color: var(--public-white) !important;
   }
 
   .public-site :where(.public-text-blue, .public-text-blue *) {
-    color: var(--public-blue) !important;
+    color: var(--public-navy) !important;
   }
 
   .public-hero-scrim {
@@ -362,11 +373,11 @@
     background:
       linear-gradient(
         90deg,
-        rgba(10, 49, 81, 0.46) 0%,
-        rgba(10, 49, 81, 0.32) 32%,
-        rgba(10, 49, 81, 0.16) 56%,
-        rgba(10, 49, 81, 0.06) 76%,
-        rgba(10, 49, 81, 0) 100%
+        rgba(var(--public-navy-rgb), 0.46) 0%,
+        rgba(var(--public-navy-rgb), 0.32) 32%,
+        rgba(var(--public-navy-rgb), 0.16) 56%,
+        rgba(var(--public-navy-rgb), 0.06) 76%,
+        rgba(var(--public-navy-rgb), 0) 100%
       );
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
@@ -379,11 +390,11 @@
   }
 
   .public-site :where(.public-hero-copy-panel, .public-hero-copy-panel *) {
-    color: #fff !important;
+    color: var(--public-white) !important;
   }
 
   .public-site :where(.public-hero-kicker) {
-    color: #E2C477 !important;
+    color: var(--public-soft-sage) !important;
     font-size: clamp(16px, 1.6vw, 22px);
     line-height: 1.35;
     font-weight: 700;
@@ -393,7 +404,7 @@
   }
 
   .public-site :where(.public-hero-title) {
-    color: #fff !important;
+    color: var(--public-white) !important;
     text-shadow: 0 3px 16px rgba(0, 0, 0, 0.36);
   }
 
@@ -408,10 +419,10 @@
       background:
         linear-gradient(
           90deg,
-          rgba(10, 49, 81, 0.5) 0%,
-          rgba(10, 49, 81, 0.36) 46%,
-          rgba(10, 49, 81, 0.14) 76%,
-          rgba(10, 49, 81, 0) 100%
+          rgba(var(--public-navy-rgb), 0.5) 0%,
+          rgba(var(--public-navy-rgb), 0.36) 46%,
+          rgba(var(--public-navy-rgb), 0.14) 76%,
+          rgba(var(--public-navy-rgb), 0) 100%
         );
       backdrop-filter: blur(4px);
       -webkit-backdrop-filter: blur(4px);

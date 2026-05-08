@@ -28,12 +28,12 @@ export default function Navbar() {
   return (
     <nav
       className={cn(
-        'public-on-blue fixed top-0 left-0 right-0 z-50 h-16 border-b border-white/10 bg-[#0A3151] text-white shadow-lg shadow-[#0A3151]/15 md:h-[68px]'
+        'public-on-blue fixed top-0 left-0 right-0 z-50 h-16 border-b border-white/10 bg-[var(--public-navy)] text-white shadow-lg shadow-[rgba(10,49,81,0.15)] md:h-[68px]'
       )}
     >
       <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between px-4 md:px-8">
         <Link to="/" className="group flex min-w-0 items-center gap-2">
-          <div className="public-text-blue h-8 w-8 shrink-0 bg-white flex items-center justify-center text-[#0A3151] text-base font-bold transition-colors overflow-hidden md:h-10 md:w-10 md:text-xl">
+          <div className="public-text-blue h-8 w-8 shrink-0 bg-white flex items-center justify-center text-[var(--public-navy)] text-base font-bold transition-colors overflow-hidden md:h-10 md:w-10 md:text-xl">
             {settings.logoImage
               ? <img src={settings.logoImage} alt={siteNameDisplay} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               : (settings.logoText || DEFAULT_SETTINGS.logoText)
@@ -76,7 +76,7 @@ export default function Navbar() {
           ))}
           <Button 
             render={<a href="#footer" />}
-            className="public-text-blue bg-white hover:bg-white text-[#0A3151] px-6 shadow-lg shadow-black/10 hover:shadow-xl hover:shadow-black/20 transition-all duration-300 hover:-translate-y-0.5"
+            className="public-text-blue bg-white hover:bg-white text-[var(--public-navy)] px-6 shadow-lg shadow-black/10 hover:shadow-xl hover:shadow-black/20 transition-all duration-300 hover:-translate-y-0.5"
           >
             <Phone className="w-4 h-4 mr-2" />
             Liên hệ
@@ -89,7 +89,7 @@ export default function Navbar() {
             <SheetTrigger render={<Button variant="ghost" size="icon" className="h-11 w-11 text-white hover:bg-white/10 hover:text-white" />}>
               <Menu className="w-6 h-6" />
             </SheetTrigger>
-            <SheetContent side="right" className="public-site w-[300px] bg-white text-[#0A3151] sm:w-[400px]">
+            <SheetContent side="right" className="public-site w-[300px] bg-white text-[var(--public-navy)] sm:w-[400px]">
               <div className="flex flex-col gap-8 mt-12">
                 {navItems.map((item) => item.path ? (
                   <Link
@@ -97,7 +97,7 @@ export default function Navbar() {
                     to={item.path}
                     className={cn(
                       'flex min-h-12 items-center gap-4 p-3 text-lg font-medium transition-colors',
-                      location.pathname === item.path ? 'bg-neutral-100 text-[#0A3151]' : 'text-neutral-500 hover:bg-neutral-50'
+                      location.pathname === item.path ? 'bg-[var(--public-warm-ivory)] text-[var(--public-navy)]' : 'text-neutral-500 hover:bg-[var(--public-warm-ivory)]'
                     )}
                   >
                     <item.icon className="w-5 h-5" />
@@ -107,7 +107,7 @@ export default function Navbar() {
                   <a
                     key={item.name}
                     href={item.href}
-                    className="flex min-h-12 items-center gap-4 p-3 text-lg font-medium text-[#0A3151] transition-colors hover:bg-[#0A3151]/5"
+                    className="flex min-h-12 items-center gap-4 p-3 text-lg font-medium text-[var(--public-navy)] transition-colors hover:bg-[var(--public-warm-ivory)]"
                   >
                     <item.icon className="w-5 h-5" />
                     {item.name}
@@ -115,7 +115,7 @@ export default function Navbar() {
                 ))}
                 <Button 
                   render={<a href="#footer" onClick={() => document.querySelector('[data-state="open"]')?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))} />}
-                  className="public-on-blue bg-[#0A3151] hover:bg-[#0A3151] text-white w-full mt-4 py-6 text-lg shadow-lg transition-all duration-300"
+                  className="public-on-blue bg-[var(--public-navy)] hover:bg-[var(--public-navy)] text-white w-full mt-4 py-6 text-lg shadow-lg transition-all duration-300"
                 >
                   <Phone className="w-5 h-5 mr-3" />
                   Liên hệ ngay

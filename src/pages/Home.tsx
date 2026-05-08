@@ -253,7 +253,7 @@ export default function Home() {
   const secondaryNotes = displayNotes.slice(1, 5);
 
   return (
-    <div className="bg-white text-[#0A3151]">
+    <div className="bg-white text-[var(--public-navy)]">
       <section className="bg-white pt-20 md:pt-24">
         <div className="mx-auto hidden max-w-7xl px-8 pb-12 lg:block">
           <motion.div
@@ -318,7 +318,7 @@ export default function Home() {
 
       <section id="bo-ghi-chu" className="bg-white py-12 md:py-14">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
-          <div className="mb-7 max-w-[760px] border-b border-[#E5E5E5] pb-5">
+          <div className="mb-7 max-w-[760px] border-b border-[var(--public-border)] pb-5">
             <h2 className="public-section-title uppercase">
               Bộ Ghi Chú Chống Lão Hóa
             </h2>
@@ -330,8 +330,8 @@ export default function Home() {
           {leadNote ? (
             <div className="grid items-stretch gap-7 lg:grid-cols-[1.02fr_0.98fr]">
               <Link to={leadNote.isDemo ? '/notes' : `/notes/${leadNote.slug}`} className="group block h-full">
-                <article className="grid h-full overflow-hidden border-y border-[#E5E5E5] bg-white lg:grid-cols-[0.92fr_1.08fr]">
-                  <div className="h-full min-h-[220px] bg-[#F6F8FA] lg:min-h-full">
+                <article className="grid h-full overflow-hidden border-y border-[var(--public-border)] bg-white lg:grid-cols-[0.92fr_1.08fr]">
+                  <div className="h-full min-h-[220px] bg-[var(--public-warm-ivory)] lg:min-h-full">
                     {leadNote.coverImageUrl ? (
                       <img
                         src={leadNote.coverImageUrl}
@@ -340,15 +340,15 @@ export default function Home() {
                         referrerPolicy="no-referrer"
                       />
                     ) : (
-                      <div className="flex h-full min-h-[220px] items-center justify-center bg-[#F6F8FA] px-6 text-center">
-                        <FileText className="h-10 w-10 text-[#0A3151]" />
+                      <div className="flex h-full min-h-[220px] items-center justify-center bg-[var(--public-warm-ivory)] px-6 text-center">
+                        <FileText className="h-10 w-10 text-[var(--public-navy)]" />
                       </div>
                     )}
                   </div>
                   <div className="flex flex-col justify-between p-5 md:p-6 lg:p-7">
                     <div>
                       <div className="public-meta mb-4 flex flex-wrap items-center gap-2.5">
-                        <span className="public-kicker public-news-accent border-l border-[#9F224E] pl-2">
+                        <span className="public-kicker public-news-accent border-l border-[var(--public-herbal-jade)] pl-2">
                           {leadNote.categoryName}
                         </span>
                         <span className="public-muted-text inline-flex items-center gap-1">
@@ -366,16 +366,16 @@ export default function Home() {
                 </article>
               </Link>
 
-              <div className="flex h-full flex-col divide-y divide-[#E5E5E5] border-y border-[#E5E5E5] bg-white">
+              <div className="flex h-full flex-col divide-y divide-[var(--public-border)] border-y border-[var(--public-border)] bg-white">
                 {secondaryNotes.length > 0 ? secondaryNotes.map(note => (
-                  <Link key={note.id} to={note.isDemo ? '/notes' : `/notes/${note.slug}`} className="group block flex-1 py-4 transition-colors hover:bg-[#F8FAFC] sm:px-4 lg:px-5">
+                  <Link key={note.id} to={note.isDemo ? '/notes' : `/notes/${note.slug}`} className="group block flex-1 py-4 transition-colors hover:bg-[var(--public-warm-ivory)] sm:px-4 lg:px-5">
                     <article className="grid grid-cols-[88px_minmax(0,1fr)] gap-3 sm:grid-cols-[96px_minmax(0,1fr)] sm:gap-4">
-                      <div className="aspect-[5/3] overflow-hidden bg-[#F6F8FA]">
+                      <div className="aspect-[5/3] overflow-hidden bg-[var(--public-warm-ivory)]">
                         {note.coverImageUrl ? (
                           <img src={note.coverImageUrl} alt={note.title} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center">
-                            <FileText className="h-5 w-5 text-[#0A3151]" />
+                            <FileText className="h-5 w-5 text-[var(--public-navy)]" />
                           </div>
                         )}
                       </div>
@@ -391,25 +391,25 @@ export default function Home() {
                     </article>
                   </Link>
                 )) : (
-                  <p className="p-6 text-sm font-medium text-[#0A3151]">Các bài viết tiếp theo sẽ hiển thị tại đây sau khi xuất bản.</p>
+                  <p className="p-6 text-sm font-medium text-[var(--public-navy)]">Các bài viết tiếp theo sẽ hiển thị tại đây sau khi xuất bản.</p>
                 )}
               </div>
             </div>
           ) : (
-            <div className="border border-dashed border-[#0A3151]/25 bg-white p-12 text-center text-[#0A3151]">
+            <div className="border border-dashed border-[var(--public-border)] bg-white p-12 text-center text-[var(--public-navy)]">
               Chưa có bài viết được xuất bản.
             </div>
           )}
 
           <div className="mt-8">
-            <Link to="/notes" className="inline-flex items-center gap-2 text-sm font-bold text-[#0A3151]">
+            <Link to="/notes" className="inline-flex items-center gap-2 text-sm font-bold text-[var(--public-navy)]">
               Xem toàn bộ ghi chú <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
       </section>
 
-      <section id="sach" className="public-on-blue bg-[#0A3151] py-14 text-white md:py-16">
+      <section id="sach" className="public-on-blue bg-[var(--public-navy)] py-14 text-white md:py-16">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
           <div className="mb-8 max-w-3xl border-b border-white/20 pb-5 text-left">
             <h2 className="public-section-title uppercase text-white">
@@ -445,7 +445,7 @@ export default function Home() {
                         )}
                       </div>
                       <div className="mt-3 flex flex-col items-center px-1 lg:mt-5 lg:px-2">
-                        <h3 className="public-compact-title line-clamp-2 text-white transition-colors group-hover:text-[#B8975A]">{book.title}</h3>
+                        <h3 className="public-compact-title line-clamp-2 text-white transition-colors group-hover:text-[var(--public-soft-sage)]">{book.title}</h3>
                       </div>
                     </article>
                   </Link>

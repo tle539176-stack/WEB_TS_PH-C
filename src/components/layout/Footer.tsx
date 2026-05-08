@@ -37,12 +37,12 @@ export default function Footer() {
   ].filter(item => item.value);
 
   return (
-    <footer id="footer" className="public-on-blue bg-[#0A3151] text-white pt-16 pb-10">
+    <footer id="footer" className="public-on-blue bg-[var(--public-navy)] text-white pt-16 pb-10">
       <div className="mx-auto w-full max-w-7xl px-4 md:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           <div className="col-span-1 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-6">
-              <div className="public-text-blue w-10 h-10 bg-white flex items-center justify-center text-[#0A3151] text-xl font-bold overflow-hidden">
+              <div className="public-text-blue w-10 h-10 bg-white flex items-center justify-center text-[var(--public-navy)] text-xl font-bold overflow-hidden">
                 {s?.logoImage
                   ? <img src={s.logoImage} alt={siteNameDisplay} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   : (s?.logoText || DEFAULT_SETTINGS.logoText)
