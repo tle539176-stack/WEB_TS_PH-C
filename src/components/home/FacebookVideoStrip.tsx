@@ -39,7 +39,7 @@ export function FacebookVideoStrip({ videos, facebookUrl }: Props) {
             {videos.map((video) => (
               <article
                 key={video.id}
-                className="w-[30vw] min-w-[112px] max-w-[138px] shrink-0 snap-start sm:w-[132px] sm:max-w-[132px] md:w-[150px] md:max-w-[150px] lg:w-[210px] lg:max-w-[210px] xl:w-[230px] xl:max-w-[230px]"
+                className="w-[calc((100vw-44px)/2)] min-w-[138px] max-w-[180px] shrink-0 snap-start sm:w-[132px] sm:max-w-[132px] md:w-[150px] md:max-w-[150px] lg:w-[210px] lg:max-w-[210px] xl:w-[230px] xl:max-w-[230px]"
               >
                 <button
                   type="button"
