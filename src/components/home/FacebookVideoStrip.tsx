@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { ChevronRight, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { buildFacebookEmbedUrl } from '@/services/videoService';
 import type { Video } from '@/types/database';
@@ -76,7 +76,9 @@ export function FacebookVideoStrip({ videos, facebookUrl }: Props) {
               </article>
             ))}
           </div>
-
+          <div className="pointer-events-none absolute right-0 top-1/2 z-10 flex -translate-y-1/2 text-[var(--public-navy)]">
+            <ChevronRight className="h-5 w-5 animate-pulse md:h-6 md:w-6" aria-hidden="true" />
+          </div>
 
         </div>
 
