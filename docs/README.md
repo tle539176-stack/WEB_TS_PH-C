@@ -15,6 +15,7 @@ Từ thời điểm này, tài liệu thực thi chính của dự án là:
 9. [10 - Đặc tả nâng cấp UI/UX Admin Products](10-admin-products-ux-focus-mode-spec.md)
 10. [11 - Đặc tả nâng cấp Trang chủ Doctor Content Hub](11-public-homepage-doctor-content-hub-spec.md)
 11. [12 - Nghiên cứu và đặc tả tối ưu Mobile/iPad cho Public Website](12-public-mobile-ipad-optimization-research.md)
+12. [13 - Đặc tả hệ màu Public Website Đông Tây y kết hợp](13-public-brand-color-east-west-medicine-visual-system.md)
 
 Khi giao việc cho AI hoặc triển khai nâng cấp, dùng `00` làm chuẩn kiến trúc, dùng `03` làm chỉ đạo thực thi theo hiện trạng code mới nhất, và dùng `04` cho phase nâng cấp upload ảnh/Media Library. Mục tiêu cuối cùng là:
 
@@ -22,7 +23,7 @@ Khi giao việc cho AI hoặc triển khai nâng cấp, dùng `00` làm chuẩn 
 Supabase Auth + Supabase Postgres + Supabase Storage + custom Admin UI
 ```
 
-Với phase cải thiện trải nghiệm nhập liệu Admin và redesign public catalog Books/Products, dùng `05` làm tài liệu nghiên cứu và `06` làm spec triển khai nền. Với phase nâng cấp editor theo kiểu Shopee/TikTok gồm preview đúng ngoài web, upload ảnh compact hàng loạt, staged media, và `Lưu nháp`/`Đăng lên web`, dùng `07` làm tài liệu thực thi chính. Với phase nâng cấp tổng thể toàn bộ `/admin` sau khi audit hiện trạng mới nhất, dùng `08` làm tài liệu điều phối chính. Với phase chuẩn hóa cấu trúc dữ liệu y tế/khoa học gồm reviewer, nguồn tham khảo có cấu trúc, review history, revision và JSON-LD, dùng `09` làm tài liệu thực thi chính. Với phase nâng cấp riêng UX module Admin Products theo hướng editor focus mode, dùng `10` làm tài liệu đặc tả để chốt phương án. Với phase redesign public trang chủ thành hồ sơ bác sĩ + bộ ghi chú + sách + video Facebook, dùng `11` làm tài liệu đặc tả để chốt bố cục trước khi code. Với phase tối ưu public website cho điện thoại/iPad, đặc biệt hero desktop-locked và mobile-first QA, dùng `12` làm tài liệu nghiên cứu + đặc tả thực thi.
+Với phase cải thiện trải nghiệm nhập liệu Admin và redesign public catalog Books/Products, dùng `05` làm tài liệu nghiên cứu và `06` làm spec triển khai nền. Với phase nâng cấp editor theo kiểu Shopee/TikTok gồm preview đúng ngoài web, upload ảnh compact hàng loạt, staged media, và `Lưu nháp`/`Đăng lên web`, dùng `07` làm tài liệu thực thi chính. Với phase nâng cấp tổng thể toàn bộ `/admin` sau khi audit hiện trạng mới nhất, dùng `08` làm tài liệu điều phối chính. Với phase chuẩn hóa cấu trúc dữ liệu y tế/khoa học gồm reviewer, nguồn tham khảo có cấu trúc, review history, revision và JSON-LD, dùng `09` làm tài liệu thực thi chính. Với phase nâng cấp riêng UX module Admin Products theo hướng editor focus mode, dùng `10` làm tài liệu đặc tả để chốt phương án. Với phase redesign public trang chủ thành hồ sơ bác sĩ + bộ ghi chú + sách + video Facebook, dùng `11` làm tài liệu đặc tả để chốt bố cục trước khi code. Với phase tối ưu public website cho điện thoại/iPad, đặc biệt hero desktop-locked và mobile-first QA, dùng `12` làm tài liệu nghiên cứu + đặc tả thực thi. Với phase chuẩn hóa hệ màu public theo định vị Đông Tây y kết hợp, dùng `13` làm tài liệu nghiên cứu + đặc tả thực thi.
 
 ## Trạng thái các tài liệu cũ
 
@@ -114,4 +115,10 @@ Thực thi nâng cấp trang chủ theo `docs/11-public-homepage-doctor-content-
 
 ```text
 Thực thi tối ưu mobile/iPad public website theo `docs/12-public-mobile-ipad-optimization-research.md`: ưu tiên mobile phone và iPad; đổi Navbar desktop breakpoint từ md sang lg; lock hero trang chủ giữ desktop size trên mọi viewport gồm min-height 600px, H1 64px, ảnh object-cover không opacity, overlay màu chỉ giới hạn vùng chữ và không phủ mặt bác sĩ; kiểm tra homepage notes/books/video dưới 430px và iPad dọc; không đổi schema DB; không sửa Admin; chạy Docker build và smoke test http://localhost:3001; báo cáo file đã sửa và viewport đã kiểm tra.
+```
+
+## Prompt phase 13 - Public Brand Color Đông Tây y
+
+```text
+Thực thi nâng cấp hệ màu public website theo `docs/13-public-brand-color-east-west-medicine-visual-system.md`: chuẩn hóa palette Đông Tây y kết hợp với navy y khoa, sage/jade thảo mộc, ivory ấm và gold tiết chế; giữ Admin không đổi; cố định navbar không co khi scroll; hero dùng navy scrim mờ fade trái sang phải, chữ trắng, kicker ưu tiên soft sage; gom màu public thành CSS variables trong `.public-site`; áp dụng dần cho Home/Navbar/Footer và các trang public; chạy `npm run build`, `docker compose up -d --build --force-recreate`, kiểm tra desktop/mobile bằng Playwright và báo cáo file đã sửa.
 ```

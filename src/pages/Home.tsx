@@ -254,13 +254,13 @@ export default function Home() {
 
   return (
     <div className="bg-white text-[#0A3151]">
-      <section className="bg-[#F5F8FA] pt-20 md:pt-24">
+      <section className="bg-white pt-20 md:pt-24">
         <div className="mx-auto hidden max-w-7xl px-8 pb-12 lg:block">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, ease: 'easeOut' }}
-            className="relative aspect-[2.08/1] overflow-hidden bg-[#0A3151] shadow-[0_22px_60px_-35px_rgba(10,49,81,0.9)]"
+            className="relative aspect-[2.08/1] overflow-hidden bg-white"
           >
             <img
               src={heroImage}
@@ -268,18 +268,16 @@ export default function Home() {
               className="absolute inset-0 h-full w-full object-cover object-[66%_center] saturate-[0.96] contrast-[1.02]"
               referrerPolicy="no-referrer"
             />
-            <div className="absolute inset-y-0 left-0 w-[64%] bg-[linear-gradient(90deg,rgba(10,49,81,0.62)_0%,rgba(10,49,81,0.42)_58%,rgba(10,49,81,0)_100%)]" />
-            <div className="absolute inset-y-0 left-0 w-[64%] bg-[linear-gradient(180deg,rgba(4,19,31,0.06)_0%,rgba(4,19,31,0)_38%,rgba(4,19,31,0.08)_100%)]" />
-
-            <div className="relative z-10 flex h-full items-center px-[clamp(22px,5vw,64px)] py-[clamp(20px,4vw,56px)]">
-              <div className="public-on-blue max-w-[58%]">
-                <p className="mb-[clamp(8px,1.2vw,20px)] text-[clamp(11px,1.3vw,16px)] font-semibold uppercase tracking-[0.18em] text-[#B8975A]">
+            <div className="public-hero-scrim" />
+            <div className="relative z-10 flex h-full items-center py-[clamp(20px,4vw,56px)] pl-[clamp(22px,3.4vw,52px)] pr-[clamp(18px,4vw,56px)]">
+              <div className="public-hero-copy-panel w-[min(76%,920px)]">
+                <p className="public-hero-kicker mb-[clamp(10px,1.2vw,18px)]">
                   Tiến sĩ chống lão hóa
                 </p>
-                <h1 className="max-w-full text-[clamp(26px,5.8vw,72px)] font-bold leading-[1.0]">
+                <h1 className="public-hero-title max-w-full whitespace-nowrap text-[clamp(28px,5vw,66px)] font-bold leading-[1.0]">
                   ĐẶNG HỮU PHÚC
                 </h1>
-                <p className="mt-[clamp(8px,1.2vw,18px)] text-[clamp(9px,1.05vw,13px)] italic leading-[1.65] opacity-[0.80]">
+                <p className="public-hero-quote mt-[clamp(10px,1.2vw,18px)] max-w-[640px] text-[clamp(10px,1.05vw,14px)] italic leading-[1.65]">
                   "Mong muốn lớn nhất của Tiến sĩ Đặng Hữu Phúc là mang kiến thức chống lão hóa đến gần hơn với mọi người, để ai cũng có thể chủ động bảo vệ sức khỏe của chính mình. Vì tôi tin rằng, hiểu đúng về lão hóa chính là cách chống lão hóa hiệu quả nhất."
                 </p>
               </div>
@@ -292,7 +290,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, ease: 'easeOut' }}
-            className="relative min-h-[340px] overflow-hidden bg-[#0A3151] shadow-[0_22px_60px_-35px_rgba(10,49,81,0.9)] md:aspect-[2.08/1] md:min-h-0"
+            className="relative min-h-[340px] overflow-hidden bg-white md:aspect-[2.08/1] md:min-h-0"
           >
             <img
               src={heroImage}
@@ -300,17 +298,16 @@ export default function Home() {
               className="absolute inset-0 h-full w-full object-cover object-[66%_center] saturate-[0.96] contrast-[1.02]"
               referrerPolicy="no-referrer"
             />
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(10,49,81,0.72)_0%,rgba(10,49,81,0.52)_65%,rgba(10,49,81,0.08)_100%)]" />
-
-            <div className="relative z-10 flex h-full min-h-[340px] items-center px-6 py-10 md:min-h-0 md:px-10">
-              <div className="public-on-blue w-[78%] max-w-[340px]">
-                <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#B8975A]">
+            <div className="public-hero-scrim" />
+            <div className="relative z-10 flex h-full min-h-[340px] items-center px-4 py-10 md:min-h-0 md:px-8">
+              <div className="public-hero-copy-panel w-[88%] max-w-[390px]">
+                <p className="public-hero-kicker mb-3">
                   Tiến sĩ chống lão hóa
                 </p>
-                <h1 className="text-[clamp(32px,8vw,56px)] font-bold leading-[1.0]">
+                <h1 className="public-hero-title text-[clamp(34px,8vw,56px)] font-bold leading-[1.0]">
                   ĐẶNG HỮU PHÚC
                 </h1>
-                <p className="mt-3 text-[11px] italic leading-[1.7] opacity-[0.82]">
+                <p className="public-hero-quote mt-3 text-[11px] italic leading-[1.7]">
                   "Mong muốn lớn nhất của Tiến sĩ Đặng Hữu Phúc là mang kiến thức chống lão hóa đến gần hơn với mọi người, để ai cũng có thể chủ động bảo vệ sức khỏe của chính mình. Vì tôi tin rằng, hiểu đúng về lão hóa chính là cách chống lão hóa hiệu quả nhất."
                 </p>
               </div>

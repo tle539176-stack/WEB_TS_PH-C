@@ -17,16 +17,9 @@ const navItems = [
 ];
 
 export default function Navbar() {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS);
   const location = useLocation();
   const siteNameDisplay = (settings.siteName || DEFAULT_SETTINGS.siteName).toLocaleUpperCase('vi-VN');
-
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   useEffect(() => {
     getSiteSettings().then(setSettings).catch(() => {});
@@ -35,11 +28,10 @@ export default function Navbar() {
   return (
     <nav
       className={cn(
-        'public-on-blue fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-[#0A3151] text-white shadow-lg shadow-[#0A3151]/15 transition-all duration-300',
-        isScrolled ? 'py-3' : 'py-4'
+        'public-on-blue fixed top-0 left-0 right-0 z-50 h-16 border-b border-white/10 bg-[#0A3151] text-white shadow-lg shadow-[#0A3151]/15 md:h-[68px]'
       )}
     >
-      <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 md:px-8">
+      <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between px-4 md:px-8">
         <Link to="/" className="group flex min-w-0 items-center gap-2">
           <div className="public-text-blue h-8 w-8 shrink-0 bg-white flex items-center justify-center text-[#0A3151] text-base font-bold transition-colors overflow-hidden md:h-10 md:w-10 md:text-xl">
             {settings.logoImage
