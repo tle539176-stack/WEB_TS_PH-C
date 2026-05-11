@@ -33,7 +33,7 @@ export interface SiteSettings {
 }
 
 export const DEFAULT_SETTINGS: SiteSettings = {
-  siteName: 'Tiến sĩ Đặng Hữu Phúc',
+  siteName: 'Đặng Hữu Phúc',
   logoText: 'DP',
   logoImage: '',
   logoStoragePath: '',

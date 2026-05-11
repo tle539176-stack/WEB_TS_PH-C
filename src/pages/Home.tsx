@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
 import {
-  ArrowRight, BookOpen, CalendarDays, FileText,
+  ArrowRight, BookOpen, CalendarDays, FileText, Stethoscope,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { FacebookVideoStrip } from '@/components/home/FacebookVideoStrip';
@@ -251,80 +250,67 @@ export default function Home() {
   const displayVideos = [...videos, ...DEMO_VIDEOS].slice(0, 5);
   const leadNote = displayNotes[0] ?? null;
   const secondaryNotes = displayNotes.slice(1, 5);
+  const contentInsetClass = 'px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12';
 
   return (
     <div className="bg-white text-[var(--public-navy)]">
-      <section className="bg-white pt-20 md:pt-24">
-        <div className="mx-auto hidden max-w-7xl px-8 pb-5 lg:block xl:pb-6">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, ease: 'easeOut' }}
-            className="relative aspect-[2.08/1] overflow-hidden bg-white"
-          >
+      <section className="bg-white">
+        <div className="mx-auto w-full max-w-7xl px-4 md:px-8">
+        <div className="relative h-[560px] w-full overflow-hidden bg-[#071f3d] md:h-[620px] lg:h-[700px]">
+          <div className="absolute inset-0 md:left-[32%]">
             <img
               src={heroImage}
               alt={settings.aboutImageAlt || settings.siteName}
-              className="absolute inset-0 h-full w-full object-cover object-[66%_center] saturate-[0.96] contrast-[1.02]"
+              className="h-full w-full object-cover object-[58%_center] md:object-center"
               referrerPolicy="no-referrer"
             />
-            <div className="public-hero-scrim" />
-            <div className="relative z-10 flex h-full items-center py-[clamp(20px,4vw,56px)] pl-[clamp(22px,3.4vw,52px)] pr-[clamp(18px,4vw,56px)]">
-              <div className="public-hero-copy-panel w-[min(76%,920px)]">
-                <p className="public-hero-kicker mb-[clamp(10px,1.2vw,18px)]">
-                  Tiến sĩ chống lão hóa
-                </p>
-                <h1 className="public-hero-title max-w-full whitespace-nowrap text-[clamp(28px,5vw,66px)] font-bold leading-[1.0]">
-                  ĐẶNG HỮU PHÚC
-                </h1>
-                <p className="public-hero-quote mt-[clamp(10px,1.2vw,18px)] max-w-[640px] text-[clamp(10px,1.05vw,14px)] italic leading-[1.65]">
-                  "Mong muốn lớn nhất của Tiến sĩ Đặng Hữu Phúc là mang kiến thức chống lão hóa đến gần hơn với mọi người, để ai cũng có thể chủ động bảo vệ sức khỏe của chính mình. Vì tôi tin rằng, hiểu đúng về lão hóa chính là cách chống lão hóa hiệu quả nhất."
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
+          </div>
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(4,22,45,0.96)_0%,rgba(8,37,72,0.86)_34%,rgba(8,37,72,0.40)_62%,rgba(8,37,72,0.08)_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(5,22,44,0.18)_0%,rgba(5,22,44,0)_42%)]" />
 
-        <div className="mx-auto block w-full max-w-full pb-4 lg:hidden">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, ease: 'easeOut' }}
-            className="relative min-h-[340px] overflow-hidden bg-white md:aspect-[2.08/1] md:min-h-0"
-          >
-            <img
-              src={heroImage}
-              alt={settings.aboutImageAlt || settings.siteName}
-              className="absolute inset-0 h-full w-full object-cover object-[66%_center] saturate-[0.96] contrast-[1.02]"
-              referrerPolicy="no-referrer"
-            />
-            <div className="public-hero-scrim" />
-            <div className="relative z-10 flex h-full min-h-[340px] items-center px-4 py-10 md:min-h-0 md:px-8">
-              <div className="public-hero-copy-panel w-[88%] max-w-[390px]">
-                <p className="public-hero-kicker mb-3">
-                  Tiến sĩ chống lão hóa
-                </p>
-                <h1 className="public-hero-title text-[clamp(34px,8vw,56px)] font-bold leading-[1.0]">
-                  ĐẶNG HỮU PHÚC
-                </h1>
-                <p className="public-hero-quote mt-3 text-[11px] italic leading-[1.7]">
-                  "Mong muốn lớn nhất của Tiến sĩ Đặng Hữu Phúc là mang kiến thức chống lão hóa đến gần hơn với mọi người, để ai cũng có thể chủ động bảo vệ sức khỏe của chính mình. Vì tôi tin rằng, hiểu đúng về lão hóa chính là cách chống lão hóa hiệu quả nhất."
+          <div className={`relative z-10 flex h-full items-center pt-16 ${contentInsetClass}`}>
+            <div className="public-hero-copy-panel min-w-0 w-full max-w-[660px]">
+              <div className="mb-4 flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3 md:mb-5">
+                <span className="public-hero-badge inline-flex items-center gap-2 bg-[#1e5b97] px-3.5 py-2 text-[10px] font-bold uppercase tracking-[0.06em] text-white shadow-[0_10px_24px_-16px_rgba(0,0,0,0.7)] md:px-4 md:text-[11px]">
+                  <Stethoscope className="h-3.5 w-3.5" />
+                  Tiến sĩ Y khoa
+                </span>
+                <span className="public-hero-specialty max-w-full text-[11px] font-bold uppercase leading-[1.25] tracking-[0.06em] text-white sm:text-[12px] md:text-sm">
+                  Chuyên gia chống lão hóa
+                </span>
+              </div>
+
+              <h1 className="public-hero-title mb-4 max-w-full font-serif text-[34px] font-bold leading-[1.05] text-white sm:text-[42px] md:mb-6 md:text-[50px] lg:text-[60px] xl:text-[66px]">
+                ĐẶNG HỮU PHÚC
+              </h1>
+
+              <div className="public-hero-quote mb-8 max-w-[600px] border-l-[4px] border-[#2d77bd] pl-5 md:mb-9">
+                <p className="text-[14px] leading-[1.6] text-white/95 sm:text-[15px] md:text-[18px]">
+                  "Mong muốn lớn nhất của tôi là mang kiến thức chống lão hóa đến gần hơn với mọi người, để ai cũng có thể chủ động bảo vệ sức khỏe của chính mình. Vì tôi tin rằng, hiểu đúng về lão hóa chính là cách chống lão hóa hiệu quả nhất."
                 </p>
               </div>
+
+              <a href="#bo-ghi-chu" className="public-hero-cta group inline-flex items-center gap-2 bg-[#0b4c86] px-5 py-3 text-[11px] font-bold uppercase tracking-[0.04em] text-white shadow-[0_14px_30px_-18px_rgba(0,0,0,0.9)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#155d9d] hover:shadow-[0_18px_34px_-18px_rgba(0,0,0,1)] md:px-6 md:text-xs">
+                ĐẶT HẸN TƯ VẤN NGAY
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </a>
             </div>
-          </motion.div>
+          </div>
+        </div>
         </div>
       </section>
 
       <section id="bo-ghi-chu" className="bg-white pt-6 pb-10 md:pt-6 md:pb-12">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
-          <div className="mb-7 max-w-[760px] border-b border-[var(--public-border)] pb-5">
-            <h2 className="public-section-title uppercase">
-              Bộ Ghi Chú Chống Lão Hóa
-            </h2>
-            <p className="public-body public-muted-text public-title-summary max-w-[720px]">
-              Các bài viết được hệ thống lại từ những chủ đề bác sĩ Phúc đang chia sẻ, giúp người đọc xem phần đầy đủ sau khi theo dõi video ngắn.
-            </p>
+          <div className={`${contentInsetClass} mb-7`}>
+            <div className="max-w-[760px] border-b border-[var(--public-border)] pb-5">
+              <h2 className="public-section-title uppercase">
+                Bộ Ghi Chú Chống Lão Hóa
+              </h2>
+              <p className="public-body public-muted-text public-title-summary max-w-[720px]">
+                Các bài viết được hệ thống lại từ những chủ đề bác sĩ Phúc đang chia sẻ, giúp người đọc xem phần đầy đủ sau khi theo dõi video ngắn.
+              </p>
+            </div>
           </div>
 
           {leadNote ? (
@@ -411,17 +397,18 @@ export default function Home() {
 
       <section id="sach" className="public-on-blue bg-[var(--public-navy)] py-14 text-white md:py-16">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
-          <div className="mb-8 max-w-3xl border-b border-white/20 pb-5 text-left">
-            <h2 className="public-section-title uppercase text-white">
-              Sách và tài liệu đã xuất bản
-            </h2>
-            <p className="public-body public-title-summary text-white">
-              Sách được đặt ở đây như một phần hồ sơ chuyên môn: các nội dung đọc sâu hơn, được trình bày thành hệ thống.
-            </p>
-          </div>
+          <div className={contentInsetClass}>
+            <div className="mb-8 max-w-3xl border-b border-white/20 pb-5 text-left">
+              <h2 className="public-section-title uppercase text-white">
+                Sách và tài liệu đã xuất bản
+              </h2>
+              <p className="public-body public-title-summary text-white">
+                Sách được đặt ở đây như một phần hồ sơ chuyên môn: các nội dung đọc sâu hơn, được trình bày thành hệ thống.
+              </p>
+            </div>
 
-          {displayBooks.length > 0 ? (
-            <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-7 min-[430px]:gap-x-6 md:mt-10 lg:grid-cols-4 lg:gap-10">
+            {displayBooks.length > 0 ? (
+              <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-7 min-[430px]:gap-x-6 md:mt-10 lg:grid-cols-4 lg:gap-10">
               {displayBooks.map(book => {
                 const cover = book.coverUrl;
                 return (
@@ -451,17 +438,18 @@ export default function Home() {
                   </Link>
                 );
               })}
-            </div>
-          ) : (
-            <div className="border border-white/25 p-8 text-white">
-              <p className="text-sm font-semibold text-white">Sách và tài liệu sẽ hiển thị tại đây sau khi được xuất bản.</p>
-            </div>
-          )}
+              </div>
+            ) : (
+              <div className="border border-white/25 p-8 text-white">
+                <p className="text-sm font-semibold text-white">Sách và tài liệu sẽ hiển thị tại đây sau khi được xuất bản.</p>
+              </div>
+            )}
 
-          <div className="mt-8">
-            <Link to="/books" className="inline-flex items-center gap-2 text-sm font-bold text-white">
-              Xem tủ sách <ArrowRight className="h-4 w-4" />
-            </Link>
+            <div className="mt-8">
+              <Link to="/books" className="inline-flex items-center gap-2 text-sm font-bold text-white">
+                Xem tủ sách <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
         </div>
       </section>

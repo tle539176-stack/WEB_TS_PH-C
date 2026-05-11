@@ -214,36 +214,36 @@
   }
 
   .public-section-title {
-    font-size: 23px;
-    line-height: 1.28;
+    font-size: 20px;
+    line-height: 1.32;
     font-weight: 700;
-    letter-spacing: 0;
+    letter-spacing: 0.02em;
   }
 
   .public-lead-title {
-    font-size: 19px;
-    line-height: 1.34;
+    font-size: 18px;
+    line-height: 1.4;
     font-weight: 700;
     letter-spacing: 0;
   }
 
   .public-card-title {
     font-size: 14px;
-    line-height: 1.42;
+    line-height: 1.45;
     font-weight: 700;
     letter-spacing: 0;
   }
 
   .public-compact-title {
     font-size: 13px;
-    line-height: 1.4;
+    line-height: 1.45;
     font-weight: 700;
     letter-spacing: 0;
   }
 
   .public-body {
-    font-size: 14px;
-    line-height: 1.58;
+    font-size: 15px;
+    line-height: 1.6;
     font-weight: 400;
     letter-spacing: 0;
   }
@@ -375,7 +375,7 @@
   }
 
   .public-site :where(.public-scroll-arrow, .public-scroll-arrow *) {
-    color: var(--public-herbal-gold) !important;
+    color: var(--public-navy) !important;
   }
 
   .public-hero-scrim {
@@ -406,8 +406,31 @@
     color: var(--public-white) !important;
   }
 
+  .public-site :where(.public-hero-badge) {
+    border-radius: 999px !important;
+    color: var(--public-white) !important;
+  }
+
+  .public-site :where(.public-hero-badge *) {
+    color: var(--public-white) !important;
+  }
+
+  .public-site :where(.public-hero-specialty) {
+    color: var(--public-white) !important;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.38);
+  }
+
+  .public-site :where(.public-hero-cta) {
+    border-radius: 999px !important;
+    color: var(--public-white) !important;
+  }
+
+  .public-site :where(.public-hero-cta *) {
+    color: var(--public-white) !important;
+  }
+
   .public-site :where(.public-hero-kicker) {
-    color: var(--public-soft-sage) !important;
+    color: var(--public-navy) !important;
     font-size: clamp(16px, 1.6vw, 22px);
     line-height: 1.35;
     font-weight: 700;

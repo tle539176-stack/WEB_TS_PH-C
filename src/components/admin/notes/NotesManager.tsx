@@ -5,7 +5,7 @@ import { Input } from '../../ui/input';
 import { Textarea } from '../../ui/textarea';
 import { Card } from '../../ui/card';
 import {
-  Plus, Search, Edit, Trash2, Loader2, Save, FileText, X, Link, Calendar,
+  Plus, Search, Edit, Trash2, Loader2, Save, FileText, X, Link, Calendar, ExternalLink,
 } from 'lucide-react';
 import * as content from '../../../services/contentService';
 import * as medical from '../../../services/medicalContentService';
@@ -928,6 +928,17 @@ export function NotesManager({ session }: { session: Session }) {
                   <td className="p-4"><StatusBadge status={n.status} /></td>
                   <td className="p-4">
                     <div className="flex items-center gap-2 justify-end">
+                      {n.status === 'published' && (
+                        <a
+                          href={`/notes/${n.slug}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label="Mở bài viết ngoài web"
+                          className="inline-flex h-8 w-8 items-center justify-center text-emerald-600 transition-colors hover:bg-emerald-50"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      )}
                       <Button variant="ghost" size="sm" onClick={() => handleEdit(n)} aria-label="Chỉnh sửa" className="h-8 w-8 p-0 text-blue-600 hover:bg-blue-50">
                         <Edit className="w-3.5 h-3.5" />
                       </Button>

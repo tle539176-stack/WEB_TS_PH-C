@@ -4,7 +4,7 @@ import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
 import { Textarea } from '../../ui/textarea';
 import { Card } from '../../ui/card';
-import { Plus, Search, Edit, Trash2, Loader2, Save, CheckCircle2 } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Loader2, Save, CheckCircle2, ExternalLink } from 'lucide-react';
 import * as content from '../../../services/contentService';
 import * as media from '../../../services/mediaService';
 import { supabase } from '../../../lib/supabase';
@@ -353,6 +353,17 @@ export function BooksManager({ session }: { session: Session }) {
                     <td className="p-4"><StatusBadge status={book.status} /></td>
                     <td className="p-4">
                       <div className="flex items-center gap-2 justify-end">
+                        {book.status === 'published' && (
+                          <a
+                            href={`/books/${book.slug}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            aria-label="Mở sách ngoài web"
+                            className="inline-flex h-8 w-8 items-center justify-center text-emerald-600 transition-colors hover:bg-emerald-50"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        )}
                         <Button variant="ghost" size="sm" onClick={() => handleEdit(book)} aria-label="Chỉnh sửa" className="h-8 w-8 p-0 text-blue-600 hover:bg-blue-50"><Edit className="w-3.5 h-3.5" /></Button>
                         <Button variant="ghost" size="sm" onClick={() => handleDelete(book.id)} aria-label="Xóa" className="h-8 w-8 p-0 text-red-500 hover:bg-red-50"><Trash2 className="w-3.5 h-3.5" /></Button>
                       </div>

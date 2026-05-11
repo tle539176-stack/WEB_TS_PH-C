@@ -31,17 +31,16 @@ export default function Navbar() {
         'public-on-blue fixed top-0 left-0 right-0 z-50 h-16 border-b border-white/10 bg-[var(--public-navy)] text-white shadow-lg shadow-[rgba(10,49,81,0.15)] md:h-[68px]'
       )}
     >
-      <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between px-4 md:px-8">
-        <Link to="/" className="group flex min-w-0 items-center gap-2">
+      <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between gap-3 px-4 md:px-8">
+        <Link to="/" className="group flex min-w-0 flex-1 items-center gap-2">
           <div className="public-text-blue h-8 w-8 shrink-0 bg-white flex items-center justify-center text-[var(--public-navy)] text-base font-bold transition-colors overflow-hidden md:h-10 md:w-10 md:text-xl">
             {settings.logoImage
               ? <img src={settings.logoImage} alt={siteNameDisplay} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               : (settings.logoText || DEFAULT_SETTINGS.logoText)
             }
           </div>
-          <div className="flex min-w-0 flex-col">
-            <span className="max-w-[calc(100vw-112px)] truncate text-sm font-bold tracking-tight text-white sm:max-w-none md:text-lg">{siteNameDisplay}</span>
-            <span className="max-w-[calc(100vw-112px)] truncate text-[9px] font-medium uppercase tracking-[0.18em] text-white/65 sm:max-w-none md:text-[10px]">{settings.tagline}</span>
+          <div className="flex min-w-0 items-center">
+            <span className="block max-w-full truncate text-[13px] font-bold text-white sm:text-sm md:text-lg">{siteNameDisplay}</span>
           </div>
         </Link>
 
@@ -84,7 +83,7 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Nav */}
-        <div className="lg:hidden">
+        <div className="shrink-0 lg:hidden">
           <Sheet>
             <SheetTrigger render={<Button variant="ghost" size="icon" className="h-11 w-11 text-white hover:bg-white/10 hover:text-white" />}>
               <Menu className="w-6 h-6" />
