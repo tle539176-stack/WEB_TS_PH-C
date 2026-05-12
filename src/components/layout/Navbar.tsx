@@ -33,9 +33,9 @@ export default function Navbar() {
     >
       <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between gap-3 px-4 md:px-8">
         <Link to="/" className="group flex min-w-0 flex-1 items-center gap-2">
-          <div className="public-text-blue h-8 w-8 shrink-0 bg-white flex items-center justify-center text-[var(--public-navy)] text-base font-bold transition-colors overflow-hidden md:h-10 md:w-10 md:text-xl">
+          <div className="public-navbar-logo public-text-blue h-8 w-8 shrink-0 bg-white flex items-center justify-center text-[var(--public-navy)] text-base font-bold transition-colors overflow-hidden md:h-10 md:w-10 md:text-xl">
             {settings.logoImage
-              ? <img src={settings.logoImage} alt={siteNameDisplay} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+              ? <img src={settings.logoImage} alt={siteNameDisplay} className="public-navbar-logo-image w-full h-full object-cover" referrerPolicy="no-referrer" />
               : (settings.logoText || DEFAULT_SETTINGS.logoText)
             }
           </div>

@@ -280,6 +280,9 @@ create table if not exists media_assets (
   updated_at timestamptz not null default now()
 );
 
+alter table media_assets
+  drop constraint if exists media_assets_uploaded_by_fkey;
+
 create index if not exists media_assets_folder_idx on media_assets(folder);
 create index if not exists media_assets_entity_idx on media_assets(entity_type, entity_id);
 create index if not exists media_assets_created_at_idx on media_assets(created_at desc);

@@ -43,6 +43,12 @@ export function buildMediaPath(folder: string, fileName: string): string {
   return `${folder}/${Date.now()}-${fileName}`;
 }
 
+function isUploadedByForeignKeyError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error ?? '');
+  return message.includes('media_assets_uploaded_by_fkey')
+    || (message.includes('foreign key constraint') && message.includes('uploaded_by'));
+}
+
 export async function getImageDimensions(file: File): Promise<{ width: number; height: number }> {
   return new Promise((resolve) => {
     const url = URL.createObjectURL(file);
@@ -96,7 +102,14 @@ export async function uploadMediaAsset(input: {
     uploaded_by: input.uploadedBy ?? null,
   };
 
-  const { data, error } = await supabase.from('media_assets').insert(row).select().single();
+  let { data, error } = await supabase.from('media_assets').insert(row).select().single();
+  if (error && row.uploaded_by && isUploadedByForeignKeyError(error)) {
+    ({ data, error } = await supabase
+      .from('media_assets')
+      .insert({ ...row, uploaded_by: null })
+      .select()
+      .single());
+  }
   if (error) {
     await supabase.storage.from(BUCKET).remove([path]);
     throw error;
