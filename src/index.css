@@ -179,9 +179,11 @@
     --public-border: #DDE7E2;
     --public-white: #FFFFFF;
     --public-blue: var(--public-navy);
-    --public-font: 'Merriweather', Georgia, 'Times New Roman', serif;
+    --public-heading-font: 'Merriweather', Georgia, 'Times New Roman', serif;
+    --public-body-font: 'Geist Variable', Inter, ui-sans-serif, system-ui, sans-serif;
+    --public-font: var(--public-body-font);
     color: var(--public-navy);
-    font-family: var(--public-font);
+    font-family: var(--public-body-font);
   }
 
   .public-site .container {
@@ -199,21 +201,35 @@
 
   .public-site :where(h1, h2, h3, h4, h5, h6, p, span, a, li, label, small, strong, em, button, figcaption, blockquote, td, th, div, input, textarea, select, option) {
     color: var(--public-navy) !important;
-    font-family: var(--public-font) !important;
+    font-family: var(--public-body-font) !important;
+  }
+
+  .public-site :where(h1, h2, h3, h4, h5, h6, h1 *, h2 *, h3 *, h4 *, h5 *, h6 *) {
+    font-family: var(--public-heading-font) !important;
   }
 
   .public-site :where(.font-serif, .font-serif *) {
-    font-family: var(--public-font) !important;
+    font-family: var(--public-heading-font) !important;
   }
 
   .public-page-title {
+    font-family: var(--public-heading-font) !important;
     font-size: 30px;
     line-height: 1.24;
     font-weight: 700;
     letter-spacing: 0;
   }
 
+  .public-listing-title {
+    font-family: var(--public-heading-font) !important;
+    font-size: 24px;
+    line-height: 1.24;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
   .public-section-title {
+    font-family: var(--public-heading-font) !important;
     font-size: 20px;
     line-height: 1.32;
     font-weight: 700;
@@ -221,6 +237,7 @@
   }
 
   .public-lead-title {
+    font-family: var(--public-heading-font) !important;
     font-size: 18px;
     line-height: 1.4;
     font-weight: 700;
@@ -228,6 +245,7 @@
   }
 
   .public-card-title {
+    font-family: var(--public-heading-font) !important;
     font-size: 14px;
     line-height: 1.45;
     font-weight: 700;
@@ -235,6 +253,7 @@
   }
 
   .public-compact-title {
+    font-family: var(--public-heading-font) !important;
     font-size: 13px;
     line-height: 1.45;
     font-weight: 700;
@@ -242,28 +261,28 @@
   }
 
   .public-body {
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.6;
     font-weight: 400;
     letter-spacing: 0;
   }
 
   .public-small {
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.55;
     font-weight: 400;
     letter-spacing: 0;
   }
 
   .public-meta {
-    font-size: 12px;
+    font-size: 13px;
     line-height: 1.5;
     font-weight: 400;
     letter-spacing: 0;
   }
 
   .public-kicker {
-    font-size: 11px;
+    font-size: 12px;
     line-height: 1.45;
     font-weight: 700;
     letter-spacing: 0;
@@ -274,15 +293,34 @@
     margin-top: 6px;
   }
 
+  .public-section-summary,
+  .public-home-note-summary {
+    font-size: 16px;
+    line-height: 1.6;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
   @media (min-width: 768px) {
     .public-title-summary {
       margin-top: 7px;
+    }
+
+    .public-section-summary,
+    .public-home-note-summary {
+      font-size: 17px;
+      line-height: 1.64;
     }
   }
 
   @media (min-width: 768px) {
     .public-page-title {
       font-size: 44px;
+      line-height: 1.24;
+    }
+
+    .public-listing-title {
+      font-size: 35.2px;
       line-height: 1.24;
     }
 
@@ -297,8 +335,8 @@
     }
 
     .public-body {
-      font-size: 15px;
-      line-height: 1.68;
+      font-size: 17px;
+      line-height: 1.64;
     }
 
     .public-small {
@@ -322,15 +360,80 @@
       line-height: 1.22;
     }
 
+    .public-listing-title {
+      font-size: 38.4px;
+      line-height: 1.22;
+    }
+
     .public-lead-title {
       font-size: 28px;
       line-height: 1.34;
     }
   }
 
+  .public-site :where(.prose) {
+    max-width: none;
+    color: var(--public-muted) !important;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .public-site :where(.prose p, .prose li, .prose blockquote) {
+    color: var(--public-muted) !important;
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  .public-site :where(.prose h1, .prose h2) {
+    color: var(--public-ink) !important;
+    font-family: var(--public-heading-font) !important;
+    font-size: 20px;
+    line-height: 1.32;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .public-site :where(.prose h3) {
+    color: var(--public-ink) !important;
+    font-family: var(--public-heading-font) !important;
+    font-size: 18px;
+    line-height: 1.4;
+    font-weight: 700;
+  }
+
+  .public-site :where(.prose h4, .prose h5, .prose h6) {
+    color: var(--public-ink) !important;
+    font-family: var(--public-heading-font) !important;
+    font-size: 14px;
+    line-height: 1.45;
+    font-weight: 700;
+  }
+
+  @media (min-width: 768px) {
+    .public-site :where(.prose) {
+      font-size: 17px;
+      line-height: 1.64;
+    }
+
+    .public-site :where(.prose h1, .prose h2) {
+      font-size: 34px;
+      line-height: 1.28;
+    }
+
+    .public-site :where(.prose h3) {
+      font-size: 26px;
+      line-height: 1.34;
+    }
+
+    .public-site :where(.prose h4, .prose h5, .prose h6) {
+      font-size: 16px;
+      line-height: 1.42;
+    }
+  }
+
   .public-site :where(.public-article-title, .public-article-title *) {
     color: var(--public-ink) !important;
-    font-family: var(--public-font) !important;
+    font-family: var(--public-heading-font) !important;
   }
 
   .public-site :where(.group:hover .public-article-title, .group:hover .public-article-title *) {
@@ -372,6 +475,10 @@
 
   .public-site :where(.public-text-blue, .public-text-blue *) {
     color: var(--public-navy) !important;
+  }
+
+  .public-site :where(.public-gold-text, .public-gold-text *) {
+    color: var(--public-herbal-gold) !important;
   }
 
   .public-site :where(.public-scroll-arrow, .public-scroll-arrow *) {
@@ -416,13 +523,17 @@
     object-position: 70% center;
   }
 
+  .public-hero-image-mobile {
+    display: none;
+  }
+
   .public-hero-text-scrim {
     width: 100%;
     background:
       linear-gradient(
         90deg,
-        rgba(4, 22, 45, 0.72) 0%,
-        rgba(8, 37, 72, 0.58) 58%,
+        rgba(4, 22, 45, 0.79) 0%,
+        rgba(8, 37, 72, 0.64) 58%,
         rgba(8, 37, 72, 0) 100%
       );
   }
@@ -434,9 +545,16 @@
       background: #071f3d;
     }
 
-    .public-hero-image {
+    .public-hero-image-desktop {
+      display: none;
+    }
+
+    .public-hero-image-mobile {
+      display: block;
       object-fit: cover !important;
-      object-position: 88% 8% !important;
+      object-position: var(--hero-mobile-x, 88%) var(--hero-mobile-y, 8%) !important;
+      transform: scale(var(--hero-mobile-scale, 1));
+      transform-origin: var(--hero-mobile-x, 88%) var(--hero-mobile-y, 8%);
     }
 
     .public-hero-text-scrim {
@@ -477,26 +595,26 @@
     }
 
     .public-site :where(.public-hero-badge) {
-      padding: 7px 12px !important;
-      font-size: 10px !important;
+      padding: 9px 14px !important;
+      font-size: 12px !important;
       letter-spacing: 0.05em !important;
     }
 
     .public-site :where(.public-hero-specialty) {
-      font-size: 13px !important;
+      font-size: 15px !important;
       line-height: 1.35 !important;
       letter-spacing: 0.05em !important;
     }
 
     .public-site :where(.public-hero-title) {
       margin-bottom: 14px !important;
-      font-size: clamp(25px, 7.1vw, 30px) !important;
+      font-size: clamp(28px, 7.8vw, 33px) !important;
       line-height: 1.08 !important;
       letter-spacing: 0;
     }
 
     .public-site :where(.public-hero-quote) {
-      max-width: min(344px, calc(100% - 20px)) !important;
+      max-width: min(382px, calc(100% - 8px)) !important;
       margin: 0 auto 22px !important;
       padding-left: 0 !important;
       border-left-width: 0 !important;
@@ -504,13 +622,13 @@
     }
 
     .public-site :where(.public-hero-quote .public-body) {
-      font-size: 11.2px !important;
+      font-size: 14.2px !important;
       line-height: 1.58 !important;
     }
 
     .public-site :where(.public-hero-cta) {
-      padding: 12px 18px !important;
-      font-size: 11px !important;
+      padding: 14px 20px !important;
+      font-size: 13px !important;
       letter-spacing: 0.04em !important;
     }
   }
@@ -526,7 +644,8 @@
       padding-top: var(--hero-aspect-percent, 56.28%);
     }
 
-    .public-hero-image {
+    .public-hero-image-desktop {
+      display: block;
       object-fit: contain !important;
       object-position: center center !important;
     }
@@ -536,8 +655,8 @@
       background:
         linear-gradient(
           90deg,
-          rgba(4, 22, 45, 0.72) 0%,
-          rgba(8, 37, 72, 0.58) 62%,
+          rgba(4, 22, 45, 0.79) 0%,
+          rgba(8, 37, 72, 0.64) 62%,
           rgba(8, 37, 72, 0) 100%
         );
     }
@@ -640,10 +759,10 @@
 
   .public-navbar-logo,
   .public-navbar-logo-image {
-    border-radius: 9999px !important;
+    border-radius: 0 !important;
   }
 
   .public-navbar-logo {
-    clip-path: circle(50%);
+    clip-path: none;
   }
 }

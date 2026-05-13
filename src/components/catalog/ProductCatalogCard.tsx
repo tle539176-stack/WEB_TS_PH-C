@@ -59,7 +59,7 @@ export function ProductCatalogCard({ product, preview = false }: ProductCatalogC
         </p>
       </CardContent>
       <CardFooter className="pb-6 pt-0 flex flex-col gap-4 items-stretch">
-        <span className="text-lg font-bold text-neutral-950">{formatCatalogPrice(product.price)}</span>
+        <span className="public-body font-bold text-neutral-950">{formatCatalogPrice(product.price)}</span>
         <div className="grid grid-cols-2 gap-2">
           <CardActionLink to={detailHref} preview={preview}>
             <Button type="button" variant="outline" className="w-full gap-2 border-neutral-200">

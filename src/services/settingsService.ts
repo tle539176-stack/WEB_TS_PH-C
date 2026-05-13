@@ -14,6 +14,11 @@ export interface SiteSettings {
   medicalDisclaimer: string;
   heroImage: string;
   heroStoragePath: string;
+  heroMobileImage: string;
+  heroMobileStoragePath: string;
+  heroMobileObjectX: string;
+  heroMobileObjectY: string;
+  heroMobileScale: string;
   aboutTitle: string;
   aboutSubtitle: string;
   aboutQuote: string;
@@ -46,6 +51,11 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   medicalDisclaimer: 'Thông tin trên website chỉ nhằm mục đích tham khảo, không thay thế cho tư vấn, chẩn đoán hoặc điều trị y khoa trực tiếp.',
   heroImage: '',
   heroStoragePath: '',
+  heroMobileImage: '',
+  heroMobileStoragePath: '',
+  heroMobileObjectX: '88',
+  heroMobileObjectY: '8',
+  heroMobileScale: '1',
   aboutTitle: 'Tiến sĩ Đặng Hữu Phúc',
   aboutSubtitle: 'Chia sẻ kiến thức sức khỏe chính thống, dễ hiểu và có trách nhiệm',
   aboutQuote: 'Kiến thức đúng giúp người đọc hiểu rõ hơn và ra quyết định sức khỏe thận trọng hơn.',
@@ -111,6 +121,11 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     medicalDisclaimer: readString(merged, 'medicalDisclaimer', DEFAULT_SETTINGS.medicalDisclaimer),
     heroImage: readString(merged, 'heroImage'),
     heroStoragePath: readString(merged, 'heroStoragePath'),
+    heroMobileImage: readString(merged, 'heroMobileImage'),
+    heroMobileStoragePath: readString(merged, 'heroMobileStoragePath'),
+    heroMobileObjectX: readString(merged, 'heroMobileObjectX', DEFAULT_SETTINGS.heroMobileObjectX),
+    heroMobileObjectY: readString(merged, 'heroMobileObjectY', DEFAULT_SETTINGS.heroMobileObjectY),
+    heroMobileScale: readString(merged, 'heroMobileScale', DEFAULT_SETTINGS.heroMobileScale),
     aboutTitle: readString(merged, 'aboutTitle', DEFAULT_SETTINGS.aboutTitle),
     aboutSubtitle: readString(merged, 'aboutSubtitle', DEFAULT_SETTINGS.aboutSubtitle),
     aboutQuote: readString(merged, 'aboutQuote', DEFAULT_SETTINGS.aboutQuote),
@@ -157,6 +172,11 @@ export async function saveSiteSettings(settings: SiteSettings): Promise<void> {
     upsertSetting('home', {
       heroImage: settings.heroImage,
       heroStoragePath: settings.heroStoragePath,
+      heroMobileImage: settings.heroMobileImage,
+      heroMobileStoragePath: settings.heroMobileStoragePath,
+      heroMobileObjectX: settings.heroMobileObjectX,
+      heroMobileObjectY: settings.heroMobileObjectY,
+      heroMobileScale: settings.heroMobileScale,
     }, now),
     upsertSetting('about', {
       aboutTitle: settings.aboutTitle,

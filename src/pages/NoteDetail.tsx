@@ -40,7 +40,7 @@ export default function NoteDetail() {
   if (notFound || !note) {
     return (
       <div className="pt-40 pb-24 text-center">
-        <h2 className="text-2xl font-bold mb-4">Không tìm thấy bài viết</h2>
+        <h2 className="public-lead-title mb-4">Không tìm thấy bài viết</h2>
         <Link to="/notes"><Button variant="outline">Quay lại danh sách</Button></Link>
       </div>
     );
@@ -69,6 +69,7 @@ export default function NoteDetail() {
 
   const reviewerPerson = note.reviewer;
   const authorPerson = note.author;
+  const pageContainerClass = 'mx-auto w-full max-w-7xl px-4 md:px-8';
 
   return (
     <div className="pt-32 pb-24 bg-white">
@@ -78,7 +79,7 @@ export default function NoteDetail() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="container mx-auto px-4">
+      <div className={pageContainerClass}>
         <div className="max-w-4xl mx-auto">
           <Link to="/notes" className="inline-flex items-center gap-2 text-neutral-500 hover:text-[#0A3151] transition-colors mb-12 group">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -96,15 +97,15 @@ export default function NoteDetail() {
                   {note.categories.name}
                 </Badge>
               )}
-              <h1 className="public-page-title public-article-title">
+              <h1 className="public-section-title public-article-title">
                 {note.title}
               </h1>
 
               {/* Meta bar */}
-              <div className="flex flex-wrap items-center gap-6 text-sm text-neutral-500 py-4 border-y border-neutral-100">
+              <div className="public-small flex flex-wrap items-center gap-6 border-y border-neutral-100 py-4 text-neutral-500">
                 {/* Author or reviewer avatar */}
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-neutral-200 overflow-hidden border-2 border-white shadow-sm flex items-center justify-center text-neutral-500 font-bold text-sm">
+                  <div className="public-small flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-neutral-200 font-bold text-neutral-500 shadow-sm">
                     {authorPerson
                       ? authorPerson.display_name[0].toUpperCase()
                       : reviewerPerson
@@ -116,7 +117,7 @@ export default function NoteDetail() {
                     <p className="public-small font-bold text-[#1A1A1A]">{authorPerson.display_name}</p>
                     )}
                     {authorPerson?.professional_title && (
-                      <p className="text-[11px] text-neutral-400">{authorPerson.professional_title}</p>
+                      <p className="public-meta text-neutral-400">{authorPerson.professional_title}</p>
                     )}
                     {!authorPerson && reviewerPerson && (
                       <p className="public-small font-bold text-[#1A1A1A]">{reviewerPerson.display_name}</p>
@@ -141,7 +142,7 @@ export default function NoteDetail() {
 
               {/* Medical review info bar */}
               {(reviewerPerson || note.reviewed_at) && (
-                <div className="flex flex-wrap items-center gap-4 text-xs bg-[#0A3151]/5 border border-[#0A3151]/10 rounded-xl px-5 py-3">
+                <div className="public-meta flex flex-wrap items-center gap-4 rounded-xl border border-[#0A3151]/10 bg-[#0A3151]/5 px-5 py-3">
                   <ShieldCheck className="w-4 h-4 text-[#0A3151] shrink-0" />
                   {reviewerPerson && (
                     <div>
@@ -179,7 +180,7 @@ export default function NoteDetail() {
               <div className="lg:col-span-3">
                 {note.content ? (
                   <div
-                    className="prose prose-neutral prose-lg public-body public-muted-text max-w-none"
+                    className="prose prose-neutral public-body public-muted-text max-w-none"
                     dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(note.content) }}
                   />
                 ) : (
@@ -202,7 +203,7 @@ export default function NoteDetail() {
                     <h3 className="public-card-title mb-5 text-[#0A3151]">Tài liệu tham khảo</h3>
                     <ol className="space-y-4 list-decimal list-outside ml-5">
                       {displaySources.map((src, i) => (
-                        <li key={src.id ?? i} className="text-sm text-neutral-600 pl-1">
+                        <li key={src.id ?? i} className="public-small pl-1 text-neutral-600">
                           <div className="space-y-0.5">
                             {src.url ? (
                               <a
@@ -216,7 +217,7 @@ export default function NoteDetail() {
                             ) : (
                               <span className="font-medium">{src.title}</span>
                             )}
-                            <div className="flex flex-wrap gap-x-3 text-xs text-neutral-400">
+                            <div className="public-meta flex flex-wrap gap-x-3 text-neutral-400">
                               {src.publisher && <span>{src.publisher}</span>}
                               {src.published_at && <span>{src.published_at}</span>}
                               {src.doi && (
@@ -231,7 +232,7 @@ export default function NoteDetail() {
                               )}
                               {src.accessed_at && <span>Truy cập: {src.accessed_at}</span>}
                               {src.evidence_level && src.evidence_level !== 'unknown' && (
-                                <span className="bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase">
+                                <span className="public-meta rounded bg-blue-50 px-1.5 py-0.5 font-bold uppercase text-blue-600">
                                   {src.evidence_level}
                                 </span>
                               )}
@@ -247,14 +248,14 @@ export default function NoteDetail() {
                 <div className="mt-8 p-6 bg-amber-50 border border-amber-200 rounded-2xl">
                   <div className="flex items-start gap-3">
                     <UserCheck className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-                    <div className="text-sm text-amber-900 space-y-1">
+                    <div className="public-small space-y-1 text-amber-900">
                       <p className="font-bold">Tuyên bố miễn trách y tế</p>
                       <p className="leading-relaxed text-amber-800">
                         Nội dung bài viết chỉ mang tính chất thông tin giáo dục sức khỏe, không thay thế lời khuyên y tế, chẩn đoán hoặc điều trị từ bác sĩ có chuyên môn.
                         Vui lòng tham khảo ý kiến bác sĩ trước khi đưa ra quyết định về sức khỏe.
                       </p>
                       {reviewerPerson && (
-                        <p className="text-xs text-amber-700 mt-2">
+                        <p className="public-meta mt-2 text-amber-700">
                           Bài viết này đã được review bởi <strong>{reviewerPerson.display_name}</strong>
                           {reviewerPerson.credentials ? ` (${reviewerPerson.credentials})` : ''}
                           {note.reviewed_at ? ` vào ${formatDateLong(note.reviewed_at)}` : ''}.

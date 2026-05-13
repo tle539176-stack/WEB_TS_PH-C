@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { ChangeEvent } from 'react';
+import type { ChangeEvent, PointerEvent } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
@@ -21,6 +21,7 @@ export function SettingsManager({ session }: { session: Session }) {
   const [settings, setSettings] = useState<settingsSvc.SiteSettings>(settingsSvc.DEFAULT_SETTINGS);
   const [savedSettings, setSavedSettings] = useState<settingsSvc.SiteSettings>(settingsSvc.DEFAULT_SETTINGS);
   const [saving, setSaving] = useState(false);
+  const [draggingHeroMobile, setDraggingHeroMobile] = useState(false);
 
   useEffect(() => {
     settingsSvc.getSiteSettings().then(current => {
@@ -53,6 +54,12 @@ export function SettingsManager({ session }: { session: Session }) {
     logAction(session, 'select_library_image', 'setting', 'hero', { after: { media_asset_id: asset.id } });
   };
 
+  const selectHeroMobileAsset = (asset: MediaAsset) => {
+    void cleanupDraftSettingPath(settings.heroMobileStoragePath, savedSettings.heroMobileStoragePath, asset.storage_path);
+    setSettings(prev => ({ ...prev, heroMobileImage: asset.public_url, heroMobileStoragePath: asset.storage_path }));
+    logAction(session, 'select_library_image', 'setting', 'heroMobile', { after: { media_asset_id: asset.id } });
+  };
+
   const selectAboutAsset = (asset: MediaAsset) => {
     void cleanupDraftSettingPath(settings.aboutStoragePath, savedSettings.aboutStoragePath, asset.storage_path);
     setSettings(prev => ({
@@ -71,6 +78,7 @@ export function SettingsManager({ session }: { session: Session }) {
       await Promise.all([
         cleanupSavedSettingPath(savedSettings.logoStoragePath, settings.logoStoragePath),
         cleanupSavedSettingPath(savedSettings.heroStoragePath, settings.heroStoragePath),
+        cleanupSavedSettingPath(savedSettings.heroMobileStoragePath, settings.heroMobileStoragePath),
         cleanupSavedSettingPath(savedSettings.footerStoragePath, settings.footerStoragePath),
         cleanupSavedSettingPath(savedSettings.aboutStoragePath, settings.aboutStoragePath),
       ]);
@@ -89,6 +97,35 @@ export function SettingsManager({ session }: { session: Session }) {
   const setTextArea = (key: keyof settingsSvc.SiteSettings) => (event: ChangeEvent<HTMLTextAreaElement>) =>
     setSettings(prev => ({ ...prev, [key]: event.target.value }));
 
+  const clampNumber = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+  const readNumberSetting = (key: keyof settingsSvc.SiteSettings, fallback: number, min: number, max: number) => {
+    const value = Number(settings[key]);
+    return clampNumber(Number.isFinite(value) ? value : fallback, min, max);
+  };
+
+  const heroMobilePreviewImage = settings.heroMobileImage || settings.heroImage;
+  const heroMobileObjectX = readNumberSetting('heroMobileObjectX', Number(settingsSvc.DEFAULT_SETTINGS.heroMobileObjectX), 0, 100);
+  const heroMobileObjectY = readNumberSetting('heroMobileObjectY', Number(settingsSvc.DEFAULT_SETTINGS.heroMobileObjectY), 0, 100);
+  const heroMobileScale = readNumberSetting('heroMobileScale', Number(settingsSvc.DEFAULT_SETTINGS.heroMobileScale), 1, 2);
+
+  const setHeroMobileCrop = (key: 'heroMobileObjectX' | 'heroMobileObjectY' | 'heroMobileScale', value: number) => {
+    const limits = key === 'heroMobileScale' ? { min: 1, max: 2 } : { min: 0, max: 100 };
+    const nextValue = clampNumber(value, limits.min, limits.max);
+    setSettings(prev => ({ ...prev, [key]: key === 'heroMobileScale' ? nextValue.toFixed(2) : Math.round(nextValue).toString() }));
+  };
+
+  const setHeroMobileCropFromPointer = (event: PointerEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * 100;
+    const y = ((event.clientY - rect.top) / rect.height) * 100;
+    setSettings(prev => ({
+      ...prev,
+      heroMobileObjectX: Math.round(clampNumber(x, 0, 100)).toString(),
+      heroMobileObjectY: Math.round(clampNumber(y, 0, 100)).toString(),
+    }));
+  };
+
   const checklist: ChecklistItem[] = [
     { label: 'Tên website', ok: !!settings.siteName },
     { label: 'Logo (ảnh hoặc chữ tắt)', ok: !!(settings.logoImage || settings.logoText) },
@@ -96,6 +133,7 @@ export function SettingsManager({ session }: { session: Session }) {
     { label: 'Tiêu đề trang giới thiệu', ok: !!settings.aboutTitle },
     { label: 'Nội dung giới thiệu', ok: settings.aboutBody.length >= 120, warn: settings.aboutBody.length > 0 && settings.aboutBody.length < 120 },
     { label: 'Ảnh trang giới thiệu', ok: !!settings.aboutImage, warn: !settings.aboutImage },
+    { label: 'Ảnh Hero trên điện thoại', ok: !!settings.heroMobileImage, warn: !settings.heroMobileImage },
     { label: 'SEO title', ok: !!settings.seoTitle },
     { label: 'SEO description', ok: settings.seoDescription.length >= 50, warn: settings.seoDescription.length > 0 && settings.seoDescription.length < 50 },
   ];
@@ -199,6 +237,144 @@ export function SettingsManager({ session }: { session: Session }) {
               }}
               placeholder="https://example.com/hero.jpg"
             />
+            <div className="space-y-4 border-t pt-5">
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-widest text-neutral-500">Hero điện thoại</h4>
+                <p className="mt-1 text-xs text-neutral-500">Dùng ảnh riêng cho điện thoại. Kéo trên khung preview để căn vị trí, dùng zoom để phóng to.</p>
+              </div>
+              <MediaUploader
+                label="Ảnh Hero trên điện thoại"
+                currentUrl={settings.heroMobileImage}
+                currentAlt="Hero mobile"
+                aspectHint="3:4"
+                onUpload={async (file, alt) => {
+                  const asset = await media.uploadSettingImage('heroMobile', file, { alt, uploadedBy: session.user.id });
+                  return { url: asset.url, storagePath: asset.storagePath };
+                }}
+                onUploaded={({ url, storagePath }) => {
+                  void cleanupDraftSettingPath(settings.heroMobileStoragePath, savedSettings.heroMobileStoragePath, storagePath);
+                  setSettings(prev => ({ ...prev, heroMobileImage: url, heroMobileStoragePath: storagePath }));
+                  logAction(session, 'upload_setting_image', 'setting', 'heroMobile', { after: { url } });
+                }}
+                onRemove={() => {
+                  void cleanupDraftSettingPath(settings.heroMobileStoragePath, savedSettings.heroMobileStoragePath);
+                  setSettings(prev => ({ ...prev, heroMobileImage: '', heroMobileStoragePath: '' }));
+                }}
+                onSelectAsset={selectHeroMobileAsset}
+              />
+              <AdvancedImageUrlInput
+                value={settings.heroMobileImage}
+                onChange={url => {
+                  void cleanupDraftSettingPath(settings.heroMobileStoragePath, savedSettings.heroMobileStoragePath);
+                  setSettings(prev => ({ ...prev, heroMobileImage: url, heroMobileStoragePath: '' }));
+                }}
+                placeholder="https://example.com/hero-mobile.jpg"
+              />
+
+              {heroMobilePreviewImage && (
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-[160px_minmax(0,1fr)]">
+                  <div>
+                    <div
+                      className="relative aspect-[9/16] w-full overflow-hidden border border-neutral-200 bg-neutral-100 touch-none"
+                      onPointerDown={(event) => {
+                        setDraggingHeroMobile(true);
+                        event.currentTarget.setPointerCapture(event.pointerId);
+                        setHeroMobileCropFromPointer(event);
+                      }}
+                      onPointerMove={(event) => {
+                        if (draggingHeroMobile) setHeroMobileCropFromPointer(event);
+                      }}
+                      onPointerUp={(event) => {
+                        setDraggingHeroMobile(false);
+                        event.currentTarget.releasePointerCapture(event.pointerId);
+                      }}
+                      onPointerCancel={() => setDraggingHeroMobile(false)}
+                    >
+                      <img
+                        src={heroMobilePreviewImage}
+                        alt="Hero mobile preview"
+                        className="h-full w-full select-none object-cover"
+                        draggable={false}
+                        referrerPolicy="no-referrer"
+                        style={{
+                          objectPosition: `${heroMobileObjectX}% ${heroMobileObjectY}%`,
+                          transform: `scale(${heroMobileScale})`,
+                          transformOrigin: `${heroMobileObjectX}% ${heroMobileObjectY}%`,
+                        }}
+                      />
+                      <div className="pointer-events-none absolute inset-0 border border-white/40" />
+                      <div
+                        className="pointer-events-none absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 border border-white bg-[#0A3151]/70 shadow"
+                        style={{ left: `${heroMobileObjectX}%`, top: `${heroMobileObjectY}%` }}
+                      />
+                    </div>
+                    <p className="mt-2 text-[10px] text-neutral-500">Preview tỉ lệ điện thoại. Kéo trực tiếp trên ảnh để đổi tâm.</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <div className="mb-1 flex items-center justify-between text-xs font-bold text-neutral-600">
+                        <span>Ngang</span>
+                        <span>{Math.round(heroMobileObjectX)}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        step="1"
+                        value={heroMobileObjectX}
+                        onChange={event => setHeroMobileCrop('heroMobileObjectX', Number(event.target.value))}
+                        className="w-full accent-[#0A3151]"
+                      />
+                    </div>
+                    <div>
+                      <div className="mb-1 flex items-center justify-between text-xs font-bold text-neutral-600">
+                        <span>Dọc</span>
+                        <span>{Math.round(heroMobileObjectY)}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        step="1"
+                        value={heroMobileObjectY}
+                        onChange={event => setHeroMobileCrop('heroMobileObjectY', Number(event.target.value))}
+                        className="w-full accent-[#0A3151]"
+                      />
+                    </div>
+                    <div>
+                      <div className="mb-1 flex items-center justify-between text-xs font-bold text-neutral-600">
+                        <span>Zoom</span>
+                        <span>{heroMobileScale.toFixed(2)}x</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="1"
+                        max="2"
+                        step="0.05"
+                        value={heroMobileScale}
+                        onChange={event => setHeroMobileCrop('heroMobileScale', Number(event.target.value))}
+                        className="w-full accent-[#0A3151]"
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-xs"
+                      onClick={() => setSettings(prev => ({
+                        ...prev,
+                        heroMobileObjectX: settingsSvc.DEFAULT_SETTINGS.heroMobileObjectX,
+                        heroMobileObjectY: settingsSvc.DEFAULT_SETTINGS.heroMobileObjectY,
+                        heroMobileScale: settingsSvc.DEFAULT_SETTINGS.heroMobileScale,
+                      }))}
+                    >
+                      Đặt lại căn mặc định
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
           </section>
 
           <section className="col-span-1 md:col-span-2 space-y-6 pt-4 border-t">

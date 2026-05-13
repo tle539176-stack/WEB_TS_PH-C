@@ -22,7 +22,6 @@ type DisplayNote = {
   categoryName: string;
   publishedAt: string | null;
   coverImageUrl: string | null;
-  isDemo?: boolean;
 };
 
 type DisplayBook = {
@@ -33,59 +32,6 @@ type DisplayBook = {
   coverUrl: string | null;
   isDemo?: boolean;
 };
-
-const DEMO_NOTES: DisplayNote[] = [
-  {
-    id: 'demo-note-1',
-    title: 'Chống lão hóa bắt đầu từ giấc ngủ và nhịp sinh học',
-    slug: 'demo-chong-lao-hoa-giac-ngu',
-    excerpt: 'Ghi chú mẫu về cách giấc ngủ, ánh sáng và lịch sinh hoạt ảnh hưởng đến sức khỏe lâu dài.',
-    categoryName: 'Chống lão hóa',
-    publishedAt: '2026-05-01',
-    coverImageUrl: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=1200&auto=format&fit=crop',
-    isDemo: true,
-  },
-  {
-    id: 'demo-note-2',
-    title: 'Omega-3: khi nào nên bổ sung và khi nào cần thận trọng',
-    slug: 'demo-omega-3',
-    excerpt: 'Ghi chú mẫu giúp người đọc hiểu đúng hơn về omega-3, liều dùng và các điểm cần hỏi nhân viên y tế.',
-    categoryName: 'Thực phẩm bổ sung',
-    publishedAt: '2026-04-24',
-    coverImageUrl: 'https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?q=80&w=1200&auto=format&fit=crop',
-    isDemo: true,
-  },
-  {
-    id: 'demo-note-3',
-    title: 'Protein sau tuổi 40: ăn bao nhiêu là vừa đủ',
-    slug: 'demo-protein-sau-tuoi-40',
-    excerpt: 'Ghi chú mẫu về vai trò của protein với cơ, chuyển hóa và sức khỏe khi tuổi tăng dần.',
-    categoryName: 'Dinh dưỡng',
-    publishedAt: '2026-04-18',
-    coverImageUrl: 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=1200&auto=format&fit=crop',
-    isDemo: true,
-  },
-  {
-    id: 'demo-note-4',
-    title: 'Chống nắng đúng cách: SPF, PA và những hiểu lầm thường gặp',
-    slug: 'demo-chong-nang-dung-cach',
-    excerpt: 'Ghi chú mẫu tóm tắt cách đọc nhãn chống nắng và các lỗi thường gặp khi sử dụng hằng ngày.',
-    categoryName: 'Da và chống nắng',
-    publishedAt: '2026-04-10',
-    coverImageUrl: 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?q=80&w=1200&auto=format&fit=crop',
-    isDemo: true,
-  },
-  {
-    id: 'demo-note-5',
-    title: 'Tầm soát sức khỏe định kỳ: nên chuẩn bị câu hỏi gì',
-    slug: 'demo-tam-soat-suc-khoe',
-    excerpt: 'Ghi chú mẫu về cách chuẩn bị trước khi đi khám, giúp buổi trao đổi với bác sĩ hiệu quả hơn.',
-    categoryName: 'Tầm soát sức khỏe',
-    publishedAt: '2026-04-02',
-    coverImageUrl: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=1200&auto=format&fit=crop',
-    isDemo: true,
-  },
-];
 
 const DEMO_BOOKS: DisplayBook[] = [
   {
@@ -209,6 +155,12 @@ function formatDate(date: string | null): string {
   return new Date(date).toLocaleDateString('vi-VN');
 }
 
+function clampNumber(value: string, fallback: number, min: number, max: number): number {
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) return fallback;
+  return Math.min(max, Math.max(min, numericValue));
+}
+
 function toDisplayNote(note: NoteWithCategory): DisplayNote {
   return {
     id: note.id,
@@ -246,14 +198,23 @@ export default function Home() {
   }, []);
 
   const heroImage = settings.heroImage || settings.aboutImage || DEFAULT_HERO;
-  const displayNotes = [...notes.map(toDisplayNote), ...DEMO_NOTES].slice(0, 5);
+  const heroMobileImage = settings.heroMobileImage || heroImage;
+  const heroMobileObjectX = clampNumber(settings.heroMobileObjectX, Number(DEFAULT_SETTINGS.heroMobileObjectX), 0, 100);
+  const heroMobileObjectY = clampNumber(settings.heroMobileObjectY, Number(DEFAULT_SETTINGS.heroMobileObjectY), 0, 100);
+  const heroMobileScale = clampNumber(settings.heroMobileScale, Number(DEFAULT_SETTINGS.heroMobileScale), 1, 2);
+  const displayNotes = notes.map(toDisplayNote).slice(0, 5);
   const displayBooks = [...books.map(toDisplayBook), ...DEMO_BOOKS].slice(0, 4);
   const displayVideos = [...videos, ...DEMO_VIDEOS].slice(0, 5);
   const leadNote = displayNotes[0] ?? null;
   const secondaryNotes = displayNotes.slice(1, 5);
   const sectionContainerClass = 'mx-auto w-full max-w-7xl px-4 md:px-8';
   const heroContainerClass = 'mx-auto w-full max-w-7xl md:px-8';
-  const heroFrameStyle = { '--hero-aspect-percent': heroAspectPercent } as CSSProperties;
+  const heroFrameStyle = {
+    '--hero-aspect-percent': heroAspectPercent,
+    '--hero-mobile-x': `${heroMobileObjectX}%`,
+    '--hero-mobile-y': `${heroMobileObjectY}%`,
+    '--hero-mobile-scale': heroMobileScale.toString(),
+  } as CSSProperties;
 
   return (
     <div className="bg-white text-[var(--public-navy)]">
@@ -263,7 +224,7 @@ export default function Home() {
           <img
             src={heroImage}
             alt={settings.aboutImageAlt || settings.siteName}
-            className="public-hero-image absolute inset-0 h-full w-full object-cover object-[70%_center]"
+            className="public-hero-image public-hero-image-desktop absolute inset-0 h-full w-full object-cover object-[70%_center]"
             referrerPolicy="no-referrer"
             onLoad={(event) => {
               const { naturalWidth, naturalHeight } = event.currentTarget;
@@ -272,16 +233,22 @@ export default function Home() {
               }
             }}
           />
+          <img
+            src={heroMobileImage}
+            alt={settings.aboutImageAlt || settings.siteName}
+            className="public-hero-image public-hero-image-mobile absolute inset-0 h-full w-full object-cover"
+            referrerPolicy="no-referrer"
+          />
           <div className="public-hero-text-scrim absolute inset-y-0 left-0" />
 
           <div className="public-hero-content absolute inset-0 z-10 flex items-center px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12">
             <div className="public-hero-copy-panel min-w-0 w-full max-w-[660px]">
               <div className="public-hero-meta-row mb-4 flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3 md:mb-5">
-                <span className="public-hero-badge inline-flex items-center gap-2 bg-[#1e5b97] px-3.5 py-2 text-[10px] font-bold uppercase tracking-[0.06em] text-white shadow-[0_10px_24px_-16px_rgba(0,0,0,0.7)] md:px-4 md:text-[11px]">
-                  <Stethoscope className="h-3.5 w-3.5" />
+                <span className="public-hero-badge inline-flex items-center gap-2 bg-[#1e5b97] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.06em] text-white shadow-[0_10px_24px_-16px_rgba(0,0,0,0.7)] md:px-4.5 md:text-[13px]">
+                  <Stethoscope className="h-[17px] w-[17px]" />
                   Tiến sĩ Y khoa
                 </span>
-                <span className="public-hero-specialty max-w-full text-[11px] font-bold uppercase leading-[1.25] tracking-[0.06em] text-white sm:text-[12px] md:text-sm">
+                <span className="public-hero-specialty max-w-full text-[13px] font-bold uppercase leading-[1.25] tracking-[0.06em] text-white sm:text-sm md:text-base">
                   Chuyên gia chống lão hóa
                 </span>
               </div>
@@ -296,9 +263,9 @@ export default function Home() {
                 </p>
               </div>
 
-              <a href="#bo-ghi-chu" className="public-hero-cta group inline-flex items-center gap-2 bg-[#0b4c86] px-5 py-3 text-[11px] font-bold uppercase tracking-[0.04em] text-white shadow-[0_14px_30px_-18px_rgba(0,0,0,0.9)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#155d9d] hover:shadow-[0_18px_34px_-18px_rgba(0,0,0,1)] md:px-6 md:text-xs">
+              <a href="#bo-ghi-chu" className="public-hero-cta group inline-flex items-center gap-2 bg-[#0b4c86] px-5.5 py-4 text-[13px] font-bold uppercase tracking-[0.04em] text-white shadow-[0_14px_30px_-18px_rgba(0,0,0,0.9)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#155d9d] hover:shadow-[0_18px_34px_-18px_rgba(0,0,0,1)] md:px-7 md:text-sm">
                 ĐẶT HẸN TƯ VẤN NGAY
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="h-[18px] w-[18px] transition-transform group-hover:translate-x-1" />
               </a>
             </div>
           </div>
@@ -312,14 +279,14 @@ export default function Home() {
             <h2 className="public-section-title uppercase">
               Bộ Ghi Chú Chống Lão Hóa
             </h2>
-            <p className="public-body public-muted-text public-title-summary max-w-[720px]">
+            <p className="public-section-summary public-muted-text public-title-summary max-w-[720px]">
               Các bài viết được hệ thống lại từ những chủ đề bác sĩ Phúc đang chia sẻ, giúp người đọc xem phần đầy đủ sau khi theo dõi video ngắn.
             </p>
           </div>
 
           {leadNote ? (
             <div className="grid items-stretch gap-7 lg:grid-cols-[1.02fr_0.98fr]">
-              <Link to={leadNote.isDemo ? '/notes' : `/notes/${leadNote.slug}`} className="group block h-full">
+              <Link to={`/notes/${leadNote.slug}`} className="group block h-full">
                 <article className="grid h-full overflow-hidden border-y border-[var(--public-border)] bg-white lg:grid-cols-[0.92fr_1.08fr]">
                   <div className="h-full min-h-[220px] bg-[var(--public-warm-ivory)] lg:min-h-full">
                     {leadNote.coverImageUrl ? (
@@ -358,7 +325,7 @@ export default function Home() {
 
               <div className="flex h-full flex-col divide-y divide-[var(--public-border)] border-y border-[var(--public-border)] bg-white">
                 {secondaryNotes.length > 0 ? secondaryNotes.map(note => (
-                  <Link key={note.id} to={note.isDemo ? '/notes' : `/notes/${note.slug}`} className="group block flex-1 py-4 transition-colors hover:bg-[var(--public-warm-ivory)] sm:px-4 lg:px-5">
+                  <Link key={note.id} to={`/notes/${note.slug}`} className="group block flex-1 py-4 transition-colors hover:bg-[var(--public-warm-ivory)] sm:px-4 lg:px-5">
                     <article className="grid grid-cols-[88px_minmax(0,1fr)] gap-3 sm:grid-cols-[96px_minmax(0,1fr)] sm:gap-4">
                       <div className="aspect-[5/3] overflow-hidden bg-[var(--public-warm-ivory)]">
                         {note.coverImageUrl ? (
@@ -381,7 +348,7 @@ export default function Home() {
                     </article>
                   </Link>
                 )) : (
-                  <p className="p-6 text-sm font-medium text-[var(--public-navy)]">Các bài viết tiếp theo sẽ hiển thị tại đây sau khi xuất bản.</p>
+                  <p className="public-small p-6 font-medium text-[var(--public-navy)]">Các bài viết tiếp theo sẽ hiển thị tại đây sau khi xuất bản.</p>
                 )}
               </div>
             </div>
@@ -392,7 +359,7 @@ export default function Home() {
           )}
 
           <div className="mt-8">
-            <Link to="/notes" className="inline-flex items-center gap-2 text-sm font-bold text-[var(--public-navy)]">
+            <Link to="/notes" className="public-small inline-flex items-center gap-2 font-bold text-[var(--public-navy)]">
               Xem toàn bộ ghi chú <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -405,7 +372,7 @@ export default function Home() {
             <h2 className="public-section-title uppercase text-white">
               Sách và tài liệu đã xuất bản
             </h2>
-            <p className="public-body public-title-summary text-white">
+            <p className="public-section-summary public-title-summary text-white">
               Sách được đặt ở đây như một phần hồ sơ chuyên môn: các nội dung đọc sâu hơn, được trình bày thành hệ thống.
             </p>
           </div>
@@ -444,12 +411,12 @@ export default function Home() {
             </div>
           ) : (
             <div className="border border-white/25 p-8 text-white">
-              <p className="text-sm font-semibold text-white">Sách và tài liệu sẽ hiển thị tại đây sau khi được xuất bản.</p>
+              <p className="public-small font-semibold text-white">Sách và tài liệu sẽ hiển thị tại đây sau khi được xuất bản.</p>
             </div>
           )}
 
           <div className="mt-8">
-            <Link to="/books" className="inline-flex items-center gap-2 text-sm font-bold text-white">
+            <Link to="/books" className="public-small inline-flex items-center gap-2 font-bold text-white">
               Xem tủ sách <ArrowRight className="h-4 w-4" />
             </Link>
           </div>

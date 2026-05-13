@@ -31,7 +31,7 @@ export default function Footer() {
         {hasContactInfo && (
         <div className="mx-auto mb-5 max-w-xl text-center md:mb-6">
           <h4 className="public-card-title mb-4 text-white">Liên hệ</h4>
-          <ul className="space-y-3 text-sm">
+          <ul className="public-small space-y-3">
             {contactItems.map(({ icon: Icon, value }) => (
               <li key={value} className="flex items-start justify-center gap-3 text-white/76">
                 <Icon className="mt-0.5 h-4 w-4 shrink-0 text-white/52" />
@@ -41,7 +41,7 @@ export default function Footer() {
           </ul>
         </div>
         )}
-        <div className={`${hasContactInfo ? 'border-t border-white/12 pt-4' : ''} text-center text-[10px] italic leading-[18px] text-white/60 md:text-[11px] md:leading-5`}>
+        <div className={`public-meta ${hasContactInfo ? 'border-t border-white/12 pt-4' : ''} text-center italic text-white/60`}>
           <p className="mx-auto max-w-3xl">{s?.medicalDisclaimer || DEFAULT_SETTINGS.medicalDisclaimer}</p>
         </div>
       </div>

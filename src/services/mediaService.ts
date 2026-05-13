@@ -688,11 +688,11 @@ export async function uploadNoteCover(
 }
 
 // ============================================================
-// Settings images (logo / hero / footer / about)
+// Settings images (logo / hero / heroMobile / footer / about)
 // ============================================================
 
 export async function uploadSettingImage(
-  kind: 'logo' | 'hero' | 'footer' | 'about',
+  kind: 'logo' | 'hero' | 'heroMobile' | 'footer' | 'about',
   file: File,
   opts?: { alt?: string; uploadedBy?: string },
 ): Promise<{ url: string; storagePath: string; asset: MediaAsset }> {

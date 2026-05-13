@@ -39,7 +39,7 @@ export default function BookDetail() {
   if (notFound || !book) {
     return (
       <div className="pt-40 pb-24 text-center">
-        <h2 className="text-2xl font-bold mb-4">Không tìm thấy sách</h2>
+        <h2 className="public-lead-title mb-4">Không tìm thấy sách</h2>
         <Link to="/books"><Button variant="outline">Quay lại danh sách</Button></Link>
       </div>
     );
@@ -47,10 +47,11 @@ export default function BookDetail() {
 
   const primaryImage = getPrimaryImage(book.book_images);
   const imageUrl = primaryImage.url;
+  const pageContainerClass = 'mx-auto w-full max-w-7xl px-4 md:px-8';
 
   return (
     <div className="pt-32 pb-24 bg-white">
-      <div className="container mx-auto px-4">
+      <div className={pageContainerClass}>
         <Link to="/books" className="inline-flex items-center gap-2 text-neutral-500 hover:text-[#0A3151] transition-colors mb-12 group">
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           Quay lại danh sách
@@ -85,11 +86,11 @@ export default function BookDetail() {
                 {book.rating != null && (
                   <div className="flex items-center gap-1 text-yellow-500">
                     <Star className="w-4 h-4 fill-current" />
-                    <span className="text-sm font-bold">{book.rating}</span>
+                    <span className="public-meta font-bold">{book.rating}</span>
                   </div>
                 )}
               </div>
-              <h1 className="public-page-title">{book.title}</h1>
+              <h1 className="public-section-title public-article-title">{book.title}</h1>
               {book.subtitle && <p className="public-body public-muted-text public-title-summary italic">{book.subtitle}</p>}
             </div>
 
@@ -125,8 +126,8 @@ export default function BookDetail() {
             </p>
 
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-8">
-              <span className="text-3xl font-bold text-[#1A1A1A]">{formatPrice(book.price)}</span>
-              <Button className="w-full bg-[#0A3151] hover:bg-[#0D426E] text-white px-10 py-6 text-lg gap-2 sm:w-auto">
+              <span className="public-lead-title font-bold text-[#1A1A1A]">{formatPrice(book.price)}</span>
+              <Button className="public-small w-full gap-2 bg-[#0A3151] px-10 py-6 text-white hover:bg-[#0D426E] sm:w-auto">
                 <ShoppingCart className="w-5 h-5" />
                 Đặt mua ngay
               </Button>
@@ -138,7 +139,7 @@ export default function BookDetail() {
                   <BookIcon className="w-5 h-5 text-[#0A3151]" /> Nội dung nổi bật
                 </h3>
                 <div
-                  className="prose prose-neutral max-w-none text-neutral-600"
+                  className="prose prose-neutral public-body public-muted-text max-w-none"
                   dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(book.content) }}
                 />
               </div>

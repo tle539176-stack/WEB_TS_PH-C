@@ -53,7 +53,7 @@ export function BookCatalogCard({ book, preview = false }: BookCatalogCardProps)
           {book.rating != null && (
             <div className="flex items-center gap-1 text-yellow-500">
               <Star className="w-3 h-3 fill-current" />
-              <span className="text-xs font-bold">{book.rating}</span>
+              <span className="public-meta font-bold">{book.rating}</span>
             </div>
           )}
         </div>
@@ -67,8 +67,8 @@ export function BookCatalogCard({ book, preview = false }: BookCatalogCardProps)
       </CardContent>
       <CardFooter className="pb-6 pt-0 flex flex-col gap-4 items-stretch">
         <div className="flex justify-between items-center gap-3">
-          <span className="text-lg font-bold text-neutral-950">{formatCatalogPrice(book.price)}</span>
-          <span className="text-xs text-neutral-400 truncate">{book.author}</span>
+          <span className="public-body font-bold text-neutral-950">{formatCatalogPrice(book.price)}</span>
+          <span className="public-meta truncate text-neutral-400">{book.author}</span>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <CardActionLink to={detailHref} preview={preview}>

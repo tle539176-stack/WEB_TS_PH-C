@@ -1,5 +1,15 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import bcrypt from 'bcryptjs';
 import { query } from './db.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const seedAntiAgingNotesSql = fs.readFileSync(
+  path.resolve(__dirname, '..', 'supabase', 'migrations', '006_seed_anti_aging_notes.sql'),
+  'utf8',
+);
 
 const schemaSql = `
 create extension if not exists pgcrypto;
@@ -403,6 +413,7 @@ on conflict (key) do nothing;
 export async function runMigrations() {
   await query(schemaSql);
   await query(seedSettingsSql);
+  await query(seedAntiAgingNotesSql);
   await seedAdminUser();
 }
 

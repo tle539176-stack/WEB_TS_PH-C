@@ -33,22 +33,23 @@ export default function About() {
     .map(part => part[0])
     .join('')
     .toUpperCase();
+  const pageContainerClass = 'mx-auto w-full max-w-7xl px-4 md:px-8';
 
   return (
     <div className="pt-32 pb-24 bg-white">
-      <div className="container mx-auto px-4">
-        <div className="max-w-5xl mx-auto">
+      <div className={pageContainerClass}>
+        <div className="w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-14"
+            className="mb-14 max-w-[760px] border-b border-[var(--public-border)] pb-5 text-left"
           >
             <p className="public-kicker mb-4 text-[#0A3151]">Giới thiệu</p>
-            <h1 className="public-page-title public-article-title">{settings.aboutTitle}</h1>
-            <p className="public-body public-muted-text public-title-summary mx-auto max-w-3xl">{settings.aboutSubtitle}</p>
+            <h1 className="public-section-title public-article-title uppercase">{settings.aboutTitle}</h1>
+            <p className="public-section-summary public-muted-text public-title-summary max-w-[720px]">{settings.aboutSubtitle}</p>
             {settings.aboutQuote && (
-              <p className="text-base md:text-lg text-neutral-500 italic mt-6">"{settings.aboutQuote}"</p>
+              <p className="public-body mt-6 italic text-neutral-500">"{settings.aboutQuote}"</p>
             )}
           </motion.div>
 
@@ -70,10 +71,10 @@ export default function About() {
                   />
                 ) : (
                   <div className="w-full h-full bg-[#0A3151] text-white flex flex-col items-center justify-center p-8 text-center">
-                    <div className="w-24 h-24 rounded-full border border-white/30 flex items-center justify-center text-4xl font-serif font-bold mb-6">
+                    <div className="public-section-title mb-6 flex h-24 w-24 items-center justify-center rounded-full border border-white/30 font-bold">
                       {initials || 'ĐP'}
                     </div>
-                    <p className="font-serif text-2xl font-bold">{settings.aboutTitle}</p>
+                    <p className="public-lead-title font-bold">{settings.aboutTitle}</p>
                     <p className="public-small public-title-summary text-white/75">{settings.aboutSubtitle}</p>
                   </div>
                 )}

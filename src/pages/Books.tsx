@@ -1,28 +1,76 @@
-import { useState, useEffect } from 'react';
-import { BookOpen, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import {
+  Award, Check, Package, Truck,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { BookCatalogCard } from '@/components/catalog/BookCatalogCard';
 import { getPublishedBooks } from '@/services/contentService';
-import { bookToCardViewModel } from '@/lib/catalogViewModels';
 import type { BookWithImages } from '@/types/database';
 
-function getPrimaryImageUrl(images: { url: string; is_primary: boolean }[]): string {
-  return images.find(i => i.is_primary)?.url ?? images[0]?.url ?? '';
+type BookTab = 'all' | 'medical' | 'nutrition';
+
+const BOOK_TABS: { id: BookTab; label: string }[] = [
+  { id: 'all', label: 'Tất cả' },
+  { id: 'medical', label: 'Y học' },
+  { id: 'nutrition', label: 'Dinh dưỡng' },
+];
+
+const BADGES = [
+  { label: 'Bestseller', className: 'bg-[#c8a64b] text-white' },
+  { label: 'Mới', className: 'bg-[#2e9ba2] text-white' },
+  { label: 'Hot', className: 'bg-[#3f8c55] text-white' },
+];
+
+const CTA_PRESET = [
+  'bg-[#0d2f66] hover:bg-[#133d7a]',
+  'bg-[#2a9ca8] hover:bg-[#258f99]',
+  'bg-[#2f8a53] hover:bg-[#297647]',
+];
+
+const MOBILE_COVER_BG = [
+  'bg-[linear-gradient(180deg,#ccb36e_0%,#d9c587_100%)]',
+  'bg-[linear-gradient(180deg,#c9d8cf_0%,#e4efe9_100%)]',
+  'bg-[linear-gradient(180deg,#f4d4cc_0%,#f9ebe7_100%)]',
+];
+
+const TRUST_BOOK_ITEMS = [
+  { icon: Award, title: 'Sách gốc bản quyền', desc: 'Sách gốc có bản quyền, thông tin xuất bản minh bạch.' },
+  { icon: Truck, title: 'Giao hàng toàn quốc', desc: 'Giao hàng toàn quốc minh bạch, theo dõi đơn rõ ràng.' },
+  { icon: Package, title: 'Đổi trả trong 7 ngày', desc: 'Đổi trả trong 7 ngày nếu phát sinh lỗi sản phẩm.' },
+];
+
+function normalize(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
 }
 
-function getPublishedTime(book: BookWithImages): number {
-  return new Date(book.published_at ?? book.created_at).getTime();
+function classifyBook(book: BookWithImages): Exclude<BookTab, 'all'> {
+  const target = normalize(`${book.title} ${book.subtitle ?? ''} ${book.description ?? ''}`);
+  if (target.includes('dinh duong') || target.includes('chong viem') || target.includes('thuc pham')) return 'nutrition';
+  return 'medical';
+}
+
+function getPrimaryImage(book: BookWithImages): string {
+  return book.book_images.find(image => image.is_primary)?.url ?? book.book_images[0]?.url ?? '';
+}
+
+function formatPrice(price: number | null): string {
+  if (price == null) return 'Liên hệ';
+  return `${price.toLocaleString('vi-VN')}đ`;
+}
+
+function mobileSecondaryBadge(label: string): string {
+  if (label === 'Bestseller') return '35%';
+  if (label === 'Mới') return 'Mới';
+  return 'Hot';
 }
 
 export default function Books() {
   const [books, setBooks] = useState<BookWithImages[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [search, setSearch] = useState('');
-  const [onlyNew, setOnlyNew] = useState(false);
-  const [sortMode, setSortMode] = useState<'newest' | 'title' | 'price'>('newest');
+  const [activeTab, setActiveTab] = useState<BookTab>('all');
 
   useEffect(() => {
     getPublishedBooks()
@@ -31,126 +79,236 @@ export default function Books() {
       .finally(() => setLoading(false));
   }, []);
 
-  const query = search.trim().toLowerCase();
   const filtered = books
     .filter(book => {
-      const matchesSearch = !query ||
-        book.title.toLowerCase().includes(query) ||
-        (book.author ?? '').toLowerCase().includes(query) ||
-        (book.subtitle ?? '').toLowerCase().includes(query) ||
-        (book.description ?? '').toLowerCase().includes(query) ||
-        (book.year ?? '').toLowerCase().includes(query);
-      return matchesSearch && (!onlyNew || book.is_new);
+      const type = classifyBook(book);
+      return activeTab === 'all' || type === activeTab;
     })
-    .sort((a, b) => {
-      if (sortMode === 'title') return a.title.localeCompare(b.title, 'vi');
-      if (sortMode === 'price') return (b.price ?? 0) - (a.price ?? 0);
-      return getPublishedTime(b) - getPublishedTime(a);
-    });
-  const featured = books.find(book => book.is_new) ?? books[0];
+    .sort((a, b) => new Date(b.published_at ?? b.created_at).getTime() - new Date(a.published_at ?? a.created_at).getTime());
+
+  const topBooks = filtered.slice(0, 3);
+  const mobileList = filtered.slice(0, 6);
+  const featuredBook = filtered[0] ?? books[0] ?? null;
+  const pageContainerClass = 'mx-auto w-full max-w-7xl px-4 md:px-8';
 
   return (
-    <div className="pt-28 pb-24 bg-[#F7F8FA] min-h-screen">
-      <div className="container mx-auto px-4">
-        <section className="grid lg:grid-cols-[1fr_360px] gap-8 lg:gap-12 items-end mb-10">
-          <div>
-            <Badge className="public-kicker mb-5 border-none bg-[#0A3151] px-4 py-1.5 text-white shadow-sm">Thư viện sách</Badge>
-            <h1 className="public-page-title public-article-title">Tủ Sách Bác Sĩ Wynn Tran</h1>
-            <p className="public-body public-muted-text public-title-summary max-w-2xl">
-              Tìm nhanh các đầu sách sức khỏe, đọc mô tả ngắn, xem giá và mở trang chi tiết mà không cần rê chuột.
-            </p>
+    <div className="min-h-screen bg-[linear-gradient(180deg,#f5f7fb_0%,#edf1f8_100%)] pt-24 pb-16 md:pt-28 md:pb-20">
+      <div className={pageContainerClass}>
+        <section className="mb-8 max-w-[760px] text-left md:mb-10">
+          <h1 className="public-listing-title uppercase text-[var(--public-navy)]">Sách của bác sĩ Phúc</h1>
+          <p className="public-section-summary public-muted-text mt-4 max-w-[720px]">
+            Những cuốn sách được biên soạn chuyên sâu về y học chống lão hóa và sức khỏe toàn diện.
+          </p>
+        </section>
 
-            <div className="mt-8 bg-white border border-neutral-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow">
-              <div className="grid gap-3 lg:grid-cols-[1fr_auto]">
-                <div className="flex items-center gap-3 rounded-md border border-neutral-200 px-3">
-                  <Search className="w-4 h-4 text-neutral-400 shrink-0" />
-                  <Input
-                    value={search}
-                    onChange={event => setSearch(event.target.value)}
-                    placeholder="Tìm theo tên sách, tác giả, năm xuất bản..."
-                    className="border-none shadow-none focus-visible:ring-0 h-11 p-0 bg-transparent"
-                  />
+        <section className="mb-6 md:hidden">
+          {loading && <p className="py-10 text-center text-neutral-500">Đang tải sách...</p>}
+          {error && <p className="py-10 text-center text-red-500">{error}</p>}
+
+          {!loading && !error && featuredBook && (
+            <div className="public-on-blue relative mb-5 overflow-hidden rounded-[8px] border border-[#d8dee8] bg-[#0a1f4c] shadow-[0_12px_24px_-18px_rgba(8,20,48,0.85)]">
+              {getPrimaryImage(featuredBook) && (
+                <img
+                  src={getPrimaryImage(featuredBook)}
+                  alt={featuredBook.title}
+                  className="h-52 w-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              )}
+              <div className="absolute inset-x-0 bottom-0 bg-[linear-gradient(0deg,rgba(10,31,76,0.95)_0%,rgba(10,31,76,0.12)_100%)] p-4">
+                <p className="public-lead-title line-clamp-2 text-white">{featuredBook.title}</p>
+                <div className="mt-1 flex items-center justify-between gap-3">
+                  <p className="public-body public-gold-text font-bold leading-none">{formatPrice(featuredBook.price)}</p>
+                  <Link to={featuredBook.slug ? `/books/${featuredBook.slug}` : '/books'} className="public-small rounded-[8px] border border-white/55 px-3 py-2 font-bold text-white">
+                    ĐẶT MUA NGAY
+                  </Link>
                 </div>
-                <select
-                  value={sortMode}
-                  onChange={event => setSortMode(event.target.value as 'newest' | 'title' | 'price')}
-                  className="h-11 rounded-xl border border-neutral-200 bg-white px-3 text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-[#0A3151]/20 cursor-pointer"
-                >
-                  <option value="newest">Mới nhất</option>
-                  <option value="title">Tên A-Z</option>
-                  <option value="price">Giá cao trước</option>
-                </select>
-              </div>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setOnlyNew(value => !value)}
-                  className={`rounded-full px-4 py-2 text-xs font-bold transition-colors ${onlyNew ? 'bg-[#0A3151] text-white' : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'}`}
-                >
-                  Sách mới
-                </button>
-                <span className="text-xs text-neutral-400">{filtered.length}/{books.length} đầu sách</span>
               </div>
             </div>
-          </div>
+          )}
 
-          {featured && (
-            <Link to={`/books/${featured.slug}`} className="block">
-              <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                <div className="flex gap-4">
-                  <div className="w-28 shrink-0 aspect-[2/3] rounded-xl bg-neutral-100 overflow-hidden shadow-sm">
-                    {getPrimaryImageUrl(featured.book_images) ? (
-                      <img
-                        src={getPrimaryImageUrl(featured.book_images)}
-                        alt={featured.title}
-                        className="w-full h-full object-cover"
-                        referrerPolicy="no-referrer"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-neutral-400">
-                        <BookOpen className="w-6 h-6" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="public-kicker inline-block bg-[#0A3151]/5 px-2 py-1 text-[#0A3151]">Gợi ý nổi bật</p>
-                    <h2 className="public-card-title public-article-title mt-3 line-clamp-2 transition-colors">{featured.title}</h2>
-                    <p className="public-small public-muted-text public-title-summary line-clamp-3">{featured.description}</p>
-                    <p className="mt-3 text-sm font-bold text-neutral-900">
-                      {featured.price == null ? 'Liên hệ' : featured.price.toLocaleString('vi-VN') + 'đ'}
-                    </p>
-                  </div>
-                </div>
+          {!loading && !error && (
+            <>
+              <h2 className="public-section-title mb-2 uppercase text-[var(--public-navy)]">Tất cả sách</h2>
+              <div className="mb-4 h-1.5 w-14 bg-[#b49648]" />
+
+              <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
+                {BOOK_TABS.map(tab => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`public-small shrink-0 rounded-[8px] border px-4 py-2 font-semibold ${
+                      activeTab === tab.id
+                        ? 'border-[#0d2f66] bg-[#0d2f66] text-white'
+                        : 'border-[#2d3e5f] bg-white text-[#111f38]'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
               </div>
-            </Link>
+
+              {mobileList.length === 0 ? (
+                <div className="rounded-[8px] border border-[#d8dee8] bg-white p-8 text-center text-[#4a576f]">
+                  Không có sách để hiển thị.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {mobileList.map((book, index) => {
+                    const badge = BADGES[index % BADGES.length];
+                    const ctaClass = CTA_PRESET[index % CTA_PRESET.length];
+                    const cover = getPrimaryImage(book);
+                    const coverBg = MOBILE_COVER_BG[index % MOBILE_COVER_BG.length];
+                    return (
+                      <div key={book.id} className="grid grid-cols-[40%_60%] overflow-hidden rounded-[8px] border border-[#d7dde8] bg-white shadow-[0_10px_22px_-18px_rgba(8,20,48,0.75)]">
+                        <div className={`relative p-2 ${coverBg}`}>
+                          {cover && <img src={cover} alt={book.title} className="h-full w-full object-cover" referrerPolicy="no-referrer" />}
+                          <span className="public-meta absolute bottom-2 left-1/2 -translate-x-1/2 rounded-[6px] bg-[#0c2e64]/90 px-2 py-0.5 font-bold text-white">
+                            {mobileSecondaryBadge(badge.label)}
+                          </span>
+                        </div>
+                        <div className="p-2.5">
+                          <span className={`public-meta mb-1 inline-block rounded-[6px] px-2 py-0.5 font-bold ${badge.className}`}>{badge.label}</span>
+                          <p className="public-card-title public-article-title line-clamp-2">{book.title}</p>
+                          <p className="public-meta public-muted-text mb-1 line-clamp-2">
+                            {book.description || 'Tác phẩm chuyên sâu về chống lão hóa và chăm sóc sức khỏe.'}
+                          </p>
+                          <p className="public-meta public-gold-text">{'★'.repeat(5)}</p>
+                          <div className="mt-1 flex items-end justify-between gap-2">
+                            <p className="public-body public-gold-text font-bold leading-none">{formatPrice(book.price)}</p>
+                            <Link
+                              to={book.slug ? `/books/${book.slug}` : '/books'}
+                              className={`public-small rounded-[6px] px-3 py-1.5 font-bold text-white ${ctaClass}`}
+                            >
+                              MUA NGAY
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              <div className="mt-4 space-y-3">
+                {TRUST_BOOK_ITEMS.map(item => (
+                  <div key={item.title} className="rounded-[8px] border border-[#d7dde8] bg-white p-3 shadow-[0_8px_20px_-16px_rgba(7,32,70,0.7)]">
+                    <div className="mb-1 flex items-center gap-2">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-[6px] bg-[#f1f5fb] text-[#0e2f62]">
+                        <item.icon className="h-5 w-5" />
+                      </div>
+                      <p className="public-card-title public-article-title">{item.title}</p>
+                    </div>
+                    <p className="public-small public-muted-text">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </section>
 
-        {loading && <p className="text-center text-neutral-400 py-20">Đang tải...</p>}
-        {error && <p className="text-center text-red-500 py-20">{error}</p>}
-        {!loading && !error && filtered.length === 0 && (
-          <div className="bg-white border border-neutral-200 rounded-lg py-16 text-center text-neutral-500">
-            Không có sách phù hợp với bộ lọc hiện tại.
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filtered.map(book => (
-            <div key={book.id} className="h-full">
-              <BookCatalogCard book={bookToCardViewModel(book)} />
+        <section className="hidden md:block">
+          {loading && <p className="py-16 text-center text-neutral-500">Đang tải sách...</p>}
+          {error && <p className="py-16 text-center text-red-500">{error}</p>}
+          {!loading && !error && topBooks.length === 0 && (
+            <div className="rounded-[8px] border border-[#d8dee8] bg-white p-12 text-center text-[#4a576f]">
+              Không có sách để hiển thị.
             </div>
-          ))}
-        </div>
+          )}
 
-        <div className="mt-16 bg-[#0A3151] text-white rounded-3xl p-10 md:p-12 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl pointer-events-none" />
-          <div className="max-w-3xl">
-            <h2 className="public-lead-title">Theo dõi sách và tài liệu mới</h2>
-            <p className="public-body public-title-summary text-white/75">
-              Các đầu sách được cập nhật từ hệ thống Admin sau khi chuyển sang trạng thái xuất bản và có ảnh bìa chính.
-            </p>
-          </div>
-        </div>
+          {!loading && !error && topBooks.length > 0 && (
+            <>
+              <div className="mb-6 grid gap-4 lg:grid-cols-3">
+                {topBooks.map((book, index) => {
+                  const badge = BADGES[index % BADGES.length];
+                  const ctaClass = CTA_PRESET[index % CTA_PRESET.length];
+                  const cover = getPrimaryImage(book);
+                  return (
+                    <div key={book.id} className="overflow-hidden rounded-[8px] border border-[#d8dee7] bg-white shadow-[0_14px_26px_-20px_rgba(8,20,48,0.75)]">
+                      <div className="relative aspect-[4/3] bg-[linear-gradient(130deg,#f4f7fb_0%,#e9eef5_100%)] p-4">
+                        {cover && <img src={cover} alt={book.title} className="h-full w-full object-cover" referrerPolicy="no-referrer" />}
+                        <span className={`public-meta absolute right-3 top-3 rounded-[6px] px-3 py-1 font-bold ${badge.className}`}>{badge.label}</span>
+                      </div>
+                      <div className="p-4">
+                        <h3 className="public-card-title public-article-title mb-1 line-clamp-2">{book.title}</h3>
+                        <p className="public-small public-muted-text mb-1">{book.subtitle || 'Khoa học và thực hành'}</p>
+                        <p className="public-meta public-gold-text mb-1">{'★'.repeat(5)}</p>
+                        <p className="public-small public-muted-text mb-2 line-clamp-3">
+                          {book.description || 'Tác phẩm chuyên sâu về y học chống lão hóa và chăm sóc sức khỏe toàn diện.'}
+                        </p>
+                        <p className="public-body public-gold-text mb-3 font-bold leading-none">{formatPrice(book.price)}</p>
+                        <Link to={book.slug ? `/books/${book.slug}` : '/books'} className={`public-small block rounded-[6px] py-2 text-center font-bold text-white ${ctaClass}`}>
+                          MUA NGAY
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {featuredBook && (
+                <div className="overflow-hidden rounded-[8px] border border-[#d7dde8] bg-white shadow-[0_16px_28px_-20px_rgba(8,20,48,0.8)]">
+                  <div className="grid lg:grid-cols-[1.05fr_1fr]">
+                    <div className="aspect-[4/2.5] bg-[#e8edf5] p-4">
+                      {getPrimaryImage(featuredBook) && (
+                        <img
+                          src={getPrimaryImage(featuredBook)}
+                          alt={featuredBook.title}
+                          className="h-full w-full object-cover"
+                          referrerPolicy="no-referrer"
+                        />
+                      )}
+                    </div>
+                    <div className="p-5 lg:p-6">
+                      <p className="public-kicker public-gold-text mb-1">Sách nổi bật</p>
+                      <h3 className="public-section-title mb-2 text-[var(--public-ink)]">Bộ Sách Chống Lão Hóa Toàn Tập</h3>
+                      <p className="public-body public-muted-text mb-3">
+                        Bộ sách tổng hợp nền tảng y học chống lão hóa, giúp người đọc xây kế hoạch sống khỏe dài hạn.
+                      </p>
+                      <ul className="public-small mb-3 space-y-1 text-[var(--public-ink)]">
+                        <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4" /> Key hướng chống lão hóa</li>
+                        <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4" /> Tần suất thăm khám da</li>
+                        <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4" /> Dãy sách chống lão hóa</li>
+                      </ul>
+                      <div className="mb-4 flex items-end gap-2">
+                        <span className="public-small public-muted-text line-through">{formatPrice((featuredBook.price ?? 0) + 70000)}</span>
+                        <span className="public-lead-title public-gold-text font-bold">{formatPrice(featuredBook.price)}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <Link
+                          to={featuredBook.slug ? `/books/${featuredBook.slug}` : '/books'}
+                          className="public-small rounded-[6px] bg-[#0d2f66] px-4 py-2 font-bold text-white hover:bg-[#133d7a]"
+                        >
+                          ĐẶT MUA
+                        </Link>
+                        <Link
+                          to={featuredBook.slug ? `/books/${featuredBook.slug}` : '/books'}
+                          className="public-small rounded-[6px] border border-[#1f304f] px-4 py-2 font-bold text-[#1f304f] hover:bg-[#f5f7fb]"
+                        >
+                          Xem thêm
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {!loading && !error && topBooks.length > 0 && (
+            <section className="mt-5 grid grid-cols-3 gap-4">
+              {TRUST_BOOK_ITEMS.map(item => (
+                <div key={item.title} className="flex items-center gap-3 rounded-[8px] border border-[#d7dde8] bg-white px-4 py-3 shadow-[0_10px_24px_-20px_rgba(7,32,70,0.8)]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-[6px] bg-[#f1f5fb] text-[#0e2f62]">
+                    <item.icon className="h-5 w-5" />
+                  </div>
+                  <p className="public-card-title public-article-title">{item.title}</p>
+                </div>
+              ))}
+            </section>
+          )}
+        </section>
       </div>
     </div>
   );
