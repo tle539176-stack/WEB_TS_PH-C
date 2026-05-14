@@ -15,6 +15,31 @@ const navItems = [
   { name: 'Sản phẩm', path: '/products', icon: ShoppingBag },
 ];
 
+function BrandMark({ settings, siteNameDisplay }: { settings: SiteSettings; siteNameDisplay: string }) {
+  const logoText = (settings.logoText || DEFAULT_SETTINGS.logoText || 'DHP').trim().toUpperCase() === 'DP'
+    ? 'DHP'
+    : (settings.logoText || DEFAULT_SETTINGS.logoText || 'DHP');
+
+  return (
+    <>
+      <div className="public-navbar-logo public-text-blue flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden border border-[#c9a64a] bg-[#fbfaf4] font-serif text-[16px] font-bold tracking-[0.04em] text-[var(--public-navy)] shadow-[inset_0_0_0_2px_rgba(255,255,255,0.85)] transition-colors lg:h-12 lg:w-12 lg:text-[18px]">
+        {settings.logoImage
+          ? <img src={settings.logoImage} alt={siteNameDisplay} className="public-navbar-logo-image h-full w-full object-cover" referrerPolicy="no-referrer" />
+          : logoText
+        }
+      </div>
+      <div className="flex min-w-0 flex-col justify-center gap-[3.5px] lg:gap-1.5">
+        <span className="block max-w-full truncate text-[15.5px] font-bold uppercase leading-[1.12] text-white sm:text-[16.5px] lg:text-[17px]">
+          ĐẶNG HỮU PHÚC
+        </span>
+        <span className="public-gold-text block max-w-full truncate text-[13px] font-medium italic leading-[1.18] sm:text-[13.5px] lg:text-[14.5px]">
+          Tiến sĩ Chống lão hóa
+        </span>
+      </div>
+    </>
+  );
+}
+
 export default function Navbar() {
   const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS);
   const location = useLocation();
@@ -32,19 +57,14 @@ export default function Navbar() {
     >
       <div className="relative mx-auto flex h-full w-full max-w-7xl items-center justify-between gap-3 px-4 md:px-8">
         <Link to="/" className="group hidden min-w-0 flex-1 items-center gap-2 lg:flex">
-          <div className="public-navbar-logo public-text-blue h-8 w-8 shrink-0 bg-white flex items-center justify-center text-[var(--public-navy)] text-base font-bold transition-colors overflow-hidden md:h-10 md:w-10 md:text-xl">
-            {settings.logoImage
-              ? <img src={settings.logoImage} alt={siteNameDisplay} className="public-navbar-logo-image w-full h-full object-cover" referrerPolicy="no-referrer" />
-              : (settings.logoText || DEFAULT_SETTINGS.logoText)
-            }
-          </div>
-          <div className="flex min-w-0 items-center">
-            <span className="block max-w-full truncate text-[13px] font-bold text-white sm:text-sm md:text-lg">{siteNameDisplay}</span>
-          </div>
+          <BrandMark settings={settings} siteNameDisplay={siteNameDisplay} />
         </Link>
 
         {/* Mobile Nav */}
-        <div className="flex w-full items-center justify-between lg:hidden">
+        <div className="flex w-full items-center justify-between gap-3 lg:hidden">
+          <Link to="/" className="flex min-w-0 flex-1 items-center gap-2">
+            <BrandMark settings={settings} siteNameDisplay={siteNameDisplay} />
+          </Link>
           <Sheet>
             <SheetTrigger render={<Button variant="ghost" size="icon" className="h-11 w-11 text-white hover:bg-white/10 hover:text-white" />}>
               <Menu className="w-6 h-6" />
@@ -67,10 +87,6 @@ export default function Navbar() {
               </div>
             </SheetContent>
           </Sheet>
-          <Link to="/" className="absolute left-1/2 max-w-[52%] -translate-x-1/2 truncate text-center text-[13px] font-bold uppercase text-white">
-            {siteNameDisplay}
-          </Link>
-          <div className="h-11 w-11" aria-hidden="true" />
         </div>
 
         {/* Desktop Nav */}
