@@ -410,9 +410,29 @@ insert into settings (key, value) values
 on conflict (key) do nothing;
 `;
 
+const refreshAboutBodySql = `
+update settings
+set value = jsonb_set(
+      value,
+      '{aboutBody}',
+      to_jsonb($$Chào bạn, tôi là Tiến sĩ Đặng Hữu Phúc. Tôi sinh ra trong một gia đình có truyền thống y học lâu đời và là truyền nhân đời thứ 6 của dòng y Đặng Gia Đường. Trong quá trình học tập, nghiên cứu và thực hành lâm sàng, tôi theo đuổi định hướng kết hợp giữa y học cổ truyền và y học hiện đại, với trọng tâm chuyên sâu về chống lão hóa, y học dự phòng và chăm sóc sức khỏe chủ động.
+
+Tôi đặc biệt quan tâm đến các cơ chế nền tảng của lão hóa, chuyển hóa, viêm mạn tính và sự suy giảm chức năng cơ thể theo thời gian. Quan điểm chuyên môn của tôi là không chỉ điều trị triệu chứng, mà cần tiếp cận từ căn nguyên, tối ưu sức khỏe nội tại và nâng cao chất lượng sống một cách bền vững.
+
+Website này được xây dựng với mục tiêu chia sẻ những kiến thức y khoa chính thống, có cơ sở khoa học, được diễn đạt theo hướng dễ hiểu và có tính ứng dụng thực tiễn trong đời sống hằng ngày. Tôi tin rằng khi mỗi người hiểu đúng về cơ thể, về quá trình lão hóa và các yếu tố ảnh hưởng đến sức khỏe, chúng ta có thể chủ động phòng ngừa bệnh lý, làm chậm quá trình suy giảm sinh học và duy trì trạng thái khỏe mạnh lâu dài.$$::text),
+      true
+    ),
+    updated_at = now()
+where key = 'about'
+  and value ->> 'aboutBody' = $$Tiến sĩ Đặng Hữu Phúc xây dựng website này như một không gian chia sẻ kiến thức sức khỏe chính thống, dễ hiểu và có trách nhiệm cho cộng đồng. Nội dung được trình bày theo hướng giáo dục sức khỏe, giúp người đọc hiểu vấn đề, chuẩn bị câu hỏi phù hợp và trao đổi hiệu quả hơn với nhân viên y tế.
+
+Các bài viết, ghi chú, sách và tài liệu trên website ưu tiên tính rõ ràng, thận trọng và minh bạch nguồn tham khảo. Thông tin không thay thế chẩn đoán hoặc điều trị trực tiếp; khi có triệu chứng hoặc vấn đề sức khỏe cụ thể, người đọc nên tham khảo ý kiến bác sĩ hoặc cơ sở y tế phù hợp.$$;
+`;
+
 export async function runMigrations() {
   await query(schemaSql);
   await query(seedSettingsSql);
+  await query(refreshAboutBodySql);
   await query(seedAntiAgingNotesSql);
   await seedAdminUser();
 }
