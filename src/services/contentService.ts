@@ -369,6 +369,35 @@ export async function getProductBySlug(slug: string): Promise<ProductWithImages 
   return data as ProductWithImages;
 }
 
+export async function getRelatedNotes(
+  categoryId: string | null,
+  excludeNoteId: string,
+  limit = 3
+): Promise<NoteWithCategory[]> {
+  if (!supabase) return [];
+  let query = supabase
+    .from('notes')
+    .select('*, categories(*)')
+    .eq('status', 'published')
+    .neq('id', excludeNoteId)
+    .order('published_at', { ascending: false })
+    .limit(limit);
+  if (categoryId) query = query.eq('category_id', categoryId);
+  const { data } = await query;
+  return (data ?? []) as NoteWithCategory[];
+}
+
+export async function getRelatedProducts(limit = 4): Promise<ProductWithImages[]> {
+  if (!supabase) return [];
+  const { data } = await supabase
+    .from('products')
+    .select('*, product_images(*)')
+    .eq('status', 'published')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  return (data ?? []) as ProductWithImages[];
+}
+
 export async function getAllNotes(): Promise<Note[]> {
   assertSupabase(supabase);
   const { data, error } = await supabase

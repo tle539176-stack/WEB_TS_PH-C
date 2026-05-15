@@ -98,6 +98,9 @@ function buildFilter(filter, parts, params) {
     case 'eq':
       addWhere(parts, params, `${column} =`, filter.value);
       break;
+    case 'neq':
+      addWhere(parts, params, `${column} !=`, filter.value);
+      break;
     case 'lte':
       addWhere(parts, params, `${column} <=`, filter.value);
       break;

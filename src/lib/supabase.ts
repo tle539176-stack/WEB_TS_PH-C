@@ -105,6 +105,10 @@ class QueryBuilder<T = unknown> implements PromiseLike<QueryResult<T>> {
     return this.addFilter({ operator: 'eq', column, value });
   }
 
+  neq(column: string, value: unknown): this {
+    return this.addFilter({ operator: 'neq', column, value });
+  }
+
   lte(column: string, value: unknown): this {
     return this.addFilter({ operator: 'lte', column, value });
   }

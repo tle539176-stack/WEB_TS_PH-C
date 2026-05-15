@@ -1,22 +1,25 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { ArrowLeft, Calendar, Clock, Share2, ShieldCheck, UserCheck } from 'lucide-react';
+import { ArrowLeft, ChevronRight, ShoppingBag, UserCheck } from 'lucide-react';
 import DOMPurify from 'dompurify';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { getNoteBySlug } from '@/services/contentService';
+import { getNoteBySlug, getRelatedNotes, getRelatedProducts } from '@/services/contentService';
 import { buildMedicalWebPageJsonLd } from '@/lib/structuredData';
-import type { NoteWithMedicalMeta } from '@/types/database';
+import type { NoteWithMedicalMeta, NoteWithCategory, ProductWithImages } from '@/types/database';
 
 function formatDate(dateStr: string | null | undefined): string {
   if (!dateStr) return '';
   return new Date(dateStr).toLocaleDateString('vi-VN');
 }
 
-function formatDateLong(dateStr: string | null | undefined): string {
-  if (!dateStr) return '';
-  return new Date(dateStr).toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' });
+function getPrimaryImage(product: ProductWithImages): string {
+  return product.product_images.find(img => img.is_primary)?.url ?? product.product_images[0]?.url ?? '';
+}
+
+function formatPrice(price: number | null): string {
+  if (price == null) return 'Liên hệ';
+  return `${price.toLocaleString('vi-VN')}đ`;
 }
 
 export default function NoteDetail() {
@@ -24,24 +27,43 @@ export default function NoteDetail() {
   const [note, setNote] = useState<NoteWithMedicalMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [relatedNotes, setRelatedNotes] = useState<NoteWithCategory[]>([]);
+  const [relatedProducts, setRelatedProducts] = useState<ProductWithImages[]>([]);
 
   useEffect(() => {
     if (!slug) { setNotFound(true); setLoading(false); return; }
     getNoteBySlug(slug)
-      .then(data => { if (!data) setNotFound(true); else setNote(data); })
+      .then(data => {
+        if (!data) { setNotFound(true); return; }
+        setNote(data);
+        // Fetch related content in parallel
+        Promise.all([
+          getRelatedNotes(data.category_id, data.id, 3),
+          getRelatedProducts(4),
+        ]).then(([notes, products]) => {
+          setRelatedNotes(notes);
+          setRelatedProducts(products);
+        });
+      })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
   }, [slug]);
 
   if (loading) {
-    return <div className="pt-40 pb-24 text-center text-neutral-400">Đang tải...</div>;
+    return (
+      <div className="pt-40 pb-24 text-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0A3151] mx-auto" />
+      </div>
+    );
   }
 
   if (notFound || !note) {
     return (
       <div className="pt-40 pb-24 text-center">
         <h2 className="public-lead-title mb-4">Không tìm thấy bài viết</h2>
-        <Link to="/notes"><Button variant="outline">Quay lại danh sách</Button></Link>
+        <Link to="/notes" className="inline-flex items-center gap-2 text-[#0A3151] hover:underline public-small font-medium">
+          <ArrowLeft className="w-4 h-4" /> Quay lại danh sách
+        </Link>
       </div>
     );
   }
@@ -66,13 +88,10 @@ export default function NoteDetail() {
       }));
 
   const jsonLd = buildMedicalWebPageJsonLd(note);
-
-  const reviewerPerson = note.reviewer;
-  const authorPerson = note.author;
   const pageContainerClass = 'mx-auto w-full max-w-7xl px-4 md:px-8';
 
   return (
-    <div className="pt-32 pb-24 bg-white">
+    <div className="pt-28 pb-24 bg-white md:pt-32">
       {/* JSON-LD structured data */}
       <script
         type="application/ld+json"
@@ -80,104 +99,44 @@ export default function NoteDetail() {
       />
 
       <div className={pageContainerClass}>
-        <div className="max-w-4xl mx-auto">
-          <Link to="/notes" className="inline-flex items-center gap-2 text-neutral-500 hover:text-[#0A3151] transition-colors mb-12 group">
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            Quay lại danh sách
-          </Link>
+        <div className="max-w-6xl mx-auto">
+          {/* Breadcrumb */}
+          <nav className="public-meta flex items-center gap-1.5 mb-8 flex-wrap">
+            <Link to="/" className="hover:text-[#2F6F5E] transition-colors">Trang chủ</Link>
+            <ChevronRight className="w-3.5 h-3.5 opacity-40 shrink-0" />
+            <Link to="/notes" className="hover:text-[#2F6F5E] transition-colors">Bộ Ghi Chú</Link>
+            <ChevronRight className="w-3.5 h-3.5 opacity-40 shrink-0" />
+            <span className="opacity-60 line-clamp-1">{note.title}</span>
+          </nav>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="space-y-8"
           >
-            <div className="space-y-6">
+            {/* Header: Category + Title */}
+            <div className="space-y-4 max-w-4xl">
               {note.categories?.name && (
-                <Badge className="bg-[#0A3151]/10 text-[#0A3151] hover:bg-[#0A3151]/20 border-none px-4 py-1 rounded-full shadow-sm">
+                <Badge className="bg-[#0A3151]/10 text-[#0A3151] hover:bg-[#0A3151]/20 border-none px-4 py-1 shadow-sm">
                   {note.categories.name}
                 </Badge>
               )}
               <h1 className="public-section-title public-article-title">
                 {note.title}
               </h1>
-
-              {/* Meta bar */}
-              <div className="public-small flex flex-wrap items-center gap-6 border-y border-neutral-100 py-4 text-neutral-500">
-                {/* Author or reviewer avatar */}
-                <div className="flex items-center gap-3">
-                  <div className="public-small flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-neutral-200 font-bold text-neutral-500 shadow-sm">
-                    {authorPerson
-                      ? authorPerson.display_name[0].toUpperCase()
-                      : reviewerPerson
-                        ? reviewerPerson.display_name[0].toUpperCase()
-                        : 'Dr'}
-                  </div>
-                  <div>
-                    {authorPerson && (
-                    <p className="public-small font-bold text-[#1A1A1A]">{authorPerson.display_name}</p>
-                    )}
-                    {authorPerson?.professional_title && (
-                      <p className="public-meta text-neutral-400">{authorPerson.professional_title}</p>
-                    )}
-                    {!authorPerson && reviewerPerson && (
-                      <p className="public-small font-bold text-[#1A1A1A]">{reviewerPerson.display_name}</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 bg-neutral-50 px-3 py-1.5 rounded-full">
-                  <Calendar className="w-4 h-4 text-neutral-400" />
-                  {formatDate(note.published_at)}
-                </div>
-                {note.read_time && (
-                  <div className="flex items-center gap-2 bg-neutral-50 px-3 py-1.5 rounded-full">
-                    <Clock className="w-4 h-4 text-neutral-400" />
-                    {note.read_time} đọc
-                  </div>
-                )}
-                <Button variant="outline" size="sm" className="w-full gap-2 text-neutral-600 rounded-full hover:bg-neutral-50 sm:ml-auto sm:w-auto">
-                  <Share2 className="w-4 h-4" /> Chia sẻ bài viết
-                </Button>
-              </div>
-
-              {/* Medical review info bar */}
-              {(reviewerPerson || note.reviewed_at) && (
-                <div className="public-meta flex flex-wrap items-center gap-4 rounded-xl border border-[#0A3151]/10 bg-[#0A3151]/5 px-5 py-3">
-                  <ShieldCheck className="w-4 h-4 text-[#0A3151] shrink-0" />
-                  {reviewerPerson && (
-                    <div>
-                      <span className="text-neutral-500">Reviewer y tế: </span>
-                      <span className="font-bold text-[#0A3151]">{reviewerPerson.display_name}</span>
-                      {reviewerPerson.credentials && <span className="text-neutral-500 ml-1">({reviewerPerson.credentials})</span>}
-                      {reviewerPerson.professional_title && <span className="text-neutral-400 ml-1">· {reviewerPerson.professional_title}</span>}
-                    </div>
-                  )}
-                  {note.reviewed_at && (
-                    <div>
-                      <span className="text-neutral-500">Ngày review: </span>
-                      <span className="font-medium text-neutral-700">{formatDateLong(note.reviewed_at)}</span>
-                    </div>
-                  )}
-                  {note.next_review_at && (
-                    <div>
-                      <span className="text-neutral-500">Review tiếp theo: </span>
-                      <span className={`font-medium ${new Date(note.next_review_at) < new Date() ? 'text-red-600' : 'text-neutral-700'}`}>
-                        {formatDateLong(note.next_review_at)}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
 
+            {/* Cover Image */}
             {note.cover_image_url && (
-              <div className="overflow-hidden rounded-3xl border border-neutral-100 shadow-xl aspect-[4/3] md:aspect-[21/9]">
+              <div className="overflow-hidden border border-neutral-100 shadow-xl aspect-[16/9] md:aspect-[21/9]">
                 <img src={note.cover_image_url} alt={note.cover_alt || note.title} className="w-full h-full object-cover" />
               </div>
             )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 pt-8">
-              <div className="lg:col-span-3">
+            {/* Main grid: Content + Sidebar */}
+            <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] gap-10 pt-4">
+              {/* LEFT: Article Content */}
+              <div>
                 {note.content ? (
                   <div
                     className="prose prose-neutral public-body public-muted-text max-w-none"
@@ -187,11 +146,12 @@ export default function NoteDetail() {
                   <p className="text-neutral-400 italic">Chưa có nội dung.</p>
                 )}
 
-                <div className="mt-16 p-8 bg-neutral-50 rounded-3xl border border-neutral-100 relative">
-                  <div className="absolute top-0 left-8 -translate-y-1/2 w-12 h-12 bg-[#0A3151] rounded-2xl flex items-center justify-center shadow-lg">
-                    <span className="text-white text-4xl font-serif leading-none mt-4">"</span>
+                {/* Doctor's advice quote */}
+                <div className="mt-14 p-8 bg-[#0A3151]/5 border-l-4 border-[#0A3151] relative">
+                  <div className="absolute top-0 left-6 -translate-y-1/2 w-10 h-10 bg-[#0A3151] flex items-center justify-center shadow-lg">
+                    <span className="text-white text-3xl font-serif leading-none mt-3">"</span>
                   </div>
-                  <h3 className="public-card-title">Lời khuyên từ Bác sĩ:</h3>
+                  <h3 className="public-card-title mb-2">Lời khuyên từ Bác sĩ:</h3>
                   <p className="public-body public-muted-text public-title-summary italic">
                     "Sức khỏe không phải là thứ chúng ta có thể mua được, nhưng nó là một tài khoản tiết kiệm vô cùng quý giá. Hãy bắt đầu chăm sóc nó ngay từ hôm nay bằng những thói quen nhỏ nhất."
                   </p>
@@ -199,7 +159,7 @@ export default function NoteDetail() {
 
                 {/* References section */}
                 {displaySources.length > 0 && (
-                  <div className="mt-8 p-8 bg-white rounded-3xl border border-neutral-100 shadow-sm">
+                  <div className="mt-8 p-8 bg-white border border-neutral-100 shadow-sm">
                     <h3 className="public-card-title mb-5 text-[#0A3151]">Tài liệu tham khảo</h3>
                     <ol className="space-y-4 list-decimal list-outside ml-5">
                       {displaySources.map((src, i) => (
@@ -231,11 +191,6 @@ export default function NoteDetail() {
                                 </a>
                               )}
                               {src.accessed_at && <span>Truy cập: {src.accessed_at}</span>}
-                              {src.evidence_level && src.evidence_level !== 'unknown' && (
-                                <span className="public-meta rounded bg-blue-50 px-1.5 py-0.5 font-bold uppercase text-blue-600">
-                                  {src.evidence_level}
-                                </span>
-                              )}
                             </div>
                           </div>
                         </li>
@@ -245,7 +200,7 @@ export default function NoteDetail() {
                 )}
 
                 {/* Medical disclaimer */}
-                <div className="mt-8 p-6 bg-amber-50 border border-amber-200 rounded-2xl">
+                <div className="mt-8 p-5 bg-amber-50 border border-amber-200">
                   <div className="flex items-start gap-3">
                     <UserCheck className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                     <div className="public-small space-y-1 text-amber-900">
@@ -254,24 +209,143 @@ export default function NoteDetail() {
                         Nội dung bài viết chỉ mang tính chất thông tin giáo dục sức khỏe, không thay thế lời khuyên y tế, chẩn đoán hoặc điều trị từ bác sĩ có chuyên môn.
                         Vui lòng tham khảo ý kiến bác sĩ trước khi đưa ra quyết định về sức khỏe.
                       </p>
-                      {reviewerPerson && (
-                        <p className="public-meta mt-2 text-amber-700">
-                          Bài viết này đã được review bởi <strong>{reviewerPerson.display_name}</strong>
-                          {reviewerPerson.credentials ? ` (${reviewerPerson.credentials})` : ''}
-                          {note.reviewed_at ? ` vào ${formatDateLong(note.reviewed_at)}` : ''}.
-                        </p>
-                      )}
                     </div>
                   </div>
                 </div>
+
+                {/* Mobile: Related Products (horizontal scroll) */}
+                {relatedProducts.length > 0 && (
+                  <div className="mt-10 lg:hidden">
+                    <h3 className="public-card-title uppercase text-[#0A3151] mb-1.5">Sản phẩm liên quan</h3>
+                    <div className="h-[3px] w-12 bg-[#C79A3D] mb-5" />
+                    <div className="flex gap-4 overflow-x-auto pb-3 -mx-4 px-4 snap-x snap-mandatory">
+                      {relatedProducts.map(product => {
+                        const image = getPrimaryImage(product);
+                        return (
+                          <Link
+                            key={product.id}
+                            to={`/products/${product.slug}`}
+                            className="group flex-none w-[200px] snap-start border border-[var(--public-border)] bg-white shadow-sm hover:shadow-md transition-shadow"
+                          >
+                            <div className="aspect-[4/3] overflow-hidden bg-[linear-gradient(160deg,#f6f8fb_0%,#e9edf4_100%)]">
+                              {image ? (
+                                <img src={image} alt={product.name} className="h-full w-full object-contain p-2" referrerPolicy="no-referrer" />
+                              ) : (
+                                <div className="flex h-full items-center justify-center text-neutral-300">
+                                  <ShoppingBag className="h-8 w-8" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="p-3">
+                              <p className="public-compact-title public-article-title line-clamp-2 mb-1">{product.name}</p>
+                              <p className="public-meta public-muted-text mb-1">{product.brand || 'Dr. Phuc Collection'}</p>
+                              <p className="public-small font-bold text-[#0A3151]">{formatPrice(product.price)}</p>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Mobile: Related Notes */}
+                {relatedNotes.length > 0 && (
+                  <div className="mt-10 lg:hidden">
+                    <h3 className="public-card-title uppercase text-[#0A3151] mb-1.5">Bài viết liên quan</h3>
+                    <div className="h-[3px] w-12 bg-[#C79A3D] mb-5" />
+                    <div className="space-y-4">
+                      {relatedNotes.map(related => (
+                        <Link
+                          key={related.id}
+                          to={`/notes/${related.slug}`}
+                          className="group grid grid-cols-[68px_minmax(0,1fr)] gap-3 border-b border-[var(--public-border)] pb-4 last:border-b-0 last:pb-0"
+                        >
+                          <div className="aspect-[4/3] overflow-hidden bg-[var(--public-warm-ivory)]">
+                            {related.cover_image_url && (
+                              <img src={related.cover_image_url} alt={related.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" referrerPolicy="no-referrer" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="public-compact-title public-article-title line-clamp-2 transition-colors">{related.title}</h4>
+                            <p className="public-meta public-muted-text mt-1">{formatDate(related.published_at)}</p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div className="space-y-10">
-                <section>
-                  <h3 className="public-card-title border-b border-neutral-100 pb-2">Bài viết liên quan</h3>
-                  <p className="public-small public-title-summary text-neutral-400">Đang cập nhật...</p>
-                </section>
-              </div>
+              {/* RIGHT: Sidebar (desktop only) */}
+              <aside className="hidden lg:block">
+                <div className="sticky top-28 space-y-8">
+                  {/* Related Products */}
+                  {relatedProducts.length > 0 && (
+                    <section className="border border-[var(--public-border)] bg-white p-5 shadow-[0_22px_48px_-34px_rgba(10,49,81,0.35)]">
+                      <h3 className="public-card-title uppercase text-[#0A3151] mb-1.5">Sản phẩm liên quan</h3>
+                      <div className="h-[3px] w-12 bg-[#C79A3D] mb-5" />
+                      <div className="space-y-4">
+                        {relatedProducts.slice(0, 2).map(product => {
+                          const image = getPrimaryImage(product);
+                          return (
+                            <Link
+                              key={product.id}
+                              to={`/products/${product.slug}`}
+                              className="group block border border-[var(--public-border)] bg-white hover:shadow-md transition-shadow"
+                            >
+                              <div className="aspect-[4/3] overflow-hidden bg-[linear-gradient(160deg,#f6f8fb_0%,#e9edf4_100%)]">
+                                {image ? (
+                                  <img src={image} alt={product.name} className="h-full w-full object-contain p-3 transition-transform duration-500 group-hover:scale-[1.03]" referrerPolicy="no-referrer" />
+                                ) : (
+                                  <div className="flex h-full items-center justify-center text-neutral-300">
+                                    <ShoppingBag className="h-8 w-8" />
+                                  </div>
+                                )}
+                              </div>
+                              <div className="p-3.5">
+                                <p className="public-card-title public-article-title line-clamp-2 mb-1">{product.name}</p>
+                                <p className="public-meta public-muted-text mb-1">{product.brand || 'Dr. Phuc Collection'}</p>
+                                <p className="public-meta public-gold-text mb-2">{'★'.repeat(5)} <span className="public-muted-text">(4.8)</span></p>
+                                <p className="public-small font-bold text-[#0A3151] mb-3">{formatPrice(product.price)}</p>
+                                <span className="block text-center public-small font-bold text-white bg-[#0A3151] hover:bg-[#0A3151]/90 px-4 py-2.5 transition-colors">
+                                  Xem chi tiết
+                                </span>
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  )}
+
+                  {/* Related Notes */}
+                  {relatedNotes.length > 0 && (
+                    <section className="border border-[var(--public-border)] bg-white p-5 shadow-[0_22px_48px_-34px_rgba(10,49,81,0.35)]">
+                      <h3 className="public-card-title uppercase text-[#0A3151] mb-1.5">Bài viết liên quan</h3>
+                      <div className="h-[3px] w-12 bg-[#C79A3D] mb-5" />
+                      <div className="space-y-4">
+                        {relatedNotes.map(related => (
+                          <Link
+                            key={related.id}
+                            to={`/notes/${related.slug}`}
+                            className="group grid grid-cols-[68px_minmax(0,1fr)] gap-3 border-b border-[var(--public-border)] pb-4 last:border-b-0 last:pb-0"
+                          >
+                            <div className="aspect-[4/3] overflow-hidden bg-[var(--public-warm-ivory)]">
+                              {related.cover_image_url && (
+                                <img src={related.cover_image_url} alt={related.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" referrerPolicy="no-referrer" />
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="public-compact-title public-article-title line-clamp-2 transition-colors">{related.title}</h4>
+                              <p className="public-meta public-muted-text mt-1">{formatDate(related.published_at)}</p>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </section>
+                  )}
+                </div>
+              </aside>
             </div>
           </motion.div>
         </div>
