@@ -204,6 +204,11 @@
     font-family: var(--public-body-font) !important;
   }
 
+  /* Allow white text on dark-background sections */
+  .public-site .public-on-blue :where(h1, h2, h3, h4, h5, h6, p, span, a, li, label, small, strong, em, button, figcaption, blockquote, td, th, div) {
+    color: inherit !important;
+  }
+
   .public-site :where(h1, h2, h3, h4, h5, h6, h1 *, h2 *, h3 *, h4 *, h5 *, h6 *) {
     font-family: var(--public-heading-font) !important;
   }

@@ -263,8 +263,8 @@ export default function Home() {
                 </p>
               </div>
 
-              <a href="#bo-ghi-chu" className="public-hero-cta group inline-flex items-center gap-2 bg-[#0b4c86] px-5.5 py-4 text-[13px] font-bold uppercase tracking-[0.04em] text-white shadow-[0_14px_30px_-18px_rgba(0,0,0,0.9)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#155d9d] hover:shadow-[0_18px_34px_-18px_rgba(0,0,0,1)] md:px-7 md:text-sm">
-                ĐẶT HẸN TƯ VẤN NGAY
+              <a href="/about#gioi-thieu" className="public-hero-cta group inline-flex items-center gap-2 bg-[#0b4c86] px-5.5 py-4 text-[13px] font-bold uppercase tracking-[0.04em] text-white shadow-[0_14px_30px_-18px_rgba(0,0,0,0.9)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#155d9d] hover:shadow-[0_18px_34px_-18px_rgba(0,0,0,1)] md:px-7 md:text-sm">
+                XEM THÊM THÔNG TIN
                 <ArrowRight className="h-[18px] w-[18px] transition-transform group-hover:translate-x-1" />
               </a>
             </div>

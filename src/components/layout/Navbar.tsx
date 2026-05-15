@@ -69,18 +69,18 @@ export default function Navbar() {
             <SheetTrigger render={<Button variant="ghost" size="icon" className="h-11 w-11 text-white hover:bg-white/10 hover:text-white" />}>
               <Menu className="w-6 h-6" />
             </SheetTrigger>
-            <SheetContent side="left" className="public-site w-[300px] bg-white text-[var(--public-navy)] sm:w-[360px]">
-              <div className="flex flex-col gap-8 mt-12">
+            <SheetContent side="right" className="public-site w-[300px] max-w-[82vw] bg-white text-[var(--public-navy)] sm:w-[360px]">
+              <div className="mt-12 flex flex-col gap-1">
                 {navItems.map((item) => (
                   <Link
                     key={item.name}
                     to={item.path}
                     className={cn(
-                      'flex min-h-12 items-center gap-4 p-3 text-lg font-medium transition-colors',
+                      'flex min-h-11 items-center gap-3 px-4 py-3 text-base font-medium transition-colors',
                       location.pathname === item.path ? 'bg-[var(--public-warm-ivory)] text-[var(--public-navy)]' : 'text-neutral-500 hover:bg-[var(--public-warm-ivory)]'
                     )}
                   >
-                    <item.icon className="w-5 h-5" />
+                    <item.icon className="h-[18px] w-[18px]" />
                     {item.name}
                   </Link>
                 ))}

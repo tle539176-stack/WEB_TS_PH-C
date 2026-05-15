@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { ArrowLeft, ChevronRight, ShoppingBag, UserCheck } from 'lucide-react';
+import { ArrowLeft, ChevronRight, ShoppingBag } from 'lucide-react';
 import DOMPurify from 'dompurify';
 import { Badge } from '@/components/ui/badge';
 import { getNoteBySlug, getRelatedNotes, getRelatedProducts } from '@/services/contentService';
@@ -198,20 +198,6 @@ export default function NoteDetail() {
                     </ol>
                   </div>
                 )}
-
-                {/* Medical disclaimer */}
-                <div className="mt-8 p-5 bg-amber-50 border border-amber-200">
-                  <div className="flex items-start gap-3">
-                    <UserCheck className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-                    <div className="public-small space-y-1 text-amber-900">
-                      <p className="font-bold">Tuyên bố miễn trách y tế</p>
-                      <p className="leading-relaxed text-amber-800">
-                        Nội dung bài viết chỉ mang tính chất thông tin giáo dục sức khỏe, không thay thế lời khuyên y tế, chẩn đoán hoặc điều trị từ bác sĩ có chuyên môn.
-                        Vui lòng tham khảo ý kiến bác sĩ trước khi đưa ra quyết định về sức khỏe.
-                      </p>
-                    </div>
-                  </div>
-                </div>
 
                 {/* Mobile: Related Products (horizontal scroll) */}
                 {relatedProducts.length > 0 && (
